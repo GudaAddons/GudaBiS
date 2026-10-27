@@ -89,7 +89,11 @@ local function NewFrame(name)
     function frame:CreateAnimationGroup()
         local group = NewFrame()
         function group:CreateAnimation() return NewFrame() end
-        function group:Play() self.playing = true end
+        function group:Play()
+            self.playing = true
+            local finished = self.scripts.OnFinished
+            if finished then finished(self) end
+        end
         function group:Stop() self.playing = false end
         return group
     end

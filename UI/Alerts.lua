@@ -8,14 +8,20 @@
 --                                            (author, 2026-10-28: green text alone was
 --                                            hard to see)
 --   Alerts:ClearBadge(frame)
---   Alerts:Dropped(link, match)              "Your BiS dropped!" toast, 15 s
---   Alerts:Rolling(link, match, seconds)     "Rolling now" popup with MS (1-100) and
+--   Alerts:Dropped(link, match)              "Your BiS dropped!" card, 15 s
+--   Alerts:Rolling(link, match, seconds)     "Rolling now" card with MS (1-100) and
 --                                            OS (1-99) buttons and a countdown; only when
 --                                            no other addon shows its own roll window
 --   Alerts:Sound()
 --
--- Frames are built on first use. The popup never rolls by itself: RandomRoll runs only
--- from the player's click (RULES.md Rule 4).
+-- Both cards share one look (author, 2026-10-28: "more fancy", a close button on the
+-- drop card): gold-bordered, they fade and scale in with a light burst behind the item,
+-- the item icon carries the proc glow, the item name and its slot (the game's own slot
+-- names) sit under a large title, a gold bar along the bottom drains over the time left,
+-- and they fade out. Every effect is a client animation; nothing runs per frame.
+--
+-- Frames are built on first use. The roll card never rolls by itself: RandomRoll runs
+-- only from the player's click (RULES.md Rule 4).
 
 local addonName, ns = ...
 local L = ns.L
@@ -27,10 +33,20 @@ local GetItemInfoInstant = ns.GetItemInfoInstant
 
 local TOAST_SECONDS = 15
 local DEFAULT_ROLL_SECONDS = 30
-local ROLE_COLORS = { ms = { 0.25, 1, 0.25 }, os = { 0.25, 0.75, 1 } }
 local BADGE_COLORS = { ms = { 1, 1, 1 }, os = { 0.55, 0.85, 1 } }
+local TITLE_COLORS = { ms = { 1, 0.82, 0 }, os = { 0.55, 0.85, 1 } }
 local BADGE_PADDING = 18
 local RAID_WARNING_SOUND = 8959
+
+local ALERT_ART = "Interface\\SpellActivationOverlay\\IconAlert"
+local SPARK_COORDS = { 0.00781250, 0.61718750, 0.00390625, 0.26953125 }
+
+local SLOT_LABELS = {
+    [1] = "HEADSLOT", [2] = "NECKSLOT", [3] = "SHOULDERSLOT", [15] = "BACKSLOT", [5] = "CHESTSLOT",
+    [9] = "WRISTSLOT", [10] = "HANDSSLOT", [6] = "WAISTSLOT", [7] = "LEGSSLOT", [8] = "FEETSLOT",
+    [11] = "FINGER0SLOT", [12] = "FINGER1SLOT", [13] = "TRINKET0SLOT", [14] = "TRINKET1SLOT",
+    [16] = "MAINHANDSLOT", [17] = "SECONDARYHANDSLOT", [18] = "RANGEDSLOT",
+}
 
 local function Setting(key)
     local alerts = ns.db and ns.db.settings.alerts
@@ -109,6 +125,15 @@ local function ItemIcon(link)
     return icon
 end
 
+local function ItemName(link)
+    local name, _, quality = GetItemInfo(link)
+    if name then
+        local r, g, b = ns.Items.QualityColor(quality)
+        return name, r, g, b
+    end
+    return link:match("%[(.-)%]") or link, 1, 1, 1
+end
+
 local function ShowLinkTooltip(self)
     if not self.link then return end
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
@@ -127,51 +152,146 @@ local function ItemButton(parent, size)
     return button
 end
 
+-- A scale animation from one scale to another on any client: SetScaleFrom/To where
+-- the client has them, else the older relative SetScale.
+local function ScaleAnim(group, target, from, to, duration, origin)
+    local anim = group:CreateAnimation("Scale")
+    anim:SetTarget(target)
+    if anim.SetScaleFrom then
+        anim:SetScaleFrom(from[1], from[2])
+        anim:SetScaleTo(to[1], to[2])
+    else
+        anim:SetScale(to[1] / from[1], to[2] / from[2])
+    end
+    anim:SetDuration(duration)
+    if origin then anim:SetOrigin(origin, 0, 0) end
+    return anim
+end
+
+local function AlphaAnim(group, target, from, to, duration, order)
+    local anim = group:CreateAnimation("Alpha")
+    anim:SetTarget(target)
+    anim:SetFromAlpha(from)
+    anim:SetToAlpha(to)
+    anim:SetDuration(duration)
+    if order then anim:SetOrder(order) end
+    return anim
+end
+
+local methods = {}
+
+-- Shows the card for `seconds`: entrance, light burst, glowing icon, draining bar.
+function methods:Present(seconds)
+    self.exit:Stop()
+    self:SetAlpha(1)
+    self:Show()
+    self.entrance:Play()
+    self.burst:Play()
+    self.barTime:SetDuration(seconds)
+    self.drain:Play()
+    ns.Glow.Show(self.item)
+end
+
+-- Fades the card out, then hides it.
+function methods:Dismiss()
+    if not self:IsShown() then return end
+    self.exit:Play()
+end
+
+local function Card(name, width, height, strata)
+    local card = ns.Theme.Popup("Frame", name, UIParent)
+    for key, fn in pairs(methods) do card[key] = fn end
+    card:SetSize(width, height)
+    card:SetFrameStrata(strata)
+    card:EnableMouse(true)
+    card:SetBackdropBorderColor(1, 0.82, 0, 1)
+    card:Hide()
+
+    card.item = ItemButton(card, 44)
+    card.item:SetPoint("TOPLEFT", 16, -16)
+
+    local spark = card:CreateTexture(nil, "BORDER")
+    spark:SetTexture(ALERT_ART)
+    spark:SetTexCoord(SPARK_COORDS[1], SPARK_COORDS[2], SPARK_COORDS[3], SPARK_COORDS[4])
+    spark:SetBlendMode("ADD")
+    spark:SetSize(120, 120)
+    spark:SetPoint("CENTER", card.item, "CENTER")
+    spark:SetAlpha(0)
+
+    card.title = card:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    card.title:SetPoint("TOPLEFT", card.item, "TOPRIGHT", 12, -1)
+    card.title:SetPoint("RIGHT", -30, 0)
+    card.title:SetJustifyH("LEFT")
+    card.title:SetWordWrap(false)
+    card.name = card:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    card.name:SetPoint("TOPLEFT", card.title, "BOTTOMLEFT", 0, -4)
+    card.name:SetPoint("RIGHT", -16, 0)
+    card.name:SetJustifyH("LEFT")
+    card.name:SetWordWrap(false)
+    card.slot = card:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+    card.slot:SetPoint("TOPLEFT", card.name, "BOTTOMLEFT", 0, -3)
+
+    local bar = card:CreateTexture(nil, "ARTWORK")
+    bar:SetColorTexture(1, 0.82, 0, 0.9)
+    bar:SetHeight(3)
+    bar:SetPoint("BOTTOMLEFT", 6, 6)
+    bar:SetPoint("BOTTOMRIGHT", -6, 6)
+    card.bar = bar
+
+    local close = CreateFrame("Button", nil, card, "UIPanelCloseButton")
+    close:SetPoint("TOPRIGHT", -2, -2)
+    close:SetScript("OnClick", function() card:Dismiss() end)
+    card.close = close
+
+    card.entrance = card:CreateAnimationGroup()
+    AlphaAnim(card.entrance, card, 0, 1, 0.25)
+    ScaleAnim(card.entrance, card, { 0.85, 0.85 }, { 1, 1 }, 0.25)
+
+    card.burst = card:CreateAnimationGroup()
+    AlphaAnim(card.burst, spark, 0, 1, 0.15, 1)
+    AlphaAnim(card.burst, spark, 1, 0, 0.6, 2)
+    ScaleAnim(card.burst, spark, { 0.5, 0.5 }, { 1.4, 1.4 }, 0.75)
+
+    card.drain = card:CreateAnimationGroup()
+    card.barTime = ScaleAnim(card.drain, bar, { 1, 1 }, { 0.001, 1 }, TOAST_SECONDS, "LEFT")
+
+    card.exit = card:CreateAnimationGroup()
+    AlphaAnim(card.exit, card, 1, 0, 0.4)
+    card.exit:SetScript("OnFinished", function() card:Hide() end)
+
+    card:SetScript("OnHide", function()
+        card.drain:Stop()
+        ns.Glow.Hide(card.item)
+    end)
+    return card
+end
+
+local function Fill(card, link, match, titleKey)
+    local color = TITLE_COLORS[match.role]
+    card.title:SetText(string.format(L[titleKey], ns.Match.Label(match)))
+    card.title:SetTextColor(color[1], color[2], color[3])
+    local name, r, g, b = ItemName(link)
+    card.name:SetText(name)
+    card.name:SetTextColor(r, g, b)
+    local slotKey = SLOT_LABELS[match.slot]
+    card.slot:SetText(slotKey and _G[slotKey] or "")
+    card.item.link = link
+    card.item.icon:SetTexture(ItemIcon(link))
+end
+
 local toast
 
-local function CreateToast()
-    toast = ns.Theme.Popup("Frame", "GudaBiSDropToast", UIParent)
-    toast:SetSize(300, 52)
-    toast:SetPoint("TOP", 0, -150)
-    toast:SetFrameStrata("HIGH")
-    toast:Hide()
-    toast.item = ItemButton(toast, 34)
-    toast.item:SetPoint("LEFT", 10, 0)
-    toast.title = toast:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    toast.title:SetPoint("TOPLEFT", toast.item, "TOPRIGHT", 8, -1)
-    toast.name = toast:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    toast.name:SetPoint("TOPLEFT", toast.title, "BOTTOMLEFT", 0, -3)
-    toast.name:SetPoint("RIGHT", -10, 0)
-    toast.name:SetJustifyH("LEFT")
-    toast.name:SetWordWrap(false)
-    toast:SetScript("OnHide", function() ns.Glow.Hide(toast.item) end)
-end
-
-local function ItemName(link)
-    local name, _, quality = GetItemInfo(link)
-    if name then
-        local r, g, b = ns.Items.QualityColor(quality)
-        return name, r, g, b
-    end
-    return link:match("%[(.-)%]") or link, 1, 1, 1
-end
-
 function Alerts:Dropped(link, match)
-    if not toast then CreateToast() end
-    local color = ROLE_COLORS[match.role]
-    toast.title:SetText(string.format(L.ALERT_DROPPED, ns.Match.Label(match)))
-    toast.title:SetTextColor(color[1], color[2], color[3])
-    local name, r, g, b = ItemName(link)
-    toast.name:SetText(name)
-    toast.name:SetTextColor(r, g, b)
-    toast.item.link = link
-    toast.item.icon:SetTexture(ItemIcon(link))
+    if not toast then
+        toast = Card("GudaBiSDropToast", 340, 80, "HIGH")
+        toast:SetPoint("TOP", 0, -140)
+    end
+    Fill(toast, link, match, "ALERT_DROPPED")
     toast.token = (toast.token or 0) + 1
     local token = toast.token
-    toast:Show()
-    ns.Glow.Show(toast.item)
+    toast:Present(TOAST_SECONDS)
     C_Timer.After(TOAST_SECONDS, function()
-        if toast.token == token then toast:Hide() end
+        if toast.token == token then toast:Dismiss() end
     end)
     self:Sound()
 end
@@ -185,87 +305,64 @@ local function StopCountdown()
     end
 end
 
--- A test popup (/gbis test) closes without rolling.
+local function ClosePopup()
+    StopCountdown()
+    popup:Dismiss()
+end
+
+-- A test card (/gbis test) closes without rolling.
 local function Roll(low, high)
     if not popup.test then RandomRoll(low, high) end
-    StopCountdown()
-    popup:Hide()
+    ClosePopup()
 end
 
 local function CreatePopup()
-    popup = ns.Theme.Dialog("GudaBiSRollPopup", UIParent)
-    popup:SetSize(320, 116)
-    popup:SetPoint("TOP", 0, -210)
-    popup:SetFrameStrata("DIALOG")
-    popup:EnableMouse(true)
-    popup:Hide()
-    popup.item = ItemButton(popup, 36)
-    popup.item:SetPoint("TOPLEFT", 20, -20)
-    popup.title = popup:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    popup.title:SetPoint("TOPLEFT", popup.item, "TOPRIGHT", 8, 0)
-    popup.title:SetPoint("RIGHT", -20, 0)
-    popup.title:SetJustifyH("LEFT")
-    popup.name = popup:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    popup.name:SetPoint("TOPLEFT", popup.title, "BOTTOMLEFT", 0, -3)
-    popup.name:SetPoint("RIGHT", -20, 0)
-    popup.name:SetJustifyH("LEFT")
-    popup.name:SetWordWrap(false)
-    popup.countdown = popup:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
-    popup.countdown:SetPoint("TOPRIGHT", -20, -20)
+    popup = Card("GudaBiSRollPopup", 340, 118, "DIALOG")
+    popup:SetPoint("TOP", 0, -235)
+    popup.close:SetScript("OnClick", ClosePopup)
+    popup.countdown = popup:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    popup.countdown:SetPoint("TOPRIGHT", -16, -56)
     local ms = CreateFrame("Button", nil, popup, "UIPanelButtonTemplate")
-    ms:SetSize(120, 22)
-    ms:SetPoint("BOTTOMRIGHT", popup, "BOTTOM", -4, 18)
+    ms:SetSize(130, 22)
+    ms:SetPoint("BOTTOMRIGHT", popup, "BOTTOM", -6, 16)
     ms:SetText(L.ROLL_MS)
     ms:SetScript("OnClick", function() Roll(1, 100) end)
     popup.ms = ms
     local off = CreateFrame("Button", nil, popup, "UIPanelButtonTemplate")
-    off:SetSize(120, 22)
-    off:SetPoint("BOTTOMLEFT", popup, "BOTTOM", 4, 18)
+    off:SetSize(130, 22)
+    off:SetPoint("BOTTOMLEFT", popup, "BOTTOM", 6, 16)
     off:SetText(L.ROLL_OS)
     off:SetScript("OnClick", function() Roll(1, 99) end)
     popup.os = off
-    local close = CreateFrame("Button", nil, popup, "UIPanelCloseButton")
-    close:SetPoint("TOPRIGHT", -4, -4)
-    close:SetScript("OnClick", function()
+    popup:HookScript("OnHide", function()
         StopCountdown()
-        popup:Hide()
+        ns.Glow.Hide(popup.ms)
+        ns.Glow.Hide(popup.os)
     end)
-    popup:SetScript("OnHide", function() ns.Glow.Hide(popup.item) end)
 end
 
 function Alerts:Rolling(link, match, seconds, test)
     if not popup then CreatePopup() end
     StopCountdown()
     popup.test = test and true or false
-    local color = ROLE_COLORS[match.role]
-    popup.title:SetText(string.format(L.ALERT_ROLLING, ns.Match.Label(match)))
-    popup.title:SetTextColor(color[1], color[2], color[3])
-    local name, r, g, b = ItemName(link)
-    popup.name:SetText(name)
-    popup.name:SetTextColor(r, g, b)
-    popup.item.link = link
-    popup.item.icon:SetTexture(ItemIcon(link))
-    if match.role == "ms" then popup.ms:LockHighlight() else popup.ms:UnlockHighlight() end
-    if match.role == "os" then popup.os:LockHighlight() else popup.os:UnlockHighlight() end
+    Fill(popup, link, match, "ALERT_ROLLING")
+    ns.Glow.Hide(popup.ms)
+    ns.Glow.Hide(popup.os)
     local remaining = seconds or DEFAULT_ROLL_SECONDS
     popup.countdown:SetText(string.format(L.ROLL_SECONDS, remaining))
     popup.ticker = C_Timer.NewTicker(1, function()
         remaining = remaining - 1
         if remaining <= 0 then
-            StopCountdown()
-            popup:Hide()
+            ClosePopup()
             return
         end
         popup.countdown:SetText(string.format(L.ROLL_SECONDS, remaining))
     end, remaining)
-    popup:Show()
-    ns.Glow.Show(popup.item)
+    popup:Present(remaining)
+    ns.Glow.Show(match.role == "os" and popup.os or popup.ms)
     self:Sound()
 end
 
 function Alerts:CloseRolling()
-    if popup then
-        StopCountdown()
-        popup:Hide()
-    end
+    if popup then ClosePopup() end
 end
