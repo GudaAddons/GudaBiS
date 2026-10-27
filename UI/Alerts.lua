@@ -144,6 +144,7 @@ local function CreateToast()
     toast.name:SetPoint("RIGHT", -10, 0)
     toast.name:SetJustifyH("LEFT")
     toast.name:SetWordWrap(false)
+    toast:SetScript("OnHide", function() ns.Glow.Hide(toast.item) end)
 end
 
 local function ItemName(link)
@@ -168,6 +169,7 @@ function Alerts:Dropped(link, match)
     toast.token = (toast.token or 0) + 1
     local token = toast.token
     toast:Show()
+    ns.Glow.Show(toast.item)
     C_Timer.After(TOAST_SECONDS, function()
         if toast.token == token then toast:Hide() end
     end)
@@ -228,6 +230,7 @@ local function CreatePopup()
         StopCountdown()
         popup:Hide()
     end)
+    popup:SetScript("OnHide", function() ns.Glow.Hide(popup.item) end)
 end
 
 function Alerts:Rolling(link, match, seconds, test)
@@ -256,6 +259,7 @@ function Alerts:Rolling(link, match, seconds, test)
         popup.countdown:SetText(string.format(L.ROLL_SECONDS, remaining))
     end, remaining)
     popup:Show()
+    ns.Glow.Show(popup.item)
     self:Sound()
 end
 
