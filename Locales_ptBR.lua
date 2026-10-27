@@ -6,6 +6,9 @@ if ns.locale ~= "ptBR" then return end
 local L = ns.L
 
 local T = {
+    HELP_TEST = "|cffffff00/gbis test|r: mostra todos os alertas de saque com um item da sua lista EP (sem rolagem)",
+    TEST_FRAME = "Rolagem de teste do GudaBiS",
+    TEST_NO_LIST = "Nenhum item na sua lista de especialização principal para testar.",
     LABEL_BIS = "BiS",
     LABEL_ALT = "alternativa #%d",
     LABEL_OS = "ES",

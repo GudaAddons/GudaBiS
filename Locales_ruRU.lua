@@ -6,6 +6,9 @@ if ns.locale ~= "ruRU" then return end
 local L = ns.L
 
 local T = {
+    HELP_TEST = "|cffffff00/gbis test|r: показать все оповещения о добыче с предметом из списка ОС (без броска)",
+    TEST_FRAME = "Тестовый бросок GudaBiS",
+    TEST_NO_LIST = "В списке основной специализации нет предмета для теста.",
     LABEL_BIS = "BiS",
     LABEL_ALT = "альтернатива №%d",
     LABEL_OS = "ДС",

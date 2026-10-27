@@ -63,6 +63,7 @@ Integrations\RCLootCouncil.lua
 UI\Theme.lua
 UI\Glow.lua
 UI\Alerts.lua
+UI\TestAlerts.lua
 UI\Dropdown.lua
 UI\NameDialog.lua
 UI\RankFlyout.lua

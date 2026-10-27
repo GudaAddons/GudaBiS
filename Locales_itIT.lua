@@ -6,6 +6,9 @@ if ns.locale ~= "itIT" then return end
 local L = ns.L
 
 local T = {
+    HELP_TEST = "|cffffff00/gbis test|r: mostra tutti gli avvisi di bottino con un oggetto della tua lista SP (nessun tiro)",
+    TEST_FRAME = "Tiro di prova GudaBiS",
+    TEST_NO_LIST = "Nessun oggetto nella tua lista di specializzazione principale da provare.",
     LABEL_BIS = "BiS",
     LABEL_ALT = "alternativa #%d",
     LABEL_OS = "SS",

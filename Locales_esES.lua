@@ -6,6 +6,9 @@ if ns.locale ~= "esES" then return end
 local L = ns.L
 
 local T = {
+    HELP_TEST = "|cffffff00/gbis test|r: muestra todos los avisos de botín con un objeto de tu lista EP (no se tira)",
+    TEST_FRAME = "Tirada de prueba de GudaBiS",
+    TEST_NO_LIST = "No hay ningún objeto en tu lista de especialización principal para probar.",
     LABEL_BIS = "BiS",
     LABEL_ALT = "alternativa #%d",
     LABEL_OS = "ES",

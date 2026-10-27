@@ -6,6 +6,9 @@ if ns.locale ~= "frFR" then return end
 local L = ns.L
 
 local T = {
+    HELP_TEST = "|cffffff00/gbis test|r : affiche toutes les alertes de butin avec un objet de votre liste SP (aucun jet)",
+    TEST_FRAME = "Jet de test GudaBiS",
+    TEST_NO_LIST = "Aucun objet sur votre liste de spécialisation principale pour le test.",
     LABEL_BIS = "BiS",
     LABEL_ALT = "alternative #%d",
     LABEL_OS = "SS",

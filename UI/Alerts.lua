@@ -166,8 +166,9 @@ local function StopCountdown()
     end
 end
 
+-- A test popup (/gbis test) closes without rolling.
 local function Roll(low, high)
-    RandomRoll(low, high)
+    if not popup.test then RandomRoll(low, high) end
     StopCountdown()
     popup:Hide()
 end
@@ -212,9 +213,10 @@ local function CreatePopup()
     end)
 end
 
-function Alerts:Rolling(link, match, seconds)
+function Alerts:Rolling(link, match, seconds, test)
     if not popup then CreatePopup() end
     StopCountdown()
+    popup.test = test and true or false
     local color = ROLE_COLORS[match.role]
     popup.title:SetText(string.format(L.ALERT_ROLLING, ns.Match.Label(match)))
     popup.title:SetTextColor(color[1], color[2], color[3])

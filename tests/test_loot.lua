@@ -198,6 +198,32 @@ return function(T, H)
         T.noErrors()
     end)
 
+    T.case("/gbis test: toast, roll popup and a glowing dummy roll frame; nothing rolls", function()
+        local ns = H.Boot({ talentPoints = { 0, 40, 21 } })
+        H.Slash("test")
+        T.ok(Toast():IsShown(), "toast")
+        T.ok(Toast().title.shownText == "Your BiS dropped!", "toast text")
+        T.ok(Popup():IsShown(), "roll popup")
+        T.eq(Popup().countdown.shownText, "15 s", "15 s")
+        local dummy = _G.GudaBiSTestRoll
+        T.ok(dummy:IsShown(), "dummy roll frame")
+        T.ok(ns.Glow.IsShown(dummy.NeedButton), "proc glow on its Need")
+        T.eq(dummy.gudaBiSBadge.label.shownText, "Your BiS", "badge")
+        Popup().ms:Click()
+        T.eq(#H.rolled, 0, "test popup never rolls")
+        dummy.greed:Click()
+        T.ok(not dummy:IsShown(), "any dummy button closes it")
+        T.ok(not ns.Glow.IsShown(dummy.NeedButton), "glow cleared")
+        T.noErrors()
+    end)
+
+    T.case("/gbis test without an MS list says so", function()
+        H.Boot({ class = "MAGE" })
+        H.Slash("test")
+        T.ok(H.Printed("No item on your main-spec list", true), "message")
+        T.ok(not Toast(), "no toast")
+    end)
+
     T.case("RCLootCouncil: badges its entries after each update, never answers", function()
         local entryFrame
         local module = { EntryManager = { entries = {} } }
