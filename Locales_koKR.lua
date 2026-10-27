@@ -6,7 +6,7 @@ if ns.locale ~= "koKR" then return end
 local L = ns.L
 
 local T = {
-    HELP_TEST = "|cffffff00/gbis test|r: 주 전문화 목록의 아이템으로 모든 전리품 알림 표시 (주사위는 굴리지 않음)",
+    HELP_TEST = "|cffffff00/gbis test [drop|roll|group]|r: 주 전문화 목록의 아이템으로 전리품 알림 표시: 획득 알림, 주사위 창, 파티 전리품 빛 또는 전부 (주사위는 굴리지 않음)",
     TEST_FRAME = "GudaBiS 테스트 주사위",
     TEST_NO_LIST = "테스트할 주 전문화 목록 아이템이 없습니다.",
     LABEL_BIS = "BiS",

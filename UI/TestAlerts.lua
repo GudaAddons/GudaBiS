@@ -1,12 +1,13 @@
--- /gbis test: every loot alert at once, solo, with a real item from the MS list, so
--- their look can be checked without a raid. Nothing rolls: the test roll popup's
--- buttons only close it, and the dummy roll frame is ours, not Blizzard's.
+-- /gbis test [drop|roll|group]: the loot alerts, solo, with a real item from the MS
+-- list, so their look can be checked without a raid. No word shows all three. Nothing
+-- rolls: the test roll popup's buttons only close it, and the dummy roll frame is ours,
+-- not Blizzard's.
 --
---   1. the "Your BiS dropped!" toast
---   2. the "Rolling now" popup, 15 s
---   3. a dummy Need/Greed/Pass frame, shaped like Blizzard's group-loot popup, with the
---      glowing badge and the proc glow on its item icon; it closes after 20 s or on any
---      click
+--   drop   the "Your BiS dropped!" toast
+--   roll   the "Rolling now" popup, 15 s
+--   group  a dummy Need/Greed/Pass frame, shaped like Blizzard's group-loot popup, with
+--          the glowing badge and the proc glow on its item icon; it closes after 20 s or
+--          on any click
 
 local addonName, ns = ...
 local L = ns.L
@@ -98,7 +99,19 @@ local function ShowDummy(itemID, link, match)
     end)
 end
 
-function TestAlerts:Run()
+local KINDS = {
+    drop = function(_, link, match) ns.Alerts:Dropped(link, match) end,
+    roll = function(_, link, match) ns.Alerts:Rolling(link, match, TEST_ROLL_SECONDS, true) end,
+    group = ShowDummy,
+}
+local ORDER = { "drop", "roll", "group" }
+
+-- kind: "drop", "roll", "group", or nil for all three.
+function TestAlerts:Run(kind)
+    if kind and not KINDS[kind] then
+        ns:Print(L.HELP_TEST)
+        return
+    end
     local itemID, slot = SampleItem()
     if not itemID then
         ns:Print(L.TEST_NO_LIST)
@@ -106,9 +119,11 @@ function TestAlerts:Run()
     end
     local link = SampleLink(itemID)
     local match = { role = "ms", rank = 1, slot = slot }
-    ns.Alerts:Dropped(link, match)
-    ns.Alerts:Rolling(link, match, TEST_ROLL_SECONDS, true)
-    ShowDummy(itemID, link, match)
+    for _, name in ipairs(ORDER) do
+        if not kind or kind == name then KINDS[name](itemID, link, match) end
+    end
 end
 
-ns.SlashCommands:Register("test", function() TestAlerts:Run() end, L.HELP_TEST)
+ns.SlashCommands:Register("test", function(args)
+    TestAlerts:Run(args[1] and args[1]:lower())
+end, L.HELP_TEST)

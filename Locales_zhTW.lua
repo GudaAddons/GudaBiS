@@ -6,7 +6,7 @@ if ns.locale ~= "zhTW" then return end
 local L = ns.L
 
 local T = {
-    HELP_TEST = "|cffffff00/gbis test|r：用主天賦清單中的物品顯示所有拾取提醒（不會擲骰）",
+    HELP_TEST = "|cffffff00/gbis test [drop|roll|group]|r：用主天賦清單中的物品顯示拾取提醒：掉落提示、擲骰視窗、隊伍拾取發光，或全部（不會擲骰）",
     TEST_FRAME = "GudaBiS 測試擲骰",
     TEST_NO_LIST = "主天賦清單中沒有可用於測試的物品。",
     LABEL_BIS = "BiS",

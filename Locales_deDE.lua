@@ -6,7 +6,7 @@ if ns.locale ~= "deDE" then return end
 local L = ns.L
 
 local T = {
-    HELP_TEST = "|cffffff00/gbis test|r: alle Beutewarnungen mit einem Gegenstand deiner HS-Liste zeigen (es wird nicht gewürfelt)",
+    HELP_TEST = "|cffffff00/gbis test [drop|roll|group]|r: Beutewarnungen mit einem Gegenstand deiner HS-Liste zeigen: Hinweis, Würfelfenster, Gruppenbeute-Leuchten oder alle drei (es wird nicht gewürfelt)",
     TEST_FRAME = "GudaBiS-Testwurf",
     TEST_NO_LIST = "Kein Gegenstand auf deiner Hauptspezialisierungs-Liste zum Testen.",
     LABEL_BIS = "BiS",
