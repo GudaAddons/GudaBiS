@@ -92,13 +92,31 @@ def _sets(markup):
     return found
 
 
+ITEM_COLUMN = 1
+
+
+def _table_items(body):
+    """The item of each table row: only the Item column (the second cell). Other cells
+    can start with an item too, e.g. a Source cell "[item=31358] - Jewelcrafting" is the
+    recipe that makes the row's trinket, not a trinket."""
+    items = []
+    for row in re.findall(r"\[tr\](.*?)\[/tr\]", body, re.S):
+        cells = re.findall(r"\[td\b[^\]]*\](.*?)\[/td\]", row, re.S)
+        if len(cells) <= ITEM_COLUMN:
+            continue
+        m = re.match(r"\s*\[item=(\d+)", cells[ITEM_COLUMN])
+        if m:
+            items.append(int(m.group(1)))
+    return items
+
+
 def _section_rows(markup):
     rows = {}
     parts = re.split(r'(\[h3\b[^\]]*\])', markup)
     for i in range(1, len(parts), 2):
         m = re.search(r'toc="([^"]+)"', parts[i])
         body = parts[i + 1] if i + 1 < len(parts) else ""
-        items = [int(x) for x in re.findall(r"\[td\]\s*\[item=(\d+)", body)]
+        items = _table_items(body)
         if not items:
             continue
         name = (m.group(1) if m else "").strip().lower()

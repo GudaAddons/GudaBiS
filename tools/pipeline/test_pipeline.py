@@ -76,6 +76,17 @@ class GuideTest(unittest.TestCase):
         self.assertEqual(first["alts"][11], [30083])
         self.assertEqual(first["alts"][12], [30083])
 
+    def test_only_the_item_column_counts(self):
+        markup = MARKUP + (
+            '[h3 toc="Trinkets"]x[/h3]'
+            '[tr][td background=c2][b]Rank[/b][/td][td][b]Item[/b][/td][td]Source[/td][/tr]'
+            '[tr][td]Viable[/td]\n[td][item=24125][/td]\n[td][item=31358] - Jewelcrafting[/td][/tr]'
+            '[tr][td]Great[/td]\n[td][item=29370][/td]\n[td]41[item=29434] - vendor[/td][/tr]'
+        )
+        rows = wowhead.parse(page(markup))["rows"]
+        self.assertEqual(rows[13], [24125, 29370])
+        self.assertNotIn(31358, rows[14])
+
     def test_phase_slugs(self):
         self.assertEqual(wowhead._phase("paladin-tank-pre-raid-best-in-slot"), 0)
         with self.assertRaises(wowhead.GuideError):
@@ -85,7 +96,7 @@ class GuideTest(unittest.TestCase):
         with self.assertRaises(specs.UnknownSpec):
             wowhead.parse(page(MARKUP, slug="shaman-elemental-phase-4-best-in-slot"))
         with self.assertRaises(wowhead.GuideError):
-            wowhead.parse(page(MARKUP + '[h3 toc="Tabard"]x[/h3][tr][td]a[/td][td][item=1][/td]'))
+            wowhead.parse(page(MARKUP + '[h3 toc="Tabard"]x[/h3][tr][td]a[/td][td][item=1][/td][/tr]'))
 
     def test_render_is_lua_and_sorted(self):
         made = build.lists_from_guide(wowhead.parse(page(MARKUP)))
