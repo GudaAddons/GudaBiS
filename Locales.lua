@@ -11,6 +11,11 @@ ns.locale = type(GetLocale) == "function" and GetLocale() or "enUS"
 L.HELP_HEADER = "|cff33ccff========== GudaBiS ==========|r"
 L.HELP_STATUS = "|cffffff00/gbis status|r: Client, feature flags and API sources"
 L.HELP_DEBUG = "|cffffff00/gbis debug [on|off]|r: Toggle debug mode (debug lines in chat)"
+L.HELP_LOG = "|cffffff00/gbis log [clear]|r: Show the debug log window"
+
+L.LOG_TITLE = "GudaBiS debug log"
+L.LOG_CLEARED = "Debug log cleared."
+L.STATUS_DB = "Database: schema %d · loaded from disk: %s · loads: %d · characters: %d"
 
 L.STATUS_CLIENT = "Client: %s (interface %d)"
 L.STATUS_FEATURES = "Features: %s"

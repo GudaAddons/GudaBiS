@@ -36,6 +36,8 @@ Core\Expansion.lua
 Core\Compat.lua
 Core\Events.lua
 Core\SlashCommands.lua
+Core\Log.lua
+Core\Database.lua
 
 # Bootstrap (load last)
 Core\Main.lua

@@ -56,7 +56,9 @@ local isClassic = Expansion.IsEra or Expansion.IsTBC or Expansion.IsMists
 -- ChatLockdown: group chat text can be a secret value inside instances (12.0 engine).
 -- ItemLevelMatters: the same item ID drops at different item levels.
 -- HasWarbandBank: an account bank (Forever has AccountBankTab_1..9).
+-- RealmlessNames: character names are "Given Family" with no realm (Forever).
 local Features = {
+    RealmlessNames = Expansion.IsForever,
     HasGems = Expansion.IsTBC or Expansion.IsMists or isModernRetail,
     HasMasterLoot = isClassic,
     HasPhases = isClassic,
@@ -71,5 +73,5 @@ ns.Features = Features
 -- Stable order for /gbis status, so output is comparable between runs and clients.
 Expansion.FeatureNames = {
     "HasGems", "HasMasterLoot", "HasPhases", "HasSpecChoice",
-    "ChatLockdown", "ItemLevelMatters", "HasWarbandBank",
+    "ChatLockdown", "ItemLevelMatters", "HasWarbandBank", "RealmlessNames",
 }

@@ -71,6 +71,11 @@ SlashCommands:Register("status", function()
         parts[i] = name .. "=" .. Compat.resolvedSource[name]
     end
     ns:Print(string.format(L.STATUS_API, table.concat(parts, ", ")))
+    local db = ns.db
+    if db then
+        ns:Print(string.format(L.STATUS_DB, db.schema, YesNo(ns.Database.restoredFromDisk),
+            db.meta.loadCount, ns.Database:CountCharacters()))
+    end
 end, L.HELP_STATUS)
 
 SlashCommands:Register("debug", function(args)
@@ -82,6 +87,7 @@ SlashCommands:Register("debug", function(args)
     else
         ns.debugMode = not ns.debugMode
     end
+    ns.Database:SetSetting("debug", ns.debugMode)
     ns:Print(ns.debugMode and L.DEBUG_ON or L.DEBUG_OFF)
 end, L.HELP_DEBUG)
 
