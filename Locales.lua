@@ -24,6 +24,16 @@ L.STATUS_CLIENT = "Client: %s (interface %d)"
 L.STATUS_FEATURES = "Features: %s"
 L.STATUS_API = "API: %s"
 
-L.UNKNOWN_COMMAND = "Unknown command '%s'. Type /gbis help."
+L.HELP_SHOW = "|cffffff00/gbis|r: Show or hide the best-in-slot panel"
+
+L.PANEL_TITLE = "Best in Slot"
+L.PHASE = "Phase %d"
+L.PHASE_PRERAID = "Pre-raid"
+L.NO_LIST = "No best-in-slot list for your class in this phase yet."
+L.TOOLTIP_ALTERNATIVES = "Alternatives"
+L.TOOLTIP_ITEM_LOADING = "Item %d (loading...)"
+L.TOOLTIP_TOGGLE = "GudaBiS: show or hide best-in-slot gear"
+
+L.UNKNOWN_COMMAND ="Unknown command '%s'. Type /gbis help."
 L.DEBUG_ON = "Debug mode on."
 L.DEBUG_OFF = "Debug mode off."

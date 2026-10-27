@@ -6,6 +6,14 @@ if ns.locale ~= "esES" then return end
 local L = ns.L
 
 local T = {
+    HELP_SHOW = "|cffffff00/gbis|r: Muestra u oculta el panel del mejor equipo",
+    PANEL_TITLE = "Mejor equipo (BiS)",
+    PHASE = "Fase %d",
+    PHASE_PRERAID = "Antes de las bandas",
+    NO_LIST = "Todavía no hay lista de mejor equipo para tu clase en esta fase.",
+    TOOLTIP_ALTERNATIVES = "Alternativas",
+    TOOLTIP_ITEM_LOADING = "Objeto %d (cargando...)",
+    TOOLTIP_TOGGLE = "GudaBiS: muestra u oculta el mejor equipo",
     HELP_STATUS = "|cffffff00/gbis status|r: Cliente, funciones y fuentes de la API",
     STATUS_CLIENT = "Cliente: %s (interfaz %d)",
     STATUS_FEATURES = "Funciones: %s",

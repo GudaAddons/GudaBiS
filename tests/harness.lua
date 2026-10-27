@@ -53,16 +53,60 @@ local function NewFrame(name)
     function frame:UnregisterEvent(event) self.registered[event] = nil end
     function frame:SetScript(script, fn) self.scripts[script] = fn end
     function frame:GetScript(script) return self.scripts[script] end
-    function frame:Show() self.shown = true end
-    function frame:Hide() self.shown = false end
     function frame:IsShown() return self.shown end
-    function frame:CreateFontString() return NewFrame() end
-    function frame:CreateTexture() return NewFrame() end
     function frame:SetText(text) self.shownText = text end
+    function frame:GetText() return self.shownText end
+    function frame:SetTexture(texture) self.texture = texture end
+    function frame:SetShown(shown) self.shown = shown and true or false end
     function frame:GetVerticalScrollRange() return 0 end
+    function frame:GetFrameLevel() return 0 end
+    function frame:GetWidth() return rawget(self, "width") or 0 end
+    function frame:SetSize(w, h) self.width, self.height = w, h end
+    function frame:SetPoint(...) self.point = { ... } end
+    function frame:ClearAllPoints() self.point = nil end
+    function frame:SetTextColor(r, g, b) self.textColor = { r, g, b } end
+    function frame:SetVertexColor(r, g, b) self.vertexColor = { r, g, b } end
+    function frame:GetHighlightTexture()
+        self.highlight = rawget(self, "highlight") or NewFrame()
+        return self.highlight
+    end
+    function frame:HookScript(script, fn)
+        local previous = self.scripts[script]
+        self.scripts[script] = function(...)
+            if previous then previous(...) end
+            fn(...)
+        end
+    end
+    function frame:Click()
+        local onClick = self.scripts.OnClick
+        if onClick then onClick(self, "LeftButton") end
+    end
+    function frame:Enter()
+        local onEnter = self.scripts.OnEnter
+        if onEnter then onEnter(self) end
+    end
+    function frame:Show()
+        self.shown = true
+        local onShow = self.scripts.OnShow
+        if onShow then onShow(self) end
+    end
+    function frame:Hide()
+        local was = self.shown
+        self.shown = false
+        local onHide = self.scripts.OnHide
+        if was and onHide then onHide(self) end
+    end
+    frame.children = {}
+    function frame:CreateFontString() local child = NewFrame(); self.children[#self.children + 1] = child; return child end
+    function frame:CreateTexture() local child = NewFrame(); self.children[#self.children + 1] = child; return child end
     frames[#frames + 1] = frame
     if name then _G[name] = frame end
-    return setmetatable(frame, { __index = function() return NoOp end })
+    return setmetatable(frame, {
+        __index = function(_, key)
+            if type(key) == "string" and key:match("^%u") then return NoOp end
+            return nil
+        end,
+    })
 end
 
 function H.AllFrames()
@@ -77,6 +121,10 @@ function H.Install(opts)
     local client = type(opts.client) == "table" and opts.client or CLIENTS[opts.client or "tbc"]
     H.client = client
 
+    for _, old in ipairs(frames or {}) do
+        local name = rawget(old, "name")
+        if name and _G[name] == old then _G[name] = nil end
+    end
     frames = {}
     H.printed = {}
     H.errors = {}
@@ -102,10 +150,46 @@ function H.Install(opts)
     _G.GetLocale = function() return opts.locale or "enUS" end
 
     local modern = client.iface >= 100000 or (client.iface >= 16000 and client.iface < 20000)
+
+    -- Item data: H.cached[itemID] = true makes GetItemInfo answer; Item mixin loads
+    -- queue in H.itemLoads until H.LoadItems() runs them.
+    H.cached = {}
+    H.itemLoads = {}
     local itemFns = {
-        GetItemInfo = function() end,
-        GetItemInfoInstant = function() end,
+        GetItemInfo = function(itemID)
+            if not H.cached[itemID] then return nil end
+            return "Item" .. itemID, "|cffa335ee|Hitem:" .. itemID .. "|h[Item" .. itemID .. "]|h|r", 4
+        end,
+        GetItemInfoInstant = function(itemID)
+            return itemID, "Armor", "Plate", "INVTYPE_HEAD", "icon" .. itemID
+        end,
         GetDetailedItemLevelInfo = function() end,
+    }
+    _G.Item = {
+        CreateFromItemID = function(_, itemID)
+            return {
+                ContinueOnItemLoad = function(_, fn)
+                    H.itemLoads[#H.itemLoads + 1] = { id = itemID, fn = fn }
+                end,
+            }
+        end,
+    }
+    _G.ITEM_QUALITY_COLORS = { [4] = { r = 0.64, g = 0.21, b = 0.93 } }
+    _G.GetInventorySlotInfo = function(name) return 1, "empty-" .. name end
+    _G.IsModifiedClick = function() return H.modified end
+    H.modified = false
+    H.linked = {}
+    _G.HandleModifiedItemClick = function(link) H.linked[#H.linked + 1] = link end
+    H.class, H.faction = opts.class or "PALADIN", opts.faction or "Alliance"
+    _G.UnitClass = function() return "Paladin", H.class end
+    _G.UnitFactionGroup = function() return H.faction end
+    H.talentPoints = opts.talentPoints
+    _G.C_SpecializationInfo = {
+        GetSpecializationInfo = function(tree)
+            local points = H.talentPoints
+            if not points or not points[tree] then return 0 end
+            return 380 + tree, "Tree" .. tree, "", "treeicon" .. tree, nil, nil, points[tree]
+        end,
     }
     _G.C_Item = itemFns
     _G.C_AddOns = { IsAddOnLoaded = function() return false end, GetAddOnMetadata = function() return "0.0.0-test" end }
@@ -144,6 +228,18 @@ function H.Install(opts)
     _G.IsInGroup = function() return H.inGroup end
 
     for i = 1, 4 do _G["GroupLootFrame" .. i] = nil end
+
+    _G.CharacterFrame = NewFrame("CharacterFrame")
+    _G.CharacterFrame.width = 384
+    _G.PaperDollFrame = NewFrame("PaperDollFrame")
+    local tooltip = NewFrame("GameTooltip")
+    tooltip.lines = {}
+    function tooltip:SetOwner(owner) self.owner = owner; self.lines = {}; self.item = nil end
+    function tooltip:SetItemByID(itemID) self.item = itemID end
+    function tooltip:SetText(text) self.lines = { text } end
+    function tooltip:AddLine(text) self.lines[#self.lines + 1] = text end
+    function tooltip:IsOwned(owner) return self.owner == owner end
+    function tooltip:Hide() self.shown = false; self.owner = nil end
 
     _G.GudaBiS_DB = opts.saved
 end
@@ -196,6 +292,14 @@ function H.Advance(seconds)
     end
     H.timers = pending
     for _, timer in ipairs(due) do timer.fn() end
+end
+
+-- Finishes every pending Item:ContinueOnItemLoad: the items become cached first.
+function H.LoadItems()
+    local loads = H.itemLoads
+    H.itemLoads = {}
+    for _, load in ipairs(loads) do H.cached[load.id] = true end
+    for _, load in ipairs(loads) do load.fn() end
 end
 
 function H.SetGroup(inGroup)

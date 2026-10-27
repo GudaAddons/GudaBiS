@@ -6,6 +6,14 @@ if ns.locale ~= "koKR" then return end
 local L = ns.L
 
 local T = {
+    HELP_SHOW = "|cffffff00/gbis|r: 최고 장비(BiS) 창 표시/숨기기",
+    PANEL_TITLE = "최고 장비 (BiS)",
+    PHASE = "%d단계",
+    PHASE_PRERAID = "공격대 이전",
+    NO_LIST = "이 단계에는 아직 직업의 최고 장비 목록이 없습니다.",
+    TOOLTIP_ALTERNATIVES = "대체 아이템",
+    TOOLTIP_ITEM_LOADING = "아이템 %d (불러오는 중...)",
+    TOOLTIP_TOGGLE = "GudaBiS: 최고 장비 표시/숨기기",
     HELP_STATUS = "|cffffff00/gbis status|r: 클라이언트, 기능 및 API 출처",
     STATUS_CLIENT = "클라이언트: %s (인터페이스 %d)",
     STATUS_FEATURES = "기능: %s",

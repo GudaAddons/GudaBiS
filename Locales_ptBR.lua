@@ -6,6 +6,14 @@ if ns.locale ~= "ptBR" then return end
 local L = ns.L
 
 local T = {
+    HELP_SHOW = "|cffffff00/gbis|r: mostra ou oculta o painel do melhor equipamento",
+    PANEL_TITLE = "Melhor equipamento (BiS)",
+    PHASE = "Fase %d",
+    PHASE_PRERAID = "Pré-raide",
+    NO_LIST = "Ainda não há lista de melhor equipamento para sua classe nesta fase.",
+    TOOLTIP_ALTERNATIVES = "Alternativas",
+    TOOLTIP_ITEM_LOADING = "Item %d (carregando...)",
+    TOOLTIP_TOGGLE = "GudaBiS: mostra ou oculta o melhor equipamento",
     HELP_STATUS = "|cffffff00/gbis status|r: cliente, recursos e origem da API",
     STATUS_CLIENT = "Cliente: %s (interface %d)",
     STATUS_FEATURES = "Recursos: %s",

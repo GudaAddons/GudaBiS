@@ -6,6 +6,14 @@ if ns.locale ~= "zhTW" then return end
 local L = ns.L
 
 local T = {
+    HELP_SHOW = "|cffffff00/gbis|r：顯示或隱藏最佳裝備面板",
+    PANEL_TITLE = "最佳裝備（BiS）",
+    PHASE = "第%d階段",
+    PHASE_PRERAID = "團隊副本前",
+    NO_LIST = "本階段還沒有你職業的最佳裝備清單。",
+    TOOLTIP_ALTERNATIVES = "替代裝備",
+    TOOLTIP_ITEM_LOADING = "物品 %d（載入中...）",
+    TOOLTIP_TOGGLE = "GudaBiS：顯示或隱藏最佳裝備",
     HELP_STATUS = "|cffffff00/gbis status|r：用戶端、功能與 API 來源",
     STATUS_CLIENT = "用戶端：%s（介面版本 %d）",
     STATUS_FEATURES = "功能：%s",

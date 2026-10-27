@@ -60,6 +60,23 @@ function Data:ForSpec(spec, phase, faction)
     return out
 end
 
+-- Every guide list of a class for a phase that `faction` may use, ordered by talent
+-- tree, then by the guide's tab order.
+function Data:ForClass(class, phase, faction)
+    local out = {}
+    for _, list in ipairs(lists) do
+        if list.class == class and list.phase == phase
+            and (list.faction == nil or list.faction == faction) then
+            out[#out + 1] = list
+        end
+    end
+    table.sort(out, function(a, b)
+        if a.tree ~= b.tree then return a.tree < b.tree end
+        return a.id < b.id
+    end)
+    return out
+end
+
 function Data:Phases()
     local out = {}
     for phase in pairs(phaseSet) do out[#out + 1] = phase end

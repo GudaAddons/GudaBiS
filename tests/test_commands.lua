@@ -1,16 +1,16 @@
 -- GB-001: /gbis router, help and debug.
 
 return function(T, H)
-    T.case("/gbis alone and /gbis help print the command list", function()
-        H.Boot()
-        H.Slash("")
+    T.case("/gbis help prints the command list; /gbis alone opens the panel", function()
+        local ns = H.Boot()
+        H.Slash("help")
         T.ok(H.Printed("GudaBiS ====", true), "header")
         T.ok(H.Printed("/gbis debug", true), "debug help")
         T.ok(H.Printed("/gbis status", true), "status help")
         T.ok(H.Printed("/gbis log", true), "log help")
-        H.printed = {}
-        H.Slash("help")
-        T.ok(H.Printed("/gbis debug", true), "help again")
+        T.ok(H.Printed("best-in-slot panel", true), "show help")
+        H.Slash("")
+        T.ok(ns.Panel:IsShown(), "panel")
         T.noErrors()
     end)
 

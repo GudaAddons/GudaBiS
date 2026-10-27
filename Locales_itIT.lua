@@ -6,6 +6,14 @@ if ns.locale ~= "itIT" then return end
 local L = ns.L
 
 local T = {
+    HELP_SHOW = "|cffffff00/gbis|r: mostra o nasconde il pannello dell'equipaggiamento migliore",
+    PANEL_TITLE = "Equipaggiamento migliore (BiS)",
+    PHASE = "Fase %d",
+    PHASE_PRERAID = "Prima delle incursioni",
+    NO_LIST = "Non c'è ancora una lista dell'equipaggiamento migliore per la tua classe in questa fase.",
+    TOOLTIP_ALTERNATIVES = "Alternative",
+    TOOLTIP_ITEM_LOADING = "Oggetto %d (caricamento...)",
+    TOOLTIP_TOGGLE = "GudaBiS: mostra o nasconde l'equipaggiamento migliore",
     HELP_STATUS = "|cffffff00/gbis status|r: client, funzionalità e origine delle API",
     STATUS_CLIENT = "Client: %s (interfaccia %d)",
     STATUS_FEATURES = "Funzionalità: %s",

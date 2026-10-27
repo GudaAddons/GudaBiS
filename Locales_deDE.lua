@@ -6,6 +6,14 @@ if ns.locale ~= "deDE" then return end
 local L = ns.L
 
 local T = {
+    HELP_SHOW = "|cffffff00/gbis|r: Best-in-Slot-Fenster zeigen oder verbergen",
+    PANEL_TITLE = "Beste Ausrüstung (BiS)",
+    PHASE = "Phase %d",
+    PHASE_PRERAID = "Vor den Schlachtzügen",
+    NO_LIST = "Für deine Klasse gibt es in dieser Phase noch keine Best-in-Slot-Liste.",
+    TOOLTIP_ALTERNATIVES = "Alternativen",
+    TOOLTIP_ITEM_LOADING = "Gegenstand %d (wird geladen ...)",
+    TOOLTIP_TOGGLE = "GudaBiS: Best-in-Slot-Ausrüstung zeigen oder verbergen",
     HELP_STATUS = "|cffffff00/gbis status|r: Client, Funktionen und API-Quellen",
     STATUS_CLIENT = "Client: %s (Interface %d)",
     STATUS_FEATURES = "Funktionen: %s",

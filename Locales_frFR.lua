@@ -6,6 +6,14 @@ if ns.locale ~= "frFR" then return end
 local L = ns.L
 
 local T = {
+    HELP_SHOW = "|cffffff00/gbis|r : affiche ou masque le panneau du meilleur équipement",
+    PANEL_TITLE = "Meilleur équipement (BiS)",
+    PHASE = "Phase %d",
+    PHASE_PRERAID = "Avant les raids",
+    NO_LIST = "Pas encore de liste de meilleur équipement pour votre classe dans cette phase.",
+    TOOLTIP_ALTERNATIVES = "Alternatives",
+    TOOLTIP_ITEM_LOADING = "Objet %d (chargement...)",
+    TOOLTIP_TOGGLE = "GudaBiS : affiche ou masque le meilleur équipement",
     HELP_STATUS = "|cffffff00/gbis status|r : client, fonctionnalités et sources de l'API",
     STATUS_CLIENT = "Client : %s (interface %d)",
     STATUS_FEATURES = "Fonctionnalités : %s",

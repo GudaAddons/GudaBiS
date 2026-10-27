@@ -6,6 +6,14 @@ if ns.locale ~= "ruRU" then return end
 local L = ns.L
 
 local T = {
+    HELP_SHOW = "|cffffff00/gbis|r: показать или скрыть панель лучшей экипировки",
+    PANEL_TITLE = "Лучшая экипировка (BiS)",
+    PHASE = "Фаза %d",
+    PHASE_PRERAID = "До рейдов",
+    NO_LIST = "Для вашего класса в этой фазе пока нет списка лучшей экипировки.",
+    TOOLTIP_ALTERNATIVES = "Альтернативы",
+    TOOLTIP_ITEM_LOADING = "Предмет %d (загрузка...)",
+    TOOLTIP_TOGGLE = "GudaBiS: показать или скрыть лучшую экипировку",
     HELP_STATUS = "|cffffff00/gbis status|r: клиент, возможности и источники API",
     STATUS_CLIENT = "Клиент: %s (интерфейс %d)",
     STATUS_FEATURES = "Возможности: %s",

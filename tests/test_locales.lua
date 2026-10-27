@@ -4,9 +4,9 @@
 return function(T, H)
     local LOCALES = { "deDE", "esES", "esMX", "frFR", "itIT", "koKR", "ptBR", "ruRU", "zhCN", "zhTW" }
 
-    -- Keys whose text may equal the English: the addon-name banner, and "API",
-    -- which most languages write the same way.
-    local SAME_EVERYWHERE = { HELP_HEADER = true, STATUS_API = true }
+    -- Keys whose text may equal the English in some languages: the addon-name banner,
+    -- "API", "Phase %d" (German, French) and "Alternatives" (French).
+    local SAME_EVERYWHERE = { HELP_HEADER = true, STATUS_API = true, PHASE = true, TOOLTIP_ALTERNATIVES = true }
 
     local function EnglishTexts()
         local texts = {}

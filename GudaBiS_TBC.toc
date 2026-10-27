@@ -44,5 +44,14 @@ Core\Probe.lua
 Data\Data.lua
 Data\TBC\Lists.lua
 
+# Gear
+Gear\Spec.lua
+Gear\Lists.lua
+
+# UI
+UI\Theme.lua
+UI\Dropdown.lua
+UI\Panel.lua
+
 # Bootstrap (load last)
 Core\Main.lua

@@ -18,6 +18,7 @@ local DEFAULTS = {
     },
     settings = {
         debug = false,
+        panelOpen = false,
     },
     chars = {},
 }
