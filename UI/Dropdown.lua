@@ -121,9 +121,11 @@ function Dropdown.Create(parent, width, onSelect)
     end)
     dd.button = button
 
+    -- The menu sits one strata above the catcher (FULLSCREEN_DIALOG), not just a few
+    -- frame levels: levels get re-based when the panel is raised, and a catcher drawn
+    -- over the rows swallowed every click on an option (in game, 2026-10-28).
     local menu = ns.Theme.CreateWindow("Frame", nil, button)
-    menu:SetFrameStrata("FULLSCREEN_DIALOG")
-    menu:SetFrameLevel(Catcher():GetFrameLevel() + 10)
+    menu:SetFrameStrata("TOOLTIP")
     menu:SetPoint("TOPLEFT", button, "BOTTOMLEFT", 0, -2)
     menu:SetPoint("TOPRIGHT", button, "BOTTOMRIGHT", 0, -2)
     menu:Hide()
