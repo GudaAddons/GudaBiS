@@ -70,6 +70,11 @@ local function NewFrame(name)
         self.highlight = rawget(self, "highlight") or NewFrame()
         return self.highlight
     end
+    function frame:GetCheckedTexture()
+        self.checkedTexture = rawget(self, "checkedTexture") or NewFrame()
+        return self.checkedTexture
+    end
+    function frame:SetBlendMode(mode) self.blendMode = mode end
     function frame:HookScript(script, fn)
         local previous = self.scripts[script]
         self.scripts[script] = function(...)
