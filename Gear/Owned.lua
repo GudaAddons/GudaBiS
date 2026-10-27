@@ -114,6 +114,20 @@ end
 
 local OWNED_STATES = { equipped = true, bags = true, bank = true, manual = true, skip = true }
 
+local STATE_TEXT = {
+    equipped = "OWNED_EQUIPPED", bags = "OWNED_BAGS", bank = "OWNED_BANK",
+    manual = "OWNED_MANUAL", skip = "OWNED_SKIP",
+}
+
+-- The tooltip line for an item's state: text, r, g, b; nil when the account lacks it.
+function Owned:Describe(itemID)
+    local L = ns.L
+    local state, altName = self:State(itemID)
+    if state == "alt" then return string.format(L.OWNED_ALT, altName), 0.7, 0.7, 0.7 end
+    if state then return L[STATE_TEXT[state]], 0.1, 1, 0.1 end
+    return nil
+end
+
 -- Owned counts as done for the slot: on this character or marked by hand. An item on
 -- another character still needs moving, so it is shown but does not complete the slot.
 function Owned:Has(itemID)

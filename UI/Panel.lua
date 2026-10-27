@@ -73,28 +73,25 @@ end
 local frame, tab, phaseDropdown, listDropdown
 local PlaceTab
 local slotButtons = {}
-local pendingLoads = {}
+
+local QualityColor = ns.Items.QualityColor
+local WhenLoaded = ns.Items.WhenLoaded
 
 local function EmptyTexture(slot)
     local ok, _, texture = pcall(GetInventorySlotInfo, SLOT_NAMES[slot])
     return ok and texture or EMPTY_SLOT
 end
 
-local function QualityColor(quality)
-    local color = quality and ITEM_QUALITY_COLORS and ITEM_QUALITY_COLORS[quality]
-    if color then return color.r, color.g, color.b end
-    return 1, 1, 1
-end
-
--- Runs fn once the client has the item's data. Only uncached items are requested, and
--- each at most once at a time, so a tooltip redraw can never loop.
-local function WhenLoaded(itemID, fn)
-    if pendingLoads[itemID] or not (Item and Item.CreateFromItemID) then return end
-    pendingLoads[itemID] = true
-    Item:CreateFromItemID(itemID):ContinueOnItemLoad(function()
-        pendingLoads[itemID] = nil
-        fn()
-    end)
+-- The slot's items in the guide's order: the BiS item, then its alternatives.
+function Panel.RankedItems(list, slot)
+    local out = {}
+    local best = list and list.items[slot]
+    if not best then return out end
+    out[1] = best
+    for _, itemID in ipairs(list.alts and list.alts[slot] or NO_ALTS) do
+        out[#out + 1] = itemID
+    end
+    return out
 end
 
 local function PaintName(button)
@@ -116,11 +113,11 @@ end
 
 local CHECK_TEXTURE = "Interface\\RaidFrame\\ReadyCheck-Ready"
 
--- Green: the #1 item is had. Yellow: a ranked alternative is. Grey: only another
--- character has the #1 (it still needs moving over).
+-- A slot's check is about the item it shows (author, 2026-10-28): green when you have
+-- it, grey when only another character has it. Owning an alternative puts no check on
+-- the slot; the ranked list and the tooltip say so instead.
 local CHECK_COLORS = {
     best = { 1, 1, 1, false },
-    alt = { 1, 0.82, 0, true },
     elsewhere = { 0.7, 0.7, 0.7, true },
 }
 
@@ -154,24 +151,17 @@ local function PaintSlot(button, view, list)
     PaintName(button)
 end
 
-local OWNED_TEXT = {
-    equipped = "OWNED_EQUIPPED", bags = "OWNED_BAGS", bank = "OWNED_BANK",
-    manual = "OWNED_MANUAL", skip = "OWNED_SKIP",
-}
-
-local function AddOwnedLines(button)
-    local state, altName = ns.Owned:State(button.item)
-    if state == "alt" then
-        GameTooltip:AddLine(string.format(L.OWNED_ALT, altName), 0.7, 0.7, 0.7)
-    elseif state then
-        GameTooltip:AddLine(L[OWNED_TEXT[state]], 0.1, 1, 0.1)
-    else
-        for _, itemID in ipairs(button.alts) do
-            if ns.Owned:Has(itemID) then
-                local name = GetItemInfo(itemID) or tostring(itemID)
-                GameTooltip:AddLine(string.format(L.OWNED_ALTERNATIVE, name), 1, 0.82, 0)
-                break
-            end
+local function AddOwnedLine(button)
+    local text, r, g, b = ns.Owned:Describe(button.item)
+    if text then
+        GameTooltip:AddLine(text, r, g, b)
+        return
+    end
+    for _, itemID in ipairs(button.alts) do
+        if ns.Owned:Has(itemID) then
+            local name = GetItemInfo(itemID) or tostring(itemID)
+            GameTooltip:AddLine(string.format(L.OWNED_ALTERNATIVE, name), 1, 0.82, 0)
+            return
         end
     end
 end
@@ -181,25 +171,11 @@ local function ShowTooltip(button)
     GameTooltip:SetOwner(button, "ANCHOR_RIGHT")
     GameTooltip:SetItemByID(button.item)
     GameTooltip:AddLine(" ")
-    AddOwnedLines(button)
-    GameTooltip:AddLine(L.HINT_MARK, 0.6, 0.6, 0.6)
+    AddOwnedLine(button)
     if #button.alts > 0 then
-        GameTooltip:AddLine(" ")
-        GameTooltip:AddLine(L.TOOLTIP_ALTERNATIVES, 1, 0.82, 0)
-        for i, itemID in ipairs(button.alts) do
-            local name, _, quality = GetItemInfo(itemID)
-            if name then
-                local r, g, b = QualityColor(quality)
-                local mark = ns.Owned:Has(itemID) and " |TInterface\\RaidFrame\\ReadyCheck-Ready:0|t" or ""
-                GameTooltip:AddLine(i .. ". " .. name .. mark, r, g, b)
-            else
-                GameTooltip:AddLine(string.format(L.TOOLTIP_ITEM_LOADING, itemID), 0.6, 0.6, 0.6)
-                WhenLoaded(itemID, function()
-                    if GameTooltip:IsOwned(button) then ShowTooltip(button) end
-                end)
-            end
-        end
+        GameTooltip:AddLine(L.HINT_RANKED, 0.6, 0.6, 0.6)
     end
+    GameTooltip:AddLine(L.HINT_MARK, 0.6, 0.6, 0.6)
     GameTooltip:Show()
 end
 
@@ -210,9 +186,13 @@ local function OnSlotClick(button, mouseButton)
         if GameTooltip:IsOwned(button) then ShowTooltip(button) end
         return
     end
-    if not IsModifiedClick() then return end
-    local _, link = GetItemInfo(button.item)
-    if link then HandleModifiedItemClick(link) end
+    if IsModifiedClick() then
+        local _, link = GetItemInfo(button.item)
+        if link then HandleModifiedItemClick(link) end
+        return
+    end
+    GameTooltip:Hide()
+    ns.RankFlyout:Toggle(button, Panel.RankedItems(frame.list, button.slot))
 end
 
 local function CreateSlotButton(parent, slot)
@@ -290,6 +270,7 @@ local function Create()
 
     frame:SetScript("OnHide", function()
         GameTooltip:Hide()
+        ns.RankFlyout:Close()
         PlaceTab()
     end)
 end
@@ -344,6 +325,7 @@ function Panel:Refresh()
     frame.emptyNote:SetShown(current == nil)
 
     frame.list = current
+    ns.RankFlyout:Close()
     for slot, button in pairs(slotButtons) do
         PaintSlot(button, Panel.SlotView(current, slot), current)
     end

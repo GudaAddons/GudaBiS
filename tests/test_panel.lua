@@ -148,27 +148,91 @@ return function(T, H)
         T.noErrors()
     end)
 
-    T.case("tooltip: the item, then numbered alternatives; loading ones refresh", function()
+    local function FlyoutRows()
+        local out = {}
+        for _, frame in ipairs(H.AllFrames()) do
+            if rawget(frame, "rank") and frame:IsShown() then out[#out + 1] = frame end
+        end
+        table.sort(out, function(a, b) return a.rank.shownText < b.rank.shownText end)
+        return out
+    end
+
+    T.case("RankedItems: the BiS item first, then the guide's alternatives", function()
+        local ns = H.Boot()
+        local list = ns.Data:Get(GUIDE)
+        local ranked = ns.Panel.RankedItems(list, 1)
+        T.eq(ranked[1], 32521, "#1")
+        T.eq(ranked[2], 30987, "#2")
+        T.eq(#ranked, 1 + #list.alts[1], "all alternatives")
+        T.eq(#ns.Panel.RankedItems(list, 4), 0, "empty slot")
+        T.eq(#ns.Panel.RankedItems(nil, 1), 0, "no list")
+    end)
+
+    T.case("slot tooltip: no alternatives in it, just the hints", function()
+        H.Boot()
+        H.Slash("")
+        SlotButton(1):Enter()
+        local tip = _G.GameTooltip
+        T.eq(tip.item, 32521, "item tooltip")
+        local hasRanked, hasAlternatives = false, false
+        for _, line in ipairs(tip.lines) do
+            if line == "Click: show the ranked items for this slot" then hasRanked = true end
+            if line:find("^%d+%. ") then hasAlternatives = true end
+        end
+        T.ok(hasRanked, "click hint")
+        T.ok(not hasAlternatives, "no numbered list in the tooltip")
+    end)
+
+    T.case("click opens the ranked list 1. BiS 2. 3. ..., click again closes", function()
         local ns = H.Boot()
         H.Slash("")
         local head = SlotButton(1)
-        H.cached[30987] = true
-        head:Enter()
-        local tip = _G.GameTooltip
-        T.eq(tip.item, 32521, "item tooltip")
-        local function IndexOf(text)
-            for i, line in ipairs(tip.lines) do
-                if line == text then return i end
-            end
-        end
-        local header = IndexOf("Alternatives")
-        T.ok(header ~= nil, "header")
-        T.ok(IndexOf("Right-click: mark as owned or not needed") < header, "hint above the alternatives")
-        T.eq(tip.lines[header + 1], "1. Item30987", "cached alternative")
-        T.eq(tip.lines[header + 2], "Item 33421 (loading...)", "loading alternative")
+        H.cached[32521] = true
+        head:Click()
+        T.ok(ns.RankFlyout:IsOpenFor(head), "open for the head")
+        local rows = FlyoutRows()
+        local list = ns.Data:Get(GUIDE)
+        T.eq(#rows, 1 + #list.alts[1], "one row per ranked item")
+        T.eq(rows[1].rank.shownText, "1.", "rank 1")
+        T.eq(rows[1].item, 32521, "BiS first")
+        T.eq(rows[1].name.shownText, "Item32521", "name")
+        T.eq(rows[2].item, 30987, "first alternative second")
+        T.eq(rows[2].name.shownText, "Item 30987 (loading...)", "loading")
         H.LoadItems()
-        header = IndexOf("Alternatives")
-        T.eq(tip.lines[header + 2], "2. Item33421", "redrawn after load")
+        T.eq(rows[2].name.shownText, "Item30987", "painted after load")
+        head:Click()
+        T.ok(not ns.RankFlyout:IsOpenFor(head), "closed by a second click")
+        T.noErrors()
+    end)
+
+    T.case("another slot moves the list; changing list or closing the panel closes it", function()
+        local ns = H.Boot()
+        H.Slash("")
+        local head, chest = SlotButton(1), SlotButton(5)
+        head:Click()
+        chest:Click()
+        T.ok(ns.RankFlyout:IsOpenFor(chest), "moved to the chest")
+        T.eq(FlyoutRows()[1].item, 30991, "chest items")
+        ns.Lists:Select("PALADIN_PROTECTION:4:3")
+        ns.Panel:Refresh()
+        T.ok(not ns.RankFlyout:IsOpenFor(chest), "closed on list change")
+        chest:Click()
+        ns.Panel:Close()
+        T.ok(not ns.RankFlyout:IsOpenFor(chest), "closed with the panel")
+    end)
+
+    T.case("ranked rows: owned items get a check, right-click marks a row", function()
+        local ns = H.Boot({ containers = { [0] = { 30987 } } })
+        H.Slash("")
+        local head = SlotButton(1)
+        T.ok(not head.check:IsShown(), "no check on the slot for an owned alternative")
+        head:Click()
+        local rows = FlyoutRows()
+        T.ok(not rows[1].check:IsShown(), "BiS not owned")
+        T.ok(rows[2].check:IsShown(), "the alternative in your bags is checked")
+        rows[3].scripts.OnClick(rows[3], "RightButton")
+        T.eq(ns.Owned:State(rows[3].item), "manual", "row marked")
+        T.ok(rows[3].check:IsShown(), "check appears")
         T.noErrors()
     end)
 

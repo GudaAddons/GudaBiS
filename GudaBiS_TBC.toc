@@ -47,11 +47,13 @@ Data\TBC\Lists.lua
 # Gear
 Gear\Spec.lua
 Gear\Lists.lua
+Gear\Items.lua
 Gear\Owned.lua
 
 # UI
 UI\Theme.lua
 UI\Dropdown.lua
+UI\RankFlyout.lua
 UI\Panel.lua
 
 # Bootstrap (load last)
