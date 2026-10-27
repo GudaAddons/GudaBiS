@@ -75,6 +75,12 @@ local function NewFrame(name)
         return self.checkedTexture
     end
     function frame:SetBlendMode(mode) self.blendMode = mode end
+    function frame:SetChecked(checked) self.checked = checked and true or false end
+    function frame:GetChecked() return rawget(self, "checked") or false end
+    function frame:Script(name, ...)
+        local fn = self.scripts[name]
+        if fn then return fn(self, ...) end
+    end
     function frame:HookScript(script, fn)
         local previous = self.scripts[script]
         self.scripts[script] = function(...)
@@ -161,6 +167,22 @@ function H.Install(opts)
     H.cached = {}
     H.itemLoads = {}
     H.itemClass = {}
+    H.equipLoc = {}
+    H.cursor = nil
+    _G.GetCursorInfo = function()
+        if H.cursor then return "item", H.cursor end
+    end
+    _G.ClearCursor = function() H.cursor = nil end
+    _G.strtrim = function(s) return (s:gsub("^%s+", ""):gsub("%s+$", "")) end
+    _G.OKAY, _G.CANCEL = "Okay", "Cancel"
+    _G.hooksecurefunc = function(name, hook)
+        local original = _G[name]
+        _G[name] = function(...)
+            local result = original(...)
+            hook(...)
+            return result
+        end
+    end
 
     -- Inventory: H.equipped[slot] = itemID, H.containers[bag] = { itemID or false, ... }
     H.equipped = opts.equipped or {}
@@ -182,7 +204,7 @@ function H.Install(opts)
             return "Item" .. itemID, "|cffa335ee|Hitem:" .. itemID .. "|h[Item" .. itemID .. "]|h|r", 4
         end,
         GetItemInfoInstant = function(itemID)
-            return itemID, "Armor", "Plate", "INVTYPE_HEAD", "icon" .. itemID, H.itemClass[itemID] or 4
+            return itemID, "Armor", "Plate", H.equipLoc[itemID] or "INVTYPE_HEAD", "icon" .. itemID, H.itemClass[itemID] or 4
         end,
         GetDetailedItemLevelInfo = function() end,
     }

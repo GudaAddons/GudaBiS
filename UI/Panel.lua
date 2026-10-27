@@ -73,11 +73,22 @@ function Panel.SlotView(list, slot)
 end
 
 -- "Protection · Balanced set": the client's own tree name, then the guide's tab name.
-function Panel.ListLabel(list, treeName)
-    if treeName and treeName ~= "" then
-        return treeName .. " · " .. list.set
+-- A custom list shows its own name. role ("ms"/"os") adds a coloured MS/OS tag.
+local ROLE_TAGS = { ms = "|cff40ff40%s|r ", os = "|cff40c0ff%s|r " }
+
+function Panel.ListLabel(list, treeName, role)
+    local label
+    if list.custom then
+        label = list.name
+    elseif treeName and treeName ~= "" then
+        label = treeName .. " · " .. list.set
+    else
+        label = list.set
     end
-    return list.set
+    if role then
+        label = string.format(ROLE_TAGS[role], role == "ms" and L.ROLE_MS or L.ROLE_OS) .. label
+    end
+    return label
 end
 
 function Panel.PhaseLabel(phase)
@@ -216,33 +227,84 @@ local function AddOwnedLine(button)
     end
 end
 
+local function EditingCustom()
+    return frame ~= nil and ns.Lists.IsCustom(frame.list)
+end
+
 local function ShowTooltip(button)
-    if not button.item then return end
+    if not button.item then
+        if not EditingCustom() then return end
+        GameTooltip:SetOwner(button, "ANCHOR_RIGHT")
+        GameTooltip:SetText(L.HINT_CHOOSE)
+        GameTooltip:Show()
+        return
+    end
     GameTooltip:SetOwner(button, "ANCHOR_RIGHT")
     GameTooltip:SetItemByID(button.item)
     GameTooltip:AddLine(" ")
     AddOwnedLine(button)
-    if #button.alts > 0 then
+    if EditingCustom() then
+        GameTooltip:AddLine(L.HINT_CHOOSE, 0.6, 0.6, 0.6)
+    elseif #button.alts > 0 then
         GameTooltip:AddLine(L.HINT_RANKED, 0.6, 0.6, 0.6)
     end
     GameTooltip:AddLine(L.HINT_MARK, 0.6, 0.6, 0.6)
     GameTooltip:Show()
 end
 
+-- Puts itemID (nil clears) into the slot of the custom list being shown, when it fits.
+local function SetCustomSlot(slot, itemID)
+    if itemID then
+        local _, _, _, equipLoc = GetItemInfoInstant(itemID)
+        if not ns.Lists.FitsSlot(equipLoc, slot) then
+            ns:Print(string.format(L.PICK_WRONG_SLOT, itemID))
+            return
+        end
+    end
+    ns.Lists:SetSlot(frame.list.id, slot, itemID)
+    Panel:Refresh()
+end
+
+-- An item dropped on a custom list's slot (dragged from bags or the picker).
+local function OnSlotReceiveDrag(button)
+    if not EditingCustom() then return false end
+    local kind, itemID = GetCursorInfo()
+    if kind ~= "item" or not itemID then return false end
+    ClearCursor()
+    SetCustomSlot(button.slot, itemID)
+    return true
+end
+
+local function OpenPicker(button)
+    local slot = button.slot
+    ns.RankFlyout:Toggle(button, ns.Lists:GuideItemsForSlot(slot), {
+        slot = slot,
+        onPick = function(itemID)
+            ns.Lists:SetSlot(frame.list.id, slot, itemID)
+            Panel:Refresh()
+        end,
+    })
+end
+
 local function OnSlotClick(button, mouseButton)
-    if not button.item then return end
+    if OnSlotReceiveDrag(button) then return end
     if mouseButton == "RightButton" then
+        if not button.item then return end
         ns.Owned:ToggleManual(button.item)
         if GameTooltip:IsOwned(button) then ShowTooltip(button) end
         return
     end
-    if IsModifiedClick() then
+    if button.item and IsModifiedClick() then
         local _, link = GetItemInfo(button.item)
         if link then HandleModifiedItemClick(link) end
         return
     end
     GameTooltip:Hide()
-    ns.RankFlyout:Toggle(button, Panel.RankedItems(frame.list, button.slot))
+    if EditingCustom() then
+        OpenPicker(button)
+    elseif button.item then
+        ns.RankFlyout:Toggle(button, Panel.RankedItems(frame.list, button.slot))
+    end
 end
 
 local function HideTooltip() GameTooltip:Hide() end
@@ -292,6 +354,7 @@ local function CreateSlotButton(slot, side)
     button:SetScript("OnEnter", ShowTooltip)
     button:SetScript("OnLeave", HideTooltip)
     button:SetScript("OnClick", OnSlotClick)
+    button:SetScript("OnReceiveDrag", OnSlotReceiveDrag)
     button.slot = slot
     button.alts = NO_ALTS
 
@@ -357,6 +420,123 @@ local function LayoutSlots()
     end
 end
 
+local NEW_ICON = "Interface\\PaperDollInfoFrame\\Character-Plus"
+local RENAME_ICON = "Interface\\Buttons\\UI-GuildButton-PublicNote-Up"
+local DELETE_ICON = "Interface\\Buttons\\UI-GroupLoot-Pass-Up"
+
+local listButtons = {}
+
+local function ShowButtonTooltip(self)
+    GameTooltip:SetOwner(self, "ANCHOR_TOP")
+    GameTooltip:SetText(self.tooltip)
+    GameTooltip:Show()
+end
+
+local function IconButton(texture, tooltip, onClick)
+    local button = CreateFrame("Button", nil, frame)
+    button:SetSize(18, 18)
+    button:SetNormalTexture(texture)
+    button:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square")
+    button:GetHighlightTexture():SetBlendMode("ADD")
+    button.tooltip = tooltip
+    button:SetScript("OnClick", onClick)
+    button:SetScript("OnEnter", ShowButtonTooltip)
+    button:SetScript("OnLeave", HideTooltip)
+    return button
+end
+
+-- MS / OS: marks the list being shown as this character's main or off spec.
+local function RoleButton(role, label, tooltip)
+    local button = ns.Theme.CreateWindow("Button", nil, frame)
+    button:SetSize(30, 18)
+    button.text = button:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    button.text:SetPoint("CENTER")
+    button.text:SetText(label)
+    button.tooltip = tooltip
+    button.role = role
+    button:SetScript("OnClick", function()
+        if not frame.list then return end
+        ns.Lists:ToggleRole(role, frame.list.id)
+        Panel:Refresh()
+    end)
+    button:SetScript("OnEnter", ShowButtonTooltip)
+    button:SetScript("OnLeave", HideTooltip)
+    return button
+end
+
+local function NewList()
+    local count = 0
+    for _ in pairs(ns.db.lists or {}) do count = count + 1 end
+    local copyFrom = frame.list
+    ns.NameDialog:Open({
+        title = L.NEW_LIST,
+        text = string.format(L.DEFAULT_LIST_NAME, count + 1),
+        showCopy = copyFrom ~= nil,
+        onAccept = function(name, copy)
+            ns.Lists:CreateCustom(name, copy and copyFrom or nil)
+            Panel:Refresh()
+        end,
+    })
+end
+
+local function RenameList()
+    local list = frame.list
+    if not ns.Lists.IsCustom(list) then return end
+    ns.NameDialog:Open({
+        title = L.RENAME_LIST,
+        text = list.name,
+        onAccept = function(name)
+            ns.Lists:Rename(list.id, name)
+            Panel:Refresh()
+        end,
+    })
+end
+
+local function DeleteList()
+    local list = frame.list
+    if not ns.Lists.IsCustom(list) then return end
+    ns.NameDialog:Open({
+        title = string.format(L.DELETE_CONFIRM, list.name),
+        confirm = true,
+        onAccept = function()
+            ns.Lists:Delete(list.id)
+            Panel:Refresh()
+        end,
+    })
+end
+
+-- Title row, right to left from the close button: delete, rename, new, then OS, MS.
+local function CreateListButtons()
+    listButtons.delete = IconButton(DELETE_ICON, L.TOOLTIP_DELETE, DeleteList)
+    listButtons.delete:SetPoint("TOPRIGHT", -30, -8)
+    listButtons.rename = IconButton(RENAME_ICON, L.TOOLTIP_RENAME, RenameList)
+    listButtons.rename:SetPoint("RIGHT", listButtons.delete, "LEFT", -4, 0)
+    listButtons.new = IconButton(NEW_ICON, L.TOOLTIP_NEW_LIST, NewList)
+    listButtons.new:SetPoint("RIGHT", listButtons.rename, "LEFT", -4, 0)
+    listButtons.os = RoleButton("os", L.ROLE_OS, L.TOOLTIP_OS)
+    listButtons.os:SetPoint("RIGHT", listButtons.new, "LEFT", -10, 0)
+    listButtons.ms = RoleButton("ms", L.ROLE_MS, L.TOOLTIP_MS)
+    listButtons.ms:SetPoint("RIGHT", listButtons.os, "LEFT", -4, 0)
+end
+
+local ROLE_COLORS = { ms = { 0.25, 1, 0.25 }, os = { 0.25, 0.75, 1 } }
+
+local function PaintListButtons(current)
+    local custom = ns.Lists.IsCustom(current)
+    listButtons.rename:SetShown(custom)
+    listButtons.delete:SetShown(custom)
+    local role = current and ns.Lists:RoleOf(current.id)
+    for _, key in ipairs({ "ms", "os" }) do
+        local button = listButtons[key]
+        button:SetShown(current ~= nil)
+        if role == key then
+            button.text:SetTextColor(unpack(ROLE_COLORS[key]))
+        else
+            button.text:SetTextColor(0.5, 0.5, 0.5)
+        end
+    end
+end
+
 local function Create()
     frame = ns.Theme.CreateWindow("Frame", "GudaBiSPanel", UIParent)
     frame:SetSize(WIDTH, HEIGHT)
@@ -386,6 +566,8 @@ local function Create()
         Panel:Refresh()
     end)
     listDropdown.button:SetPoint("LEFT", phaseDropdown.button, "RIGHT", 8, 0)
+
+    CreateListButtons()
 
     frame.emptyNote = frame:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     frame.emptyNote:SetPoint("TOP", 0, -HEADER_HEIGHT + 14)
@@ -444,10 +626,14 @@ function Panel:Refresh()
     local current = Lists:Current()
     local listOptions = {}
     for i, list in ipairs(Lists:Choices()) do
-        listOptions[i] = { value = list.id, text = Panel.ListLabel(list, ns.Spec:TreeName(list.tree)) }
+        listOptions[i] = {
+            value = list.id,
+            text = Panel.ListLabel(list, ns.Spec:TreeName(list.tree), Lists:RoleOf(list.id)),
+        }
     end
     listDropdown:SetOptions(listOptions, current and current.id)
     frame.emptyNote:SetShown(current == nil)
+    PaintListButtons(current)
 
     frame.list = current
     ns.RankFlyout:Close()
