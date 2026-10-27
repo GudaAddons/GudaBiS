@@ -3,5 +3,6 @@ docs
 tmp
 .*
 !.gitignore
+!.gitattributes
 !.github/
 !.pkgmeta

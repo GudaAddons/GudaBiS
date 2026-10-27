@@ -1,0 +1,51 @@
+-- GB-001: /gbis router, help and debug.
+
+return function(T, H)
+    T.case("/gbis alone and /gbis help print the command list", function()
+        H.Boot()
+        H.Slash("")
+        T.ok(H.Printed("GudaBiS ====", true), "header")
+        T.ok(H.Printed("/gbis debug", true), "debug help")
+        T.ok(H.Printed("/gbis status", true), "status help")
+        T.ok(H.Printed("/gbis log", true), "log help")
+        H.printed = {}
+        H.Slash("help")
+        T.ok(H.Printed("/gbis debug", true), "help again")
+        T.noErrors()
+    end)
+
+    T.case("/gbis debug toggles, on/off set, case-insensitive", function()
+        local ns = H.Boot()
+        H.Slash("debug")
+        T.eq(ns.debugMode, true, "toggle on")
+        H.Slash("DEBUG off")
+        T.eq(ns.debugMode, false, "off")
+        H.Slash("debug on")
+        T.eq(ns.debugMode, true, "on")
+        T.eq(ns.db.settings.debug, true, "saved")
+        T.ok(H.Printed("Debug mode on.", true), "message")
+    end)
+
+    T.case("unknown command says so", function()
+        H.Boot()
+        H.Slash("nope")
+        T.ok(H.Printed("Unknown command 'nope'", true), "message")
+        T.noErrors()
+    end)
+
+    T.case("a failing command reaches the error handler, not chat", function()
+        local ns = H.Boot()
+        ns.SlashCommands:Register("boom", function() error("kaboom") end)
+        H.Slash("boom")
+        T.eq(#H.errors, 1, "error")
+        T.ok(H.errors[1]:find("kaboom"), "message")
+    end)
+
+    T.case("extra words reach the handler", function()
+        local ns = H.Boot()
+        local got
+        ns.SlashCommands:Register("echo", function(args) got = table.concat(args, "|") end)
+        H.Slash("echo  a   b ")
+        T.eq(got, "a|b", "args")
+    end)
+end
