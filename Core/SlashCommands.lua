@@ -51,6 +51,28 @@ SlashCommands:Register("help", function()
     SlashCommands:PrintHelp()
 end)
 
+local function YesNo(value)
+    return value and (YES or "yes") or (NO or "no")
+end
+
+-- Feature flags and resolved API sources as one line each, so a bug report from an
+-- untested client carries everything needed to see which branch it took.
+SlashCommands:Register("status", function()
+    local E = ns.Expansion
+    ns:Print(string.format(L.STATUS_CLIENT, E.ClientKey, E.InterfaceVersion))
+    local parts = {}
+    for i, name in ipairs(E.FeatureNames) do
+        parts[i] = name .. "=" .. YesNo(ns.Features[name])
+    end
+    ns:Print(string.format(L.STATUS_FEATURES, table.concat(parts, ", ")))
+    local Compat = ns.Compat
+    wipe(parts)
+    for i, name in ipairs(Compat.resolvedNames) do
+        parts[i] = name .. "=" .. Compat.resolvedSource[name]
+    end
+    ns:Print(string.format(L.STATUS_API, table.concat(parts, ", ")))
+end, L.HELP_STATUS)
+
 SlashCommands:Register("debug", function(args)
     local mode = args[1] and args[1]:lower()
     if mode == "on" then

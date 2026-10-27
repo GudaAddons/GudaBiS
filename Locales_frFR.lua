@@ -6,6 +6,10 @@ if ns.locale ~= "frFR" then return end
 local L = ns.L
 
 local T = {
+    HELP_STATUS = "|cffffff00/gbis status|r : client, fonctionnalités et sources de l'API",
+    STATUS_CLIENT = "Client : %s (interface %d)",
+    STATUS_FEATURES = "Fonctionnalités : %s",
+    STATUS_API = "API : %s",
     HELP_DEBUG = "|cffffff00/gbis debug [on|off]|r : active ou désactive le mode débogage (lignes de débogage dans le chat)",
     UNKNOWN_COMMAND = "Commande inconnue « %s ». Tapez /gbis help.",
     DEBUG_ON = "Mode débogage activé.",

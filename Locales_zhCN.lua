@@ -6,6 +6,10 @@ if ns.locale ~= "zhCN" then return end
 local L = ns.L
 
 local T = {
+    HELP_STATUS = "|cffffff00/gbis status|r：客户端、功能和 API 来源",
+    STATUS_CLIENT = "客户端：%s（界面版本 %d）",
+    STATUS_FEATURES = "功能：%s",
+    STATUS_API = "API：%s",
     HELP_DEBUG = "|cffffff00/gbis debug [on|off]|r：开启或关闭调试模式（在聊天中显示调试信息）",
     UNKNOWN_COMMAND = "未知命令“%s”。请输入 /gbis help。",
     DEBUG_ON = "调试模式已开启。",

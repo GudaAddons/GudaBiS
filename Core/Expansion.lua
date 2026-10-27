@@ -1,0 +1,75 @@
+-- Which client this is, and what it can do. Feature code asks ns.Features.<Flag>,
+-- never WOW_PROJECT_ID or the interface number (RULES.md Rule 3).
+--
+-- WoW: Forever (interface 16000-19999, TOC suffix _Camelot) is the client where the
+-- version number lies: it looks like Vanilla but runs the modern Retail API, with
+-- Vanilla content and frame art. It has no WOW_PROJECT_ID constant of its own and may
+-- report the Classic or Mainline ID, so it is decided by interface range, first.
+-- Pattern and reasoning from GudaBags Core/Expansion.lua.
+
+local addonName, ns = ...
+
+local Expansion = ns:RegisterModule("Expansion")
+
+local _, _, _, interfaceVersion = GetBuildInfo()
+local iface = tonumber(interfaceVersion) or 0
+Expansion.InterfaceVersion = iface
+
+local project = WOW_PROJECT_ID
+
+Expansion.IsForever = iface >= 16000 and iface < 20000
+Expansion.IsRetail = Expansion.IsForever
+    or (project == (WOW_PROJECT_MAINLINE or 1) and iface >= 100000)
+Expansion.IsEra = not Expansion.IsForever and project == (WOW_PROJECT_CLASSIC or 2)
+Expansion.IsTBC = project == (WOW_PROJECT_BURNING_CRUSADE_CLASSIC or 5)
+Expansion.IsMists = project == (WOW_PROJECT_MISTS_CLASSIC or 19)
+
+-- An unknown project ID must never select a feature set the client lacks, so fall
+-- back to the interface range when no project test matched.
+if not (Expansion.IsRetail or Expansion.IsEra or Expansion.IsTBC or Expansion.IsMists) then
+    Expansion.IsRetail = iface >= 100000
+    Expansion.IsEra = iface >= 11500 and iface < 20000
+    Expansion.IsTBC = iface >= 20500 and iface < 30000
+    Expansion.IsMists = iface >= 50500 and iface < 60000
+end
+
+Expansion.ClientKey = Expansion.IsForever and "Forever"
+    or Expansion.IsEra and "Era"
+    or Expansion.IsTBC and "TBC"
+    or Expansion.IsMists and "Mists"
+    or Expansion.IsRetail and "Retail"
+    or "Unknown"
+
+local isModernRetail = Expansion.IsRetail and not Expansion.IsForever
+local isClassic = Expansion.IsEra or Expansion.IsTBC or Expansion.IsMists
+
+-- Each flag answers one question. Flags that are true on the same clients today are
+-- still kept apart when the questions differ; Forever is the client that splits them.
+--
+-- HasGems: sockets arrived in TBC. Forever has Vanilla items, so no gems.
+-- HasMasterLoot: Retail removed it in 8.0.1. Unconfirmed on Forever, off until
+--   /gbis probe proves it (GB-005).
+-- HasPhases: content releases in phases (the Phase dropdown). Retail's season
+--   equivalent is decided in its own milestone.
+-- HasSpecChoice: the player picks a specialization (MoP onwards). Elsewhere the spec
+--   is inferred from where the talent points are. Forever unconfirmed (GB-005).
+-- ChatLockdown: group chat text can be a secret value inside instances (12.0 engine).
+-- ItemLevelMatters: the same item ID drops at different item levels.
+-- HasWarbandBank: an account bank (Forever has AccountBankTab_1..9).
+local Features = {
+    HasGems = Expansion.IsTBC or Expansion.IsMists or isModernRetail,
+    HasMasterLoot = isClassic,
+    HasPhases = isClassic,
+    HasSpecChoice = Expansion.IsMists or isModernRetail,
+    ChatLockdown = Expansion.IsRetail,
+    ItemLevelMatters = isModernRetail,
+    HasWarbandBank = Expansion.IsRetail,
+}
+Expansion.Features = Features
+ns.Features = Features
+
+-- Stable order for /gbis status, so output is comparable between runs and clients.
+Expansion.FeatureNames = {
+    "HasGems", "HasMasterLoot", "HasPhases", "HasSpecChoice",
+    "ChatLockdown", "ItemLevelMatters", "HasWarbandBank",
+}
