@@ -34,9 +34,12 @@ return function(T, H)
         for id, list in pairs(ids) do
             count = count + 1
             T.eq(ns.Data:Get(id), list, "Get " .. id)
-            T.ok(id:find("^" .. list.spec .. ":" .. list.phase .. ":%d+$"), "id shape " .. id)
-            T.ok(type(list.specID) == "number" and type(list.tree) == "number", "spec ids " .. id)
-            T.ok(list.url:find("^https://www%.wowhead%.com/"), "url " .. id)
+            local phaseKey = list.anyPhase and "res" or tostring(list.phase)
+            T.ok(list.anyPhase == nil or list.phase == nil, "anyPhase has no phase " .. id)
+            T.ok(id:find("^" .. list.spec .. ":" .. phaseKey .. ":%d+$"), "id shape " .. id)
+            T.ok(list.specID == nil or type(list.specID) == "number", "spec id " .. id)
+            T.ok(type(list.tree) == "number" and type(list.class) == "string", "tree " .. id)
+            T.ok(list.url == nil or list.url:find("^https://www%.wowhead%.com/"), "url " .. id)
             T.ok(list.faction == nil or list.faction == "Horde" or list.faction == "Alliance", "faction " .. id)
             local slots = 0
             for slot, item in pairs(list.items) do
@@ -69,6 +72,33 @@ return function(T, H)
         for _, list in ipairs(horde) do T.ok(list.faction ~= "Alliance", "no Alliance list for Horde") end
         T.eq(#ns.Data:ForSpec("PALADIN_PROTECTION", 99, "Horde"), 0, "unknown phase")
         T.eq(#ns.Data:ForSpec("NOPE", 4, "Horde"), 0, "unknown spec")
+    end)
+
+    T.case("resistance lists join every phase, after the phase's own lists", function()
+        local ns = H.Boot()
+        local res = ns.Data:Get("WARRIOR_PROTECTION:res:1")
+        T.ok(res and res.anyPhase and res.phase == nil, "resistance list registered")
+        for _, phase in ipairs(ns.Data:Phases()) do
+            T.ok(phase ~= nil, "no nil phase")
+            local lists = ns.Data:ForSpec("WARRIOR_PROTECTION", phase, "Horde")
+            T.eq(lists[#lists].anyPhase, true, "resistance last in phase " .. phase)
+            for i = 2, #lists do
+                T.ok(lists[i].anyPhase or not lists[i - 1].anyPhase, "phase lists first in phase " .. phase)
+            end
+            local found = false
+            for _, list in ipairs(ns.Data:ForClass("WARRIOR", phase, "Horde")) do
+                if list == res then found = true end
+            end
+            T.ok(found, "ForClass offers it in phase " .. phase)
+        end
+        T.eq(#ns.Data:ForClass("WARRIOR", 99, "Horde"), 0, "unknown phase stays empty")
+    end)
+
+    T.case("set names carry no parentheses", function()
+        local ns = H.Boot()
+        for _, list in ipairs(ns.Data:All()) do
+            T.ok(not list.set:find("[()]"), "set name " .. list.id .. ": " .. list.set)
+        end
     end)
 
     T.case("a second flavor cannot register", function()

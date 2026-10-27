@@ -295,7 +295,7 @@ function H.Install(opts)
     H.class, H.faction = opts.class or "PALADIN", opts.faction or "Alliance"
     _G.UnitClass = function() return "Paladin", H.class end
     _G.UnitFactionGroup = function() return H.faction end
-    H.talentPoints = opts.talentPoints
+    H.talentPoints = opts.talentPoints == nil and { 0, 40, 21 } or opts.talentPoints or nil
     _G.C_SpecializationInfo = {
         GetSpecializationInfo = function(tree)
             local points = H.talentPoints

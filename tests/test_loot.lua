@@ -286,7 +286,7 @@ return function(T, H)
     end)
 
     T.case("/gbis test without an MS list says so", function()
-        H.Boot({ class = "MAGE" })
+        H.Boot({ class = "DEATHKNIGHT" })
         H.Slash("test")
         T.ok(H.Printed("No item on your main-spec list", true), "message")
         T.ok(not Toast(), "no toast")

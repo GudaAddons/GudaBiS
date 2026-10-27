@@ -34,7 +34,7 @@ return function(T, H)
         for _, list in ipairs(ns.Lists:Choices()) do
             T.ok(list.class == "PALADIN" and list.faction ~= "Horde", "choice " .. list.id)
         end
-        ns = H.Boot({ class = "MAGE" })
+        ns = H.Boot({ class = "DEATHKNIGHT" })
         T.eq(ns.Lists:Current(), nil, "no data for the class")
     end)
 
