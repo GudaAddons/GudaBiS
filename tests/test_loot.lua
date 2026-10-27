@@ -89,11 +89,16 @@ return function(T, H)
         local overlay = f1.gudaBiSBadge
         T.ok(overlay ~= nil, "badge made")
         T.eq(overlay.label.shownText, "Your BiS", "text")
-        T.ok(overlay.glow:IsShown(), "Need glows")
-        T.ok(overlay.pulse.playing, "pulsing")
+        local ns = H.ns
+        T.ok(ns.Glow.IsShown(need), "Need button has the proc glow")
+        local glow = need.gudaBiSGlow
+        T.eq(glow.ants.texture, "Interface\\SpellActivationOverlay\\IconAlertAnts", "marching ants")
+        T.eq(glow.outer.texture, "Interface\\SpellActivationOverlay\\IconAlert", "golden glow")
+        T.ok(glow.loop.playing and glow.burst.playing, "ants run, burst plays")
+        T.eq(glow.width, 32 * 1.4, "sized around the button")
         T.eq(#H.sounds, 1, "sound")
         f1:Hide()
-        T.ok(not overlay.glow:IsShown(), "cleared when the frame hides")
+        T.ok(not ns.Glow.IsShown(need), "cleared when the frame hides")
         H.lootRolls[12] = Link(1)
         f1.rollID = 12
         f1:Show()

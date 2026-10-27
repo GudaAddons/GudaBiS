@@ -61,6 +61,7 @@ Integrations\RCLootCouncil.lua
 
 # UI
 UI\Theme.lua
+UI\Glow.lua
 UI\Alerts.lua
 UI\Dropdown.lua
 UI\NameDialog.lua

@@ -57,18 +57,6 @@ local function Overlay(frame)
     local label = overlay:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     label:SetPoint("BOTTOM", overlay, "TOP", 0, 2)
     overlay.label = label
-    local glow = overlay:CreateTexture(nil, "OVERLAY")
-    glow:SetTexture("Interface\\Buttons\\UI-ActionButton-Border")
-    glow:SetBlendMode("ADD")
-    glow:Hide()
-    overlay.glow = glow
-    local pulse = glow:CreateAnimationGroup()
-    pulse:SetLooping("BOUNCE")
-    local fade = pulse:CreateAnimation("Alpha")
-    fade:SetFromAlpha(1)
-    fade:SetToAlpha(0.3)
-    fade:SetDuration(0.6)
-    overlay.pulse = pulse
     frame:HookScript("OnHide", function() Alerts:ClearBadge(frame) end)
     frame.gudaBiSBadge = overlay
     return overlay
@@ -82,13 +70,8 @@ function Alerts:Badge(frame, match, needButton)
     overlay.label:SetTextColor(color[1], color[2], color[3])
     overlay.label:Show()
     if needButton then
-        local glow = overlay.glow
-        glow:ClearAllPoints()
-        glow:SetPoint("CENTER", needButton, "CENTER")
-        glow:SetSize(needButton:GetWidth() * 1.9, needButton:GetHeight() * 1.9)
-        glow:SetVertexColor(color[1], color[2], color[3])
-        glow:Show()
-        overlay.pulse:Play()
+        ns.Glow.Show(needButton)
+        overlay.glowTarget = needButton
     end
     overlay:Show()
 end
@@ -96,8 +79,10 @@ end
 function Alerts:ClearBadge(frame)
     local overlay = frame and frame.gudaBiSBadge
     if not overlay then return end
-    overlay.pulse:Stop()
-    overlay.glow:Hide()
+    if overlay.glowTarget then
+        ns.Glow.Hide(overlay.glowTarget)
+        overlay.glowTarget = nil
+    end
     overlay.label:Hide()
 end
 
