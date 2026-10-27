@@ -154,9 +154,9 @@ local function ProbeUI()
         Settings and Settings.RegisterCanvasLayoutCategory and "yes" or "no",
         Settings and Settings.RegisterAddOnCategory and "yes" or "no",
         _G.InterfaceOptions_AddCategory and "yes" or "no")
-    Write("Item:CreateFromItemID %s · ContinueOnItemLoad %s",
+    Write("Item:CreateFromItemID %s · ItemMixin:ContinueOnItemLoad %s",
         Item and Item.CreateFromItemID and "yes" or "no",
-        Item and Item.ContinueOnItemLoad and "yes" or "no")
+        ItemMixin and ItemMixin.ContinueOnItemLoad and "yes" or "no")
 end
 
 local function ProbeAddons()
