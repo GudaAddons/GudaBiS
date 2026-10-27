@@ -1,8 +1,9 @@
 -- Where BiS drops are noticed (GB-060/061/062). Every listener here is group-only
 -- (Events:RegisterGroup), so none of this costs anything while solo.
 --
--- Blizzard group loot: START_LOOT_ROLL. The Need/Greed popup gets our badge and a
--- glow on its Need button; no popup of ours.
+-- Blizzard group loot: START_LOOT_ROLL. The Need/Greed popup gets our glowing badge
+-- and the proc glow on its item icon (author, 2026-10-28: the item, not the button);
+-- no popup of ours.
 --
 -- Chat, from the raid leader, an assistant or the master looter only (anyone else
 -- linking an item is ignored), matched by item ID inside the links, never by the words
@@ -127,7 +128,7 @@ local function OnStartLootRoll(_, rollID)
     C_Timer.After(0, function()
         local frame, index = FindRollFrame(rollID)
         if not frame then return end
-        ns.Alerts:Badge(frame, match, ns.Compat.GetGroupLootNeedButton(index))
+        ns.Alerts:Badge(frame, match, ns.Compat.GetGroupLootIcon(index))
         ns.Alerts:Sound()
         ns.Events:Fire("GBIS_BIS_ROLL", rollID, itemID, match)
     end)

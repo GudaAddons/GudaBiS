@@ -1,8 +1,12 @@
 -- What the player sees when a BiS item comes up (GB-061/062):
 --
---   Alerts:Badge(frame, match, needButton)   "Your BiS" on someone else's roll frame
---                                            (Blizzard, Gargul, RCLootCouncil) and a
---                                            pulsing glow on its Need button, if given
+--   Alerts:Badge(frame, match, itemIcon)     a "Your BiS" label above someone else's
+--                                            roll frame (Blizzard, Gargul, RCLootCouncil)
+--                                            and the proc glow on its item icon, if given.
+--                                            The label sits on a dark plate inside the
+--                                            same glow, readable on any background
+--                                            (author, 2026-10-28: green text alone was
+--                                            hard to see)
 --   Alerts:ClearBadge(frame)
 --   Alerts:Dropped(link, match)              "Your BiS dropped!" toast, 15 s
 --   Alerts:Rolling(link, match, seconds)     "Rolling now" popup with MS (1-100) and
@@ -24,6 +28,8 @@ local GetItemInfoInstant = ns.GetItemInfoInstant
 local TOAST_SECONDS = 15
 local DEFAULT_ROLL_SECONDS = 30
 local ROLE_COLORS = { ms = { 0.25, 1, 0.25 }, os = { 0.25, 0.75, 1 } }
+local BADGE_COLORS = { ms = { 1, 1, 1 }, os = { 0.55, 0.85, 1 } }
+local BADGE_PADDING = 18
 local RAID_WARNING_SOUND = 8959
 
 local function Setting(key)
@@ -54,26 +60,36 @@ local function Overlay(frame)
     overlay = CreateFrame("Frame", nil, frame)
     overlay:SetAllPoints(frame)
     overlay:SetFrameLevel(frame:GetFrameLevel() + 10)
-    local label = overlay:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    label:SetPoint("BOTTOM", overlay, "TOP", 0, 2)
+    local plate = CreateFrame("Frame", nil, overlay)
+    plate:SetHeight(20)
+    plate:SetPoint("BOTTOM", overlay, "TOP", 0, 6)
+    local background = plate:CreateTexture(nil, "BACKGROUND")
+    background:SetAllPoints()
+    background:SetColorTexture(0, 0, 0, 0.8)
+    local label = plate:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    label:SetPoint("CENTER")
+    plate:Hide()
+    overlay.plate = plate
     overlay.label = label
     frame:HookScript("OnHide", function() Alerts:ClearBadge(frame) end)
     frame.gudaBiSBadge = overlay
     return overlay
 end
 
-function Alerts:Badge(frame, match, needButton)
+function Alerts:Badge(frame, match, itemIcon)
     if not frame then return end
     local overlay = Overlay(frame)
-    local color = ROLE_COLORS[match.role]
+    local color = BADGE_COLORS[match.role]
     overlay.label:SetText(BadgeText(match))
     overlay.label:SetTextColor(color[1], color[2], color[3])
-    overlay.label:Show()
-    if needButton then
-        ns.Glow.Show(needButton)
-        overlay.glowTarget = needButton
-    end
+    overlay.plate:SetWidth(overlay.label:GetStringWidth() + BADGE_PADDING)
+    overlay.plate:Show()
     overlay:Show()
+    ns.Glow.Show(overlay.plate)
+    if itemIcon then
+        ns.Glow.Show(itemIcon)
+        overlay.glowTarget = itemIcon
+    end
 end
 
 function Alerts:ClearBadge(frame)
@@ -83,7 +99,8 @@ function Alerts:ClearBadge(frame)
         ns.Glow.Hide(overlay.glowTarget)
         overlay.glowTarget = nil
     end
-    overlay.label:Hide()
+    ns.Glow.Hide(overlay.plate)
+    overlay.plate:Hide()
 end
 
 local function ItemIcon(link)

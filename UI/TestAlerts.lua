@@ -5,7 +5,8 @@
 --   1. the "Your BiS dropped!" toast
 --   2. the "Rolling now" popup, 15 s
 --   3. a dummy Need/Greed/Pass frame, shaped like Blizzard's group-loot popup, with the
---      badge and the proc glow on its Need button; it closes after 20 s or on any click
+--      glowing badge and the proc glow on its item icon; it closes after 20 s or on any
+--      click
 
 local addonName, ns = ...
 local L = ns.L
@@ -63,11 +64,13 @@ local function CreateDummy()
     dummy.title = dummy:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     dummy.title:SetPoint("TOP", 0, -16)
     dummy.title:SetText(L.TEST_FRAME)
-    dummy.icon = dummy:CreateTexture(nil, "ARTWORK")
-    dummy.icon:SetSize(34, 34)
-    dummy.icon:SetPoint("LEFT", 18, -6)
+    dummy.IconFrame = CreateFrame("Button", nil, dummy)
+    dummy.IconFrame:SetSize(34, 34)
+    dummy.IconFrame:SetPoint("LEFT", 18, -6)
+    dummy.icon = dummy.IconFrame:CreateTexture(nil, "ARTWORK")
+    dummy.icon:SetAllPoints()
     dummy.name = dummy:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    dummy.name:SetPoint("LEFT", dummy.icon, "RIGHT", 8, 0)
+    dummy.name:SetPoint("LEFT", dummy.IconFrame, "RIGHT", 8, 0)
     dummy.name:SetWidth(120)
     dummy.name:SetJustifyH("LEFT")
     dummy.name:SetWordWrap(false)
@@ -89,7 +92,7 @@ local function ShowDummy(itemID, link, match)
     dummy.token = (dummy.token or 0) + 1
     local token = dummy.token
     dummy:Show()
-    ns.Alerts:Badge(dummy, match, dummy.NeedButton)
+    ns.Alerts:Badge(dummy, match, dummy.IconFrame)
     C_Timer.After(DUMMY_SECONDS, function()
         if dummy.token == token then dummy:Hide() end
     end)

@@ -52,6 +52,17 @@ function Compat.SpellName(spellID)
     return nil
 end
 
+-- The item icon button of Blizzard's group-loot frame `index`, or nil: the IconFrame
+-- child (parentKey on Retail, named GroupLootFrameNIconFrame on the Classic flavors).
+function Compat.GetGroupLootIcon(index)
+    local frame = _G["GroupLootFrame" .. index]
+    if not frame then return nil end
+    local icon = frame.IconFrame
+    if type(icon) == "table" then return icon end
+    icon = _G["GroupLootFrame" .. index .. "IconFrame"]
+    return type(icon) == "table" and icon or nil
+end
+
 -- The Need button of Blizzard's group-loot frame `index` (1-4), or nil.
 -- Classic flavors and Retail keep it on the frame (GroupLootFrameN.NeedButton);
 -- Forever's MKBGroupLootFrameTemplate nests it one level deeper

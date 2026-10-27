@@ -55,6 +55,7 @@ local function NewFrame(name)
     function frame:GetScript(script) return self.scripts[script] end
     function frame:IsShown() return self.shown end
     function frame:SetText(text) self.shownText = text end
+    function frame:GetStringWidth() return #(rawget(self, "shownText") or "") * 6 end
     function frame:GetText() return self.shownText end
     function frame:SetTexture(texture) self.texture = texture end
     function frame:SetShown(shown) self.shown = shown and true or false end

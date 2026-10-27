@@ -52,7 +52,8 @@ local function OnUpdate()
             local itemID = ns.Match.ItemIDFromLink(item.link)
             local match = itemID and ns.Match:Item(itemID)
             if match then
-                ns.Alerts:Badge(frame, match)
+                local icon = type(entry.icon) == "table" and entry.icon or nil
+                ns.Alerts:Badge(frame, match, icon)
                 if not announced[item.link] then
                     announced[item.link] = true
                     ns.Alerts:Sound()
