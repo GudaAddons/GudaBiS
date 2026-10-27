@@ -6,6 +6,16 @@ if ns.locale ~= "itIT" then return end
 local L = ns.L
 
 local T = {
+    LABEL_BIS = "BiS",
+    LABEL_ALT = "alternativa #%d",
+    LABEL_OS = "SS",
+    LABEL_OS_ALT = "alternativa SS #%d",
+    BADGE = "Il tuo %s",
+    ALERT_DROPPED = "È caduto il tuo %s!",
+    ALERT_ROLLING = "Tiro in corso per il tuo %s",
+    ROLL_MS = "SP (1-100)",
+    ROLL_OS = "SS (1-99)",
+    ROLL_SECONDS = "%d s",
     ENCHANT_MISSING = "L'oggetto che indossi qui non ha un incantamento",
     GEM_OK = "L'oggetto che indossi ha questa gemma",
     GEM_EMPTY = "Questo incavo è vuoto sull'oggetto che indossi",

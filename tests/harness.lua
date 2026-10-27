@@ -48,7 +48,7 @@ local frames
 local function NoOp() end
 
 local function NewFrame(name)
-    local frame = { registered = {}, scripts = {}, shown = false, name = name }
+    local frame = { registered = {}, scripts = {}, shown = false, globalName = name }
     function frame:RegisterEvent(event) self.registered[event] = true end
     function frame:UnregisterEvent(event) self.registered[event] = nil end
     function frame:SetScript(script, fn) self.scripts[script] = fn end
@@ -61,6 +61,7 @@ local function NewFrame(name)
     function frame:GetVerticalScrollRange() return 0 end
     function frame:GetFrameLevel() return 0 end
     function frame:GetWidth() return rawget(self, "width") or 0 end
+    function frame:GetHeight() return rawget(self, "height") or 0 end
     function frame:SetSize(w, h) self.width, self.height = w, h end
     function frame:SetPoint(...) self.point = { ... } end
     function frame:ClearAllPoints() self.point = nil end
@@ -84,6 +85,13 @@ local function NewFrame(name)
     end
     function frame:SetBlendMode(mode) self.blendMode = mode end
     function frame:IsMouseOver() return rawget(self, "mouseOver") or false end
+    function frame:CreateAnimationGroup()
+        local group = NewFrame()
+        function group:CreateAnimation() return NewFrame() end
+        function group:Play() self.playing = true end
+        function group:Stop() self.playing = false end
+        return group
+    end
     function frame:SetChecked(checked) self.checked = checked and true or false end
     function frame:GetChecked() return rawget(self, "checked") or false end
     function frame:Script(name, ...)
@@ -142,7 +150,7 @@ function H.Install(opts)
     H.client = client
 
     for _, old in ipairs(frames or {}) do
-        local name = rawget(old, "name")
+        local name = rawget(old, "globalName")
         if name and _G[name] == old then _G[name] = nil end
     end
     frames = {}
@@ -186,14 +194,42 @@ function H.Install(opts)
     _G.ClearCursor = function() H.cursor = nil end
     _G.strtrim = function(s) return (s:gsub("^%s+", ""):gsub("%s+$", "")) end
     _G.OKAY, _G.CANCEL = "Okay", "Cancel"
-    _G.hooksecurefunc = function(name, hook)
-        local original = _G[name]
-        _G[name] = function(...)
+    _G.hooksecurefunc = function(target, name, hook)
+        if type(target) ~= "table" then
+            target, name, hook = _G, target, name
+        end
+        local original = target[name]
+        target[name] = function(...)
             local result = original(...)
             hook(...)
             return result
         end
     end
+
+    -- Loot: sounds and rolls are recorded; H.leaders / H.assistants name the raid roles;
+    -- H.lootRolls[rollID] is a roll's item link; H.lootMethod = { method, partyID, raidID }.
+    H.sounds = {}
+    H.rolled = {}
+    H.leaders, H.assistants = {}, {}
+    H.lootRolls = {}
+    H.lootMethod = nil
+    H.raidRoster = {}
+    _G.SOUNDKIT = { RAID_WARNING = 8959 }
+    _G.PlaySound = function(sound) H.sounds[#H.sounds + 1] = sound end
+    _G.RandomRoll = function(low, high) H.rolled[#H.rolled + 1] = low .. "-" .. high end
+    _G.UnitIsGroupLeader = function(name) return H.leaders[name] == true end
+    _G.UnitIsGroupAssistant = function(name) return H.assistants[name] == true end
+    _G.Ambiguate = function(name) return (name:match("^([^%-]+)")) or name end
+    _G.GetRaidRosterInfo = function(index) return H.raidRoster[index] end
+    _G.C_PartyInfo = { GetLootMethod = function()
+        if H.lootMethod then return unpack(H.lootMethod) end
+        return 3
+    end }
+    _G.GetLootRollItemLink = function(rollID) return H.lootRolls[rollID] end
+    _G.GetTime = function() return H.clock end
+    _G.NUM_GROUP_LOOT_FRAMES = 4
+    _G.LibStub = nil
+    _G.Gargul = nil
 
     -- Inventory: H.equipped[slot] = itemID, H.containers[bag] = { itemID or false, ... }
     H.equipped = opts.equipped or {}
@@ -282,6 +318,21 @@ function H.Install(opts)
     _G.C_Timer = {
         After = function(seconds, fn)
             H.timers[#H.timers + 1] = { at = H.clock + seconds, fn = fn }
+        end,
+        NewTicker = function(seconds, fn, iterations)
+            local ticker = { cancelled = false }
+            function ticker:Cancel() self.cancelled = true end
+            local left = iterations or math.huge
+            local function Tick()
+                if ticker.cancelled then return end
+                fn(ticker)
+                left = left - 1
+                if left > 0 and not ticker.cancelled then
+                    H.timers[#H.timers + 1] = { at = H.clock + seconds, fn = Tick }
+                end
+            end
+            H.timers[#H.timers + 1] = { at = H.clock + seconds, fn = Tick }
+            return ticker
         end,
     }
 

@@ -6,6 +6,16 @@ if ns.locale ~= "zhCN" then return end
 local L = ns.L
 
 local T = {
+    LABEL_BIS = "BiS",
+    LABEL_ALT = "替代 #%d",
+    LABEL_OS = "副天赋",
+    LABEL_OS_ALT = "副天赋替代 #%d",
+    BADGE = "你的%s",
+    ALERT_DROPPED = "你的%s掉落了！",
+    ALERT_ROLLING = "正在掷骰：你的%s",
+    ROLL_MS = "主 (1-100)",
+    ROLL_OS = "副 (1-99)",
+    ROLL_SECONDS = "%d秒",
     ENCHANT_MISSING = "你此处装备的物品没有附魔",
     GEM_OK = "你装备的物品镶嵌了这颗宝石",
     GEM_EMPTY = "你装备的物品此插槽为空",

@@ -5,8 +5,10 @@ return function(T, H)
     local LOCALES = { "deDE", "esES", "esMX", "frFR", "itIT", "koKR", "ptBR", "ruRU", "zhCN", "zhTW" }
 
     -- Keys whose text may equal the English in some languages: the addon-name banner,
-    -- "API" and "Phase %d" (German, French).
-    local SAME_EVERYWHERE = { HELP_HEADER = true, STATUS_API = true, PHASE = true }
+    -- "API", "Phase %d" (German, French), "BiS" (used as is everywhere) and "%d s".
+    local SAME_EVERYWHERE = {
+        HELP_HEADER = true, STATUS_API = true, PHASE = true, LABEL_BIS = true, ROLL_SECONDS = true,
+    }
 
     local function EnglishTexts()
         local texts = {}

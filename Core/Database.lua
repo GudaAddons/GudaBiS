@@ -19,6 +19,11 @@ local DEFAULTS = {
     settings = {
         debug = false,
         panelOpen = false,
+        alerts = {
+            enabled = true,
+            sound = true,
+            alts = true,
+        },
     },
     chars = {},
 }

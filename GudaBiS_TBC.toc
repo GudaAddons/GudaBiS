@@ -50,9 +50,18 @@ Gear\Lists.lua
 Gear\Items.lua
 Gear\Owned.lua
 Gear\Enchants.lua
+Gear\Match.lua
+
+# Loot
+Loot\Detect.lua
+
+# Integrations (optional addons)
+Integrations\Gargul.lua
+Integrations\RCLootCouncil.lua
 
 # UI
 UI\Theme.lua
+UI\Alerts.lua
 UI\Dropdown.lua
 UI\NameDialog.lua
 UI\RankFlyout.lua

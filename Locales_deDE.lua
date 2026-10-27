@@ -6,6 +6,16 @@ if ns.locale ~= "deDE" then return end
 local L = ns.L
 
 local T = {
+    LABEL_BIS = "BiS",
+    LABEL_ALT = "Alternative #%d",
+    LABEL_OS = "NS",
+    LABEL_OS_ALT = "NS-Alternative #%d",
+    BADGE = "Dein %s",
+    ALERT_DROPPED = "Dein %s ist gefallen!",
+    ALERT_ROLLING = "Jetzt würfeln für dein %s",
+    ROLL_MS = "HS (1-100)",
+    ROLL_OS = "NS (1-99)",
+    ROLL_SECONDS = "%d s",
     ENCHANT_MISSING = "Dein angelegter Gegenstand hat hier keine Verzauberung",
     GEM_OK = "Dein angelegter Gegenstand hat diesen Edelstein",
     GEM_EMPTY = "Dieser Sockel ist an deinem angelegten Gegenstand leer",

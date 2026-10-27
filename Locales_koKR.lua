@@ -6,6 +6,16 @@ if ns.locale ~= "koKR" then return end
 local L = ns.L
 
 local T = {
+    LABEL_BIS = "BiS",
+    LABEL_ALT = "대체 %d순위",
+    LABEL_OS = "보조",
+    LABEL_OS_ALT = "보조 대체 %d순위",
+    BADGE = "내 %s",
+    ALERT_DROPPED = "내 %s 획득 기회!",
+    ALERT_ROLLING = "지금 주사위: 내 %s",
+    ROLL_MS = "주 (1-100)",
+    ROLL_OS = "보조 (1-99)",
+    ROLL_SECONDS = "%d초",
     ENCHANT_MISSING = "착용한 아이템에 마법부여가 없습니다",
     GEM_OK = "착용한 아이템에 이 보석이 있습니다",
     GEM_EMPTY = "착용한 아이템의 이 보석 홈이 비어 있습니다",

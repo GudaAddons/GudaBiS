@@ -6,6 +6,16 @@ if ns.locale ~= "frFR" then return end
 local L = ns.L
 
 local T = {
+    LABEL_BIS = "BiS",
+    LABEL_ALT = "alternative #%d",
+    LABEL_OS = "SS",
+    LABEL_OS_ALT = "alternative SS #%d",
+    BADGE = "Votre %s",
+    ALERT_DROPPED = "Votre %s est tombé !",
+    ALERT_ROLLING = "Jet en cours pour votre %s",
+    ROLL_MS = "SP (1-100)",
+    ROLL_OS = "SS (1-99)",
+    ROLL_SECONDS = "%d s",
     ENCHANT_MISSING = "Votre objet équipé ici n'a pas d'enchantement",
     GEM_OK = "Votre objet équipé a cette gemme",
     GEM_EMPTY = "Cette châsse est vide sur votre objet équipé",

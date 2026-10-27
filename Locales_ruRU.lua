@@ -6,6 +6,16 @@ if ns.locale ~= "ruRU" then return end
 local L = ns.L
 
 local T = {
+    LABEL_BIS = "BiS",
+    LABEL_ALT = "альтернатива №%d",
+    LABEL_OS = "ДС",
+    LABEL_OS_ALT = "альтернатива ДС №%d",
+    BADGE = "Ваш %s",
+    ALERT_DROPPED = "Выпал ваш %s!",
+    ALERT_ROLLING = "Бросок за ваш %s",
+    ROLL_MS = "ОС (1-100)",
+    ROLL_OS = "ДС (1-99)",
+    ROLL_SECONDS = "%d с",
     ENCHANT_MISSING = "На надетом здесь предмете нет чар",
     GEM_OK = "В надетом предмете этот самоцвет",
     GEM_EMPTY = "Это гнездо надетого предмета пустое",

@@ -6,6 +6,16 @@ if ns.locale ~= "ptBR" then return end
 local L = ns.L
 
 local T = {
+    LABEL_BIS = "BiS",
+    LABEL_ALT = "alternativa #%d",
+    LABEL_OS = "ES",
+    LABEL_OS_ALT = "alternativa ES #%d",
+    BADGE = "Seu %s",
+    ALERT_DROPPED = "Seu %s caiu!",
+    ALERT_ROLLING = "Rolagem agora pelo seu %s",
+    ROLL_MS = "EP (1-100)",
+    ROLL_OS = "ES (1-99)",
+    ROLL_SECONDS = "%d s",
     ENCHANT_MISSING = "Seu item equipado aqui não tem encantamento",
     GEM_OK = "Seu item equipado tem esta gema",
     GEM_EMPTY = "Este engaste está vazio no seu item equipado",
