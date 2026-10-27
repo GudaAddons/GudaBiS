@@ -16,6 +16,13 @@ echo "syntax: $checked file(s) checked, $failures failed"
 
 lua5.1 "$ROOT/tests/run.lua" "$ROOT" || failures=$((failures + 1))
 
+if pipeline=$(python3 -B -m unittest discover -s "$ROOT/tools/pipeline" -q 2>&1); then
+    echo "pipeline: $(echo "$pipeline" | grep -o 'Ran [0-9]* tests*') OK"
+else
+    echo "$pipeline" | grep -v "^  note:"
+    failures=$((failures + 1))
+fi
+
 if [ "$failures" -ne 0 ]; then
     echo "FAILED"
     exit 1

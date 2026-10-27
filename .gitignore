@@ -1,6 +1,7 @@
 .idea
 docs
 tmp
+__pycache__
 .*
 !.gitignore
 !.gitattributes

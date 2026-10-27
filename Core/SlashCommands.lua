@@ -71,6 +71,10 @@ SlashCommands:Register("status", function()
         parts[i] = name .. "=" .. Compat.resolvedSource[name]
     end
     ns:Print(string.format(L.STATUS_API, table.concat(parts, ", ")))
+    local Data = ns.Data
+    if Data and Data.flavor then
+        ns:Print(string.format(L.STATUS_DATA, Data.flavor, Data:Count(), #Data:Specs(), Data.defaultPhase))
+    end
     local db = ns.db
     if db then
         ns:Print(string.format(L.STATUS_DB, db.schema, YesNo(ns.Database.restoredFromDisk),

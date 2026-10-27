@@ -17,7 +17,8 @@ L.PROBE_DONE = "Probe written to the debug log (/gbis log)."
 
 L.LOG_TITLE = "GudaBiS debug log"
 L.LOG_CLEARED = "Debug log cleared."
-L.STATUS_DB = "Database: schema %d · loaded from disk: %s · loads: %d · characters: %d"
+L.STATUS_DATA = "BiS data: %s · %d lists · %d specs · default phase %d"
+L.STATUS_DB ="Database: schema %d · loaded from disk: %s · loads: %d · characters: %d"
 
 L.STATUS_CLIENT = "Client: %s (interface %d)"
 L.STATUS_FEATURES = "Features: %s"

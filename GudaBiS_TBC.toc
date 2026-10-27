@@ -40,5 +40,9 @@ Core\Log.lua
 Core\Database.lua
 Core\Probe.lua
 
+# Data (this flavor only)
+Data\Data.lua
+Data\TBC\Lists.lua
+
 # Bootstrap (load last)
 Core\Main.lua
