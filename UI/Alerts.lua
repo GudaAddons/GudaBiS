@@ -18,7 +18,8 @@
 -- drop card): gold-bordered, they fade and scale in with a light burst behind the item,
 -- the item icon carries the proc glow, the item name and its slot (the game's own slot
 -- names) sit under a large title, a gold bar along the bottom drains over the time left,
--- and they fade out. Every effect is a client animation; nothing runs per frame.
+-- and they fade out. Every effect is a client animation; nothing runs per frame. The
+-- MS/OS roll buttons stay plain (author: no highlight on them).
 --
 -- Frames are built on first use. The roll card never rolls by itself: RandomRoll runs
 -- only from the player's click (RULES.md Rule 4).
@@ -334,11 +335,7 @@ local function CreatePopup()
     off:SetText(L.ROLL_OS)
     off:SetScript("OnClick", function() Roll(1, 99) end)
     popup.os = off
-    popup:HookScript("OnHide", function()
-        StopCountdown()
-        ns.Glow.Hide(popup.ms)
-        ns.Glow.Hide(popup.os)
-    end)
+    popup:HookScript("OnHide", StopCountdown)
 end
 
 function Alerts:Rolling(link, match, seconds, test)
@@ -346,8 +343,6 @@ function Alerts:Rolling(link, match, seconds, test)
     StopCountdown()
     popup.test = test and true or false
     Fill(popup, link, match, "ALERT_ROLLING")
-    ns.Glow.Hide(popup.ms)
-    ns.Glow.Hide(popup.os)
     local remaining = seconds or DEFAULT_ROLL_SECONDS
     popup.countdown:SetText(string.format(L.ROLL_SECONDS, remaining))
     popup.ticker = C_Timer.NewTicker(1, function()
@@ -359,7 +354,6 @@ function Alerts:Rolling(link, match, seconds, test)
         popup.countdown:SetText(string.format(L.ROLL_SECONDS, remaining))
     end, remaining)
     popup:Present(remaining)
-    ns.Glow.Show(match.role == "os" and popup.os or popup.ms)
     self:Sound()
 end
 
