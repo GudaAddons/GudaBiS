@@ -1,0 +1,7 @@
+package-as: GudaBiS
+
+ignore:
+  - docs
+  - tests
+  - tools
+  - README.md

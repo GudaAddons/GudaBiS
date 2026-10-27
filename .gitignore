@@ -1,0 +1,7 @@
+.idea
+docs
+tmp
+.*
+!.gitignore
+!.github/
+!.pkgmeta
