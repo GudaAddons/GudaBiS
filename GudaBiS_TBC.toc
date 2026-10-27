@@ -1,0 +1,39 @@
+## Interface: 20506
+## Title: GudaBiS
+## Notes: Best-in-slot gear by phase next to your character, with loot alerts
+## Notes-deDE: Best-in-Slot-Ausrüstung nach Phase neben deinem Charakter, mit Beutewarnungen
+## Notes-esES: Equipo BiS por fase junto a tu personaje, con avisos de botín
+## Notes-esMX: Equipo BiS por fase junto a tu personaje, con avisos de botín
+## Notes-frFR: Équipement BiS par phase à côté de votre personnage, avec alertes de butin
+## Notes-itIT: Equipaggiamento BiS per fase accanto al tuo personaggio, con avvisi sul bottino
+## Notes-koKR: 캐릭터 옆에 단계별 최고 장비(BiS)를 표시하고 전리품 알림을 제공합니다
+## Notes-ptBR: Equipamento BiS por fase ao lado do seu personagem, com alertas de saque
+## Notes-ruRU: Лучшая экипировка (BiS) по фазам рядом с персонажем и оповещения о добыче
+## Notes-zhCN: 在角色旁按阶段显示最佳装备（BiS），并提供拾取提醒
+## Notes-zhTW: 在角色旁依階段顯示最佳裝備（BiS），並提供拾取提醒
+## Author: Vati
+## Version: 0.1.0
+## SavedVariables: GudaBiS_DB
+## OptionalDeps: GudaBags, Gargul, RCLootCouncil, RCLootCouncil_Classic
+## IconTexture: Interface\Icons\INV_Chest_Plate06
+
+# Localization (load first)
+Locales.lua
+Locales_deDE.lua
+Locales_esES.lua
+Locales_esMX.lua
+Locales_frFR.lua
+Locales_itIT.lua
+Locales_koKR.lua
+Locales_ptBR.lua
+Locales_ruRU.lua
+Locales_zhCN.lua
+Locales_zhTW.lua
+
+# Core
+Core\Init.lua
+Core\Events.lua
+Core\SlashCommands.lua
+
+# Bootstrap (load last)
+Core\Main.lua
