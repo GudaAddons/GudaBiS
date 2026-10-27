@@ -69,33 +69,46 @@ function Theme.Dialog(name, parent)
     return frame
 end
 
--- The left, middle and right pieces of the classic dropdown frame (as in
--- UIDropDownMenuTemplate), stretched to the button's width, plus its arrow.
+-- The classic dropdown, laid out exactly like UIDropDownMenuTemplate: a 32-high frame,
+-- 25x64 caps at (0, +17), the arrow 24x24 inside the right cap at (-16, -18), and the
+-- text from 27 px in to 43 px before the right edge, 2 px up. The art has ~16 px of
+-- transparent margin on each side, so the visible box is 16 px narrower per side than
+-- the frame. Returns the text font string.
+Theme.DROPDOWN_HEIGHT = 32
+Theme.DROPDOWN_MARGIN = 16
+
 function Theme.DropdownArt(button)
+    button:SetHeight(Theme.DROPDOWN_HEIGHT)
     local left = button:CreateTexture(nil, "ARTWORK")
     left:SetTexture(DROPDOWN_ART)
     left:SetTexCoord(0, 0.1953125, 0, 1)
     left:SetSize(25, 64)
-    left:SetPoint("LEFT", -16, 1)
+    left:SetPoint("TOPLEFT", 0, 17)
     local right = button:CreateTexture(nil, "ARTWORK")
     right:SetTexture(DROPDOWN_ART)
     right:SetTexCoord(0.8046875, 1, 0, 1)
     right:SetSize(25, 64)
-    right:SetPoint("RIGHT", 16, 1)
+    right:SetPoint("TOPRIGHT", 0, 17)
     local middle = button:CreateTexture(nil, "ARTWORK")
     middle:SetTexture(DROPDOWN_ART)
     middle:SetTexCoord(0.1953125, 0.8046875, 0, 1)
     middle:SetHeight(64)
-    middle:SetPoint("LEFT", left, "RIGHT")
-    middle:SetPoint("RIGHT", right, "LEFT")
+    middle:SetPoint("TOPLEFT", left, "TOPRIGHT")
+    middle:SetPoint("TOPRIGHT", right, "TOPLEFT")
     local arrow = button:CreateTexture(nil, "OVERLAY")
     arrow:SetTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up")
     arrow:SetSize(24, 24)
-    arrow:SetPoint("RIGHT", 2, 0)
-    button:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight")
-    button:GetHighlightTexture():SetBlendMode("ADD")
-    button:GetHighlightTexture():ClearAllPoints()
-    button:GetHighlightTexture():SetAllPoints(arrow)
+    arrow:SetPoint("TOPRIGHT", right, "TOPRIGHT", -16, -18)
+    local highlight = button:CreateTexture(nil, "HIGHLIGHT")
+    highlight:SetTexture("Interface\\Buttons\\UI-Common-MouseHilight")
+    highlight:SetBlendMode("ADD")
+    highlight:SetAllPoints(arrow)
+    local text = button:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    text:SetPoint("LEFT", left, "LEFT", 27, 2)
+    text:SetPoint("RIGHT", right, "RIGHT", -43, 2)
+    text:SetJustifyH("LEFT")
+    text:SetWordWrap(false)
+    return text
 end
 
 function Theme.SlotFrame(button, size)

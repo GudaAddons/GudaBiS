@@ -34,14 +34,16 @@ local GEM_SIZE = 14
 local NAME_WIDTH = 132
 local ROW_HEIGHT = 44
 local PADDING = 14
-local DROPDOWN_TOP = 34
+local DROPDOWN_TOP = 28
+local PHASE_DROPDOWN_WIDTH = 100
 local TOOLBAR_TOP = 64
-local HEADER_HEIGHT = 96
-local WEAPON_ROW_HEIGHT = 66
+local HEADER_HEIGHT = 94
+local WEAPON_ROW_HEIGHT = 52
 local WEAPON_SPACING = 124
 local COLUMN_WIDTH = ENCHANT_SIZE + 4 + SLOT_SIZE + 6 + NAME_WIDTH
 local WIDTH = PADDING * 2 + COLUMN_WIDTH * 2 + 12
-local HEIGHT = HEADER_HEIGHT + #Panel.LEFT_SLOTS * ROW_HEIGHT + WEAPON_ROW_HEIGHT + PADDING
+local BOTTOM_PADDING = 8
+local HEIGHT = HEADER_HEIGHT + #Panel.LEFT_SLOTS * ROW_HEIGHT + WEAPON_ROW_HEIGHT + BOTTOM_PADDING
 local UNKNOWN_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
 
 -- Item names one size below GameFontHighlightSmall (author, 2026-10-28). The client's
@@ -602,17 +604,22 @@ local function Create()
     title:SetText(L.PANEL_TITLE)
     close:SetScript("OnClick", function() Panel:Close() end)
 
-    phaseDropdown = ns.Dropdown.Create(frame, 96, function(phase)
+    -- Dropdown frames are wider than their art by DROPDOWN_MARGIN per side, so they
+    -- start that far left of the padding and overlap by twice that between them.
+    local margin = ns.Theme.DROPDOWN_MARGIN
+    local phaseWidth = PHASE_DROPDOWN_WIDTH + margin * 2
+    phaseDropdown = ns.Dropdown.Create(frame, phaseWidth, function(phase)
         ns.Lists:SetPhase(phase)
         Panel:Refresh()
     end)
-    phaseDropdown.button:SetPoint("TOPLEFT", PADDING + 4, -DROPDOWN_TOP)
+    phaseDropdown.button:SetPoint("TOPLEFT", PADDING - margin, -DROPDOWN_TOP)
 
-    listDropdown = ns.Dropdown.Create(frame, WIDTH - PADDING * 2 - 128, function(id)
+    local listWidth = WIDTH - PADDING * 2 - PHASE_DROPDOWN_WIDTH - 6 + margin * 2
+    listDropdown = ns.Dropdown.Create(frame, listWidth, function(id)
         ns.Lists:Select(id)
         Panel:Refresh()
     end)
-    listDropdown.button:SetPoint("LEFT", phaseDropdown.button, "RIGHT", 24, 0)
+    listDropdown.button:SetPoint("LEFT", phaseDropdown.button, "RIGHT", 6 - margin * 2, 0)
 
     CreateListButtons()
 

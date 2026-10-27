@@ -112,13 +112,8 @@ function Dropdown.Create(parent, width, onSelect)
     for name, fn in pairs(methods) do dd[name] = fn end
 
     local button = CreateFrame("Button", nil, parent)
-    button:SetSize(width, 24)
-    ns.Theme.DropdownArt(button)
-    button.text = button:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    button.text:SetPoint("LEFT", 4, 1)
-    button.text:SetPoint("RIGHT", -22, 1)
-    button.text:SetJustifyH("LEFT")
-    button.text:SetWordWrap(false)
+    button:SetWidth(width)
+    button.text = ns.Theme.DropdownArt(button)
     button:SetScript("OnClick", function()
         if dd.menu:IsShown() then dd:Close() else dd:Open() end
     end)
@@ -126,8 +121,9 @@ function Dropdown.Create(parent, width, onSelect)
 
     local menu = ns.Theme.Popup("Frame", nil, button)
     menu:SetFrameStrata("TOOLTIP")
-    menu:SetPoint("TOPLEFT", button, "BOTTOMLEFT", -4, -4)
-    menu:SetPoint("TOPRIGHT", button, "BOTTOMRIGHT", 4, -4)
+    local margin = ns.Theme.DROPDOWN_MARGIN
+    menu:SetPoint("TOPLEFT", button, "BOTTOMLEFT", margin, 6)
+    menu:SetPoint("TOPRIGHT", button, "BOTTOMRIGHT", -margin, 6)
     menu:Hide()
     menu.rows = {}
     menu:SetScript("OnHide", function() dd:Close() end)
