@@ -62,8 +62,8 @@ function methods:Open()
             end)
             rows[i] = row
         end
-        row:SetPoint("TOPLEFT", 4, -4 - (i - 1) * ROW_HEIGHT)
-        row:SetPoint("TOPRIGHT", -4, -4 - (i - 1) * ROW_HEIGHT)
+        row:SetPoint("TOPLEFT", 6, -6 - (i - 1) * ROW_HEIGHT)
+        row:SetPoint("TOPRIGHT", -6, -6 - (i - 1) * ROW_HEIGHT)
         row.value = option.value
         row.text:SetText(option.text)
         if option.value == self.value then
@@ -74,7 +74,7 @@ function methods:Open()
         row:Show()
     end
     for i = #self.options + 1, #rows do rows[i]:Hide() end
-    menu:SetHeight(8 + #self.options * ROW_HEIGHT)
+    menu:SetHeight(12 + #self.options * ROW_HEIGHT)
     menu:Show()
     if open ~= self then
         open = self
@@ -111,27 +111,23 @@ function Dropdown.Create(parent, width, onSelect)
     local dd = { options = {}, onSelect = onSelect }
     for name, fn in pairs(methods) do dd[name] = fn end
 
-    local button = ns.Theme.CreateWindow("Button", nil, parent)
-    button:SetSize(width, 22)
+    local button = CreateFrame("Button", nil, parent)
+    button:SetSize(width, 24)
+    ns.Theme.DropdownArt(button)
     button.text = button:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    button.text:SetPoint("LEFT", 8, 0)
-    button.text:SetPoint("RIGHT", -20, 0)
+    button.text:SetPoint("LEFT", 4, 1)
+    button.text:SetPoint("RIGHT", -22, 1)
     button.text:SetJustifyH("LEFT")
     button.text:SetWordWrap(false)
-    local arrow = button:CreateTexture(nil, "OVERLAY")
-    arrow:SetSize(14, 14)
-    arrow:SetPoint("RIGHT", -4, 0)
-    arrow:SetTexture("Interface\\ChatFrame\\ChatFrameExpandArrow")
-    arrow:SetRotation(-math.pi / 2)
     button:SetScript("OnClick", function()
         if dd.menu:IsShown() then dd:Close() else dd:Open() end
     end)
     dd.button = button
 
-    local menu = ns.Theme.CreateWindow("Frame", nil, button)
+    local menu = ns.Theme.Popup("Frame", nil, button)
     menu:SetFrameStrata("TOOLTIP")
-    menu:SetPoint("TOPLEFT", button, "BOTTOMLEFT", 0, -2)
-    menu:SetPoint("TOPRIGHT", button, "BOTTOMRIGHT", 0, -2)
+    menu:SetPoint("TOPLEFT", button, "BOTTOMLEFT", -4, -4)
+    menu:SetPoint("TOPRIGHT", button, "BOTTOMRIGHT", 4, -4)
     menu:Hide()
     menu.rows = {}
     menu:SetScript("OnHide", function() dd:Close() end)

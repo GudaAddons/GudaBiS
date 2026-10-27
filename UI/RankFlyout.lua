@@ -197,7 +197,7 @@ local function CreateFooter()
 end
 
 local function Create()
-    flyout = ns.Theme.CreateWindow("Frame", "GudaBiSRankFlyout", UIParent)
+    flyout = ns.Theme.Popup("Frame", "GudaBiSRankFlyout", UIParent)
     flyout:SetWidth(WIDTH)
     flyout:SetFrameStrata("DIALOG")
     flyout:SetClampedToScreen(true)

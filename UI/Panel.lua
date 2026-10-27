@@ -33,8 +33,10 @@ local ENCHANT_SIZE = 16
 local GEM_SIZE = 14
 local NAME_WIDTH = 132
 local ROW_HEIGHT = 44
-local PADDING = 12
-local HEADER_HEIGHT = 70
+local PADDING = 14
+local DROPDOWN_TOP = 34
+local TOOLBAR_TOP = 64
+local HEADER_HEIGHT = 96
 local WEAPON_ROW_HEIGHT = 66
 local WEAPON_SPACING = 124
 local COLUMN_WIDTH = ENCHANT_SIZE + 4 + SLOT_SIZE + 6 + NAME_WIDTH
@@ -388,6 +390,7 @@ local function CreateSlotButton(slot, side)
     button.border = button:CreateTexture(nil, "OVERLAY")
     button.border:SetTexture(QUALITY_BORDER)
     button.border:SetAllPoints()
+    ns.Theme.SlotFrame(button, SLOT_SIZE)
     button.check = button:CreateTexture(nil, "OVERLAY", nil, 2)
     button.check:SetTexture(CHECK_TEXTURE)
     button.check:SetSize(16, 16)
@@ -489,13 +492,13 @@ local function IconButton(texture, tooltip, onClick)
     return button
 end
 
--- MS / OS: marks the list being shown as this character's main or off spec.
+-- MS / OS: marks the list being shown as this character's main or off spec. The
+-- game's red panel button; the active role keeps its highlight locked.
 local function RoleButton(role, label, tooltip)
-    local button = ns.Theme.CreateWindow("Button", nil, frame)
-    button:SetSize(30, 18)
-    button.text = button:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    button.text:SetPoint("CENTER")
-    button.text:SetText(label)
+    local button = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+    button:SetSize(40, 20)
+    button:SetText(label)
+    button.text = button:GetFontString()
     button.tooltip = tooltip
     button.role = role
     button:SetScript("OnClick", function()
@@ -549,18 +552,20 @@ local function DeleteList()
     })
 end
 
--- Title row, right to left from the close button: delete, rename, new, then OS, MS.
+-- The row under the dropdowns: MS and OS on the left; new, rename and delete on the
+-- right. The title bar stays the template's own.
 local function CreateListButtons()
-    listButtons.delete = IconButton(DELETE_ICON, L.TOOLTIP_DELETE, DeleteList)
-    listButtons.delete:SetPoint("TOPRIGHT", -30, -8)
-    listButtons.rename = IconButton(RENAME_ICON, L.TOOLTIP_RENAME, RenameList)
-    listButtons.rename:SetPoint("RIGHT", listButtons.delete, "LEFT", -4, 0)
-    listButtons.new = IconButton(NEW_ICON, L.TOOLTIP_NEW_LIST, NewList)
-    listButtons.new:SetPoint("RIGHT", listButtons.rename, "LEFT", -4, 0)
-    listButtons.os = RoleButton("os", L.ROLE_OS, L.TOOLTIP_OS)
-    listButtons.os:SetPoint("RIGHT", listButtons.new, "LEFT", -10, 0)
+    local y = -TOOLBAR_TOP
     listButtons.ms = RoleButton("ms", L.ROLE_MS, L.TOOLTIP_MS)
-    listButtons.ms:SetPoint("RIGHT", listButtons.os, "LEFT", -4, 0)
+    listButtons.ms:SetPoint("TOPLEFT", PADDING, y)
+    listButtons.os = RoleButton("os", L.ROLE_OS, L.TOOLTIP_OS)
+    listButtons.os:SetPoint("LEFT", listButtons.ms, "RIGHT", 4, 0)
+    listButtons.delete = IconButton(DELETE_ICON, L.TOOLTIP_DELETE, DeleteList)
+    listButtons.delete:SetPoint("TOPRIGHT", -PADDING, y - 1)
+    listButtons.rename = IconButton(RENAME_ICON, L.TOOLTIP_RENAME, RenameList)
+    listButtons.rename:SetPoint("RIGHT", listButtons.delete, "LEFT", -6, 0)
+    listButtons.new = IconButton(NEW_ICON, L.TOOLTIP_NEW_LIST, NewList)
+    listButtons.new:SetPoint("RIGHT", listButtons.rename, "LEFT", -6, 0)
 end
 
 local ROLE_COLORS = { ms = { 0.25, 1, 0.25 }, os = { 0.25, 0.75, 1 } }
@@ -575,14 +580,17 @@ local function PaintListButtons(current)
         button:SetShown(current ~= nil)
         if role == key then
             button.text:SetTextColor(unpack(ROLE_COLORS[key]))
+            button:LockHighlight()
         else
-            button.text:SetTextColor(0.5, 0.5, 0.5)
+            button.text:SetTextColor(1, 0.82, 0)
+            button:UnlockHighlight()
         end
     end
 end
 
 local function Create()
-    frame = ns.Theme.CreateWindow("Frame", "GudaBiSPanel", UIParent)
+    local title, close
+    frame, title, close = ns.Theme.Panel("GudaBiSPanel", UIParent)
     frame:SetSize(WIDTH, HEIGHT)
     frame:SetFrameStrata("MEDIUM")
     frame:SetToplevel(true)
@@ -591,25 +599,20 @@ local function Create()
     frame:Hide()
     tinsert(UISpecialFrames, "GudaBiSPanel")
 
-    local title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    title:SetPoint("TOPLEFT", PADDING, -10)
     title:SetText(L.PANEL_TITLE)
-
-    local close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
-    close:SetPoint("TOPRIGHT", 2, 2)
     close:SetScript("OnClick", function() Panel:Close() end)
 
     phaseDropdown = ns.Dropdown.Create(frame, 96, function(phase)
         ns.Lists:SetPhase(phase)
         Panel:Refresh()
     end)
-    phaseDropdown.button:SetPoint("TOPLEFT", PADDING, -32)
+    phaseDropdown.button:SetPoint("TOPLEFT", PADDING + 4, -DROPDOWN_TOP)
 
-    listDropdown = ns.Dropdown.Create(frame, WIDTH - PADDING * 2 - 104, function(id)
+    listDropdown = ns.Dropdown.Create(frame, WIDTH - PADDING * 2 - 128, function(id)
         ns.Lists:Select(id)
         Panel:Refresh()
     end)
-    listDropdown.button:SetPoint("LEFT", phaseDropdown.button, "RIGHT", 8, 0)
+    listDropdown.button:SetPoint("LEFT", phaseDropdown.button, "RIGHT", 24, 0)
 
     CreateListButtons()
 
