@@ -96,26 +96,30 @@ return function(T, H)
         T.eq(head.name.shownText, "Item32521", "painted after load")
     end)
 
-    T.case("the paperdoll button docks and remembers the panel", function()
+    T.case("the side tab sits outside the Character frame, docks the panel and remembers it", function()
         local ns = H.Boot()
+        T.eq(ns.Panel.tab, nil, "no tab before the Character frame shows")
         _G.CharacterFrame:Show()
         T.ok(not ns.Panel:IsShown(), "closed by default")
-        local toggle
-        for _, frame in ipairs(H.AllFrames()) do
-            if frame.scripts.OnClick and frame.point and frame.point[2] == _G.CharacterFrame and frame.point[4] == -44 then
-                toggle = frame
-            end
-        end
-        T.ok(toggle ~= nil, "toggle button made on first show")
-        toggle:Click()
+        local tab = ns.Panel.tab
+        T.ok(tab ~= nil, "tab made on first show")
+        T.eq(tab.point[2], _G.CharacterFrame, "tab on the Character frame's right edge")
+        T.eq(tab.point[3], "TOPRIGHT", "outside, right")
+        tab:Click()
         T.ok(ns.Panel:IsShown(), "opened")
         T.eq(_G.GudaBiSPanel.point[2], _G.CharacterFrame, "docked to the Character frame")
         T.eq(_G.GudaBiSPanel.point[4], -32, "classic art offset")
+        T.eq(tab.point[2], _G.GudaBiSPanel, "tab moved to the panel's edge")
         T.eq(ns.db.settings.panelOpen, true, "remembered")
+        tab:Click()
+        T.ok(not ns.Panel:IsShown(), "tab closes it again")
+        T.eq(tab.point[2], _G.CharacterFrame, "tab back on the Character frame")
+        tab:Click()
         _G.CharacterFrame:Hide()
         T.ok(not ns.Panel:IsShown(), "closes with the Character frame")
         _G.CharacterFrame:Show()
         T.ok(ns.Panel:IsShown(), "comes back with it")
+        T.eq(tab.point[2], _G.GudaBiSPanel, "tab on the panel again")
         T.noErrors()
     end)
 

@@ -1,8 +1,13 @@
 -- The BiS panel (GB-020/021/022): a paperdoll-style window docked to the right of the
--- Character frame, opened by a button on the paperdoll or by /gbis.
+-- Character frame, opened by a side tab or by /gbis.
 --
--- Nothing is built at login (RULES.md Rule 1): the toggle button is made the first time
--- the Character frame shows, the panel the first time it opens. Switching phase or list
+-- The side tab sticks out of the right edge, outside the Character frame, because the
+-- inside of the frame is where Outfitter and similar addons put their buttons (author,
+-- 2026-10-28). It looks like the spellbook's school tabs and moves to the panel's right
+-- edge while the panel is open, so it stays reachable.
+--
+-- Nothing is built at login (RULES.md Rule 1): the tab is made the first time the
+-- Character frame shows, the panel the first time it opens. Switching phase or list
 -- repaints the same slot buttons; frames are never rebuilt.
 --
 -- Pure parts, tested offline: Panel.SlotView, Panel.ListLabel, Panel.PhaseLabel.
@@ -36,6 +41,8 @@ local SLOT_NAMES = {
 }
 
 local TOGGLE_ICON = "Interface\\Icons\\INV_Chest_Plate06"
+local TAB_BACKGROUND = "Interface\\SpellBook\\SpellBook-SkillLineTab"
+local TAB_TOP = -60
 local EMPTY_SLOT = "Interface\\PaperDoll\\UI-Backpack-EmptySlot"
 local QUALITY_BORDER = "Interface\\Common\\WhiteIconFrame"
 
@@ -63,7 +70,8 @@ function Panel.PhaseLabel(phase)
     return string.format(L.PHASE, phase)
 end
 
-local frame, toggleButton, phaseDropdown, listDropdown
+local frame, tab, phaseDropdown, listDropdown
+local PlaceTab
 local slotButtons = {}
 local pendingLoads = {}
 
@@ -216,22 +224,42 @@ local function Create()
     LayoutColumn(Panel.LEFT_SLOTS, PADDING)
     LayoutColumn(Panel.RIGHT_SLOTS, PADDING + COLUMN_WIDTH + 8)
 
-    frame:SetScript("OnHide", function() GameTooltip:Hide() end)
+    frame:SetScript("OnHide", function()
+        GameTooltip:Hide()
+        PlaceTab()
+    end)
 end
 
--- Docked: the Character frame's art has a transparent margin on Classic clients
--- (wider than 360), so the panel overlaps it to sit against the visible edge.
+-- The Character frame's art has a transparent margin on Classic clients (wider than
+-- 360), so anything docked to it moves in to sit against the visible edge.
+local function CharacterEdge()
+    local classicArt = (CharacterFrame:GetWidth() or 0) > 360
+    return classicArt and -32 or 0, classicArt and -12 or 0
+end
+
 local function Anchor()
     frame:ClearAllPoints()
-    local character = CharacterFrame
-    if character and character:IsShown() then
-        local classicArt = (character:GetWidth() or 0) > 360
-        frame:SetPoint("TOPLEFT", character, "TOPRIGHT", classicArt and -32 or 0, classicArt and -12 or 0)
+    if CharacterFrame and CharacterFrame:IsShown() then
+        local x, y = CharacterEdge()
+        frame:SetPoint("TOPLEFT", CharacterFrame, "TOPRIGHT", x, y)
         frame.docked = true
     else
         frame:SetPoint("CENTER", UIParent, "CENTER", 0, 40)
         frame.docked = false
     end
+end
+
+PlaceTab = function()
+    if not tab then return end
+    tab:ClearAllPoints()
+    local open = frame ~= nil and frame:IsShown() and frame.docked
+    if open then
+        tab:SetPoint("TOPLEFT", frame, "TOPRIGHT", -2, TAB_TOP)
+    else
+        local x, y = CharacterEdge()
+        tab:SetPoint("TOPLEFT", CharacterFrame, "TOPRIGHT", x, y + TAB_TOP)
+    end
+    tab:SetChecked(open)
 end
 
 function Panel:Refresh()
@@ -265,14 +293,16 @@ function Panel:Open()
     Anchor()
     self:Refresh()
     frame:Show()
+    PlaceTab()
 end
 
 function Panel:Close()
     if frame then frame:Hide() end
+    PlaceTab()
 end
 
--- The player's choice from the paperdoll button is remembered, so the panel comes back
--- with the Character frame.
+-- The player's choice from the side tab is remembered, so the panel comes back with
+-- the Character frame.
 function Panel:Toggle()
     if self:IsShown() then
         self:Close()
@@ -282,24 +312,35 @@ function Panel:Toggle()
     ns.Database:SetSetting("panelOpen", self:IsShown())
 end
 
-local function CreateToggleButton()
-    toggleButton = CreateFrame("Button", nil, PaperDollFrame or CharacterFrame)
-    toggleButton:SetSize(26, 26)
-    toggleButton:SetPoint("TOPRIGHT", CharacterFrame, "TOPRIGHT", -44, -40)
-    toggleButton:SetNormalTexture(TOGGLE_ICON)
-    toggleButton:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square", "ADD")
-    toggleButton:SetScript("OnClick", function() Panel:Toggle() end)
-    toggleButton:SetScript("OnEnter", function(self)
+-- Built like the spellbook's SpellBookSkillLineTabTemplate, without inheriting it:
+-- that template's scripts belong to the spellbook.
+local function CreateTab()
+    tab = CreateFrame("CheckButton", nil, CharacterFrame)
+    tab:SetSize(32, 32)
+    local background = tab:CreateTexture(nil, "BACKGROUND")
+    background:SetTexture(TAB_BACKGROUND)
+    background:SetSize(64, 64)
+    background:SetPoint("TOPLEFT", -3, 11)
+    tab:SetNormalTexture(TOGGLE_ICON)
+    tab:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square", "ADD")
+    tab:SetCheckedTexture("Interface\\Buttons\\CheckButtonHilight", "ADD")
+    tab:SetScript("OnClick", function() Panel:Toggle() end)
+    tab:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
         GameTooltip:SetText(L.TOOLTIP_TOGGLE)
         GameTooltip:Show()
     end)
-    toggleButton:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    tab:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    Panel.tab = tab
 end
 
 local function OnCharacterShow()
-    if not toggleButton then CreateToggleButton() end
-    if ns.Database:GetSetting("panelOpen") then Panel:Open() end
+    if not tab then CreateTab() end
+    if ns.Database:GetSetting("panelOpen") then
+        Panel:Open()
+    else
+        PlaceTab()
+    end
 end
 
 local function OnCharacterHide()
