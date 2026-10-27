@@ -316,7 +316,7 @@ return function(T, H)
         T.noErrors()
     end)
 
-    T.case("the active role button glows with white text; the other stays plain", function()
+    T.case("the active role button stays pressed with white text, no glow; the other is normal", function()
         local ns = H.Boot({ talentPoints = { 0, 40, 21 } })
         H.Slash("")
         local ms, os
@@ -324,11 +324,14 @@ return function(T, H)
             if rawget(frame, "role") == "ms" then ms = frame end
             if rawget(frame, "role") == "os" then os = frame end
         end
-        T.ok(ns.Glow.IsShown(ms), "MS glows")
+        T.eq(ms.buttonState, "PUSHED", "MS pressed")
+        T.eq(ms.stateLocked, true, "and locked")
         T.eq(ms.text.textColor[3], 1, "white text")
-        T.ok(not ns.Glow.IsShown(os), "OS plain")
+        T.eq(os.buttonState, "NORMAL", "OS normal")
+        T.ok(not ns.Glow.IsShown(ms) and not ns.Glow.IsShown(os), "no glow on these buttons")
         os:Click()
-        T.ok(ns.Glow.IsShown(os) and not ns.Glow.IsShown(ms), "glow moves to OS")
+        T.eq(os.buttonState, "PUSHED", "OS pressed after the click")
+        T.eq(ms.buttonState, "NORMAL", "MS released")
     end)
 
     T.case("roles are per talent group (dual spec) and labelled in the list dropdown", function()

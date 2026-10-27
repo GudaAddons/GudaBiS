@@ -97,6 +97,7 @@ local function NewFrame(name)
         function group:Stop() self.playing = false end
         return group
     end
+    function frame:SetButtonState(state, locked) self.buttonState, self.stateLocked = state, locked end
     function frame:SetChecked(checked) self.checked = checked and true or false end
     function frame:GetChecked() return rawget(self, "checked") or false end
     function frame:Script(name, ...)

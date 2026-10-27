@@ -594,8 +594,9 @@ local function IconButton(texture, tooltip, onClick)
 end
 
 -- MS / OS: marks the list being shown as this character's main or off spec. The
--- game's red panel button; the active role wears the proc glow with white text
--- (author, 2026-10-28: the locked highlight with green text looked plain).
+-- game's red panel button. The active role stays pressed down (the button's own pushed
+-- art, locked) with white text, like a toggle; it stays clickable, since clicking it
+-- clears the role (author, 2026-10-28: no highlight or glow on these buttons).
 local function RoleButton(role, label, tooltip)
     local button = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
     button:SetSize(40, 20)
@@ -682,11 +683,11 @@ local function PaintListButtons(current)
         local button = listButtons[key]
         button:SetShown(current ~= nil)
         if role == key then
+            button:SetButtonState("PUSHED", true)
             button.text:SetTextColor(1, 1, 1)
-            ns.Glow.Show(button)
         else
+            button:SetButtonState("NORMAL")
             button.text:SetTextColor(1, 0.82, 0)
-            ns.Glow.Hide(button)
         end
     end
 end
