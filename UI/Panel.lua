@@ -594,7 +594,8 @@ local function IconButton(texture, tooltip, onClick)
 end
 
 -- MS / OS: marks the list being shown as this character's main or off spec. The
--- game's red panel button; the active role keeps its highlight locked.
+-- game's red panel button; the active role wears the proc glow with white text
+-- (author, 2026-10-28: the locked highlight with green text looked plain).
 local function RoleButton(role, label, tooltip)
     local button = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
     button:SetSize(40, 20)
@@ -604,7 +605,9 @@ local function RoleButton(role, label, tooltip)
     button.role = role
     button:SetScript("OnClick", function()
         if not frame.list then return end
-        ns.Lists:ToggleRole(role, frame.list.id)
+        local id = frame.list.id
+        ns.Lists:Select(id)
+        ns.Lists:ToggleRole(role, id)
         Panel:Refresh()
     end)
     button:SetScript("OnEnter", ShowButtonTooltip)
@@ -669,7 +672,6 @@ local function CreateListButtons()
     listButtons.new:SetPoint("RIGHT", listButtons.rename, "LEFT", -6, 0)
 end
 
-local ROLE_COLORS = { ms = { 0.25, 1, 0.25 }, os = { 0.25, 0.75, 1 } }
 
 local function PaintListButtons(current)
     local custom = ns.Lists.IsCustom(current)
@@ -680,11 +682,11 @@ local function PaintListButtons(current)
         local button = listButtons[key]
         button:SetShown(current ~= nil)
         if role == key then
-            button.text:SetTextColor(unpack(ROLE_COLORS[key]))
-            button:LockHighlight()
+            button.text:SetTextColor(1, 1, 1)
+            ns.Glow.Show(button)
         else
             button.text:SetTextColor(1, 0.82, 0)
-            button:UnlockHighlight()
+            ns.Glow.Hide(button)
         end
     end
 end

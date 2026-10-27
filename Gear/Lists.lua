@@ -266,12 +266,26 @@ local function Roles()
     return char.roles[group]
 end
 
+-- roles.ms: a list ID (chosen), false (the player cleared MS), or nil (default: the
+-- guide list of the active talent tree, skipping the OS list). roles.os: a list ID or
+-- nil. A list is never both: OS wins over the default MS, so moving the default list
+-- to OS really moves it (in game, 2026-10-28: it stuck on MS).
 function Lists:MainSpec()
     local roles = Roles()
+    if roles and roles.ms == false then return nil end
     local list = roles and self:Get(roles.ms)
     if list then return list end
     local Spec = ns.Spec
-    return DefaultGuideList(ns.Data:ForClass(Spec:PlayerClass(), self:Phase(), Spec:PlayerFaction()))
+    local candidates = ns.Data:ForClass(Spec:PlayerClass(), self:Phase(), Spec:PlayerFaction())
+    local os = roles and roles.os
+    if os then
+        local kept = {}
+        for _, guide in ipairs(candidates) do
+            if guide.id ~= os then kept[#kept + 1] = guide end
+        end
+        candidates = kept
+    end
+    return DefaultGuideList(candidates)
 end
 
 function Lists:OffSpec()
@@ -279,26 +293,32 @@ function Lists:OffSpec()
     return roles and self:Get(roles.os) or nil
 end
 
--- role: "ms" or "os". Setting the list that already has the role clears it, and a
--- list cannot be MS and OS at once.
+-- "ms", "os" or nil for a list, as the panel labels it.
+function Lists:RoleOf(id)
+    local os = self:OffSpec()
+    if os and os.id == id then return "os" end
+    local ms = self:MainSpec()
+    if ms and ms.id == id then return "ms" end
+    return nil
+end
+
+-- role: "ms" or "os". Clicking the role a list already has clears it (MS then stays
+-- empty until another list is chosen); otherwise the list takes the role and loses
+-- the other one.
 function Lists:ToggleRole(role, id)
     local roles = Roles()
     if not roles then return end
-    local other = role == "ms" and "os" or "ms"
-    if roles[role] == id then
-        roles[role] = nil
+    if self:RoleOf(id) == role then
+        if role == "ms" then roles.ms = false else roles.os = nil end
         return
     end
-    roles[role] = id
-    if roles[other] == id then roles[other] = nil end
-end
-
--- "ms", "os" or nil for a list, as the panel labels it.
-function Lists:RoleOf(id)
-    local ms, os = self:MainSpec(), self:OffSpec()
-    if ms and ms.id == id then return "ms" end
-    if os and os.id == id then return "os" end
-    return nil
+    if role == "ms" then
+        roles.ms = id
+        if roles.os == id then roles.os = nil end
+    else
+        roles.os = id
+        if roles.ms == id then roles.ms = nil end
+    end
 end
 
 -- Every guide item of the player's class for a slot (and its ring/trinket pair), from

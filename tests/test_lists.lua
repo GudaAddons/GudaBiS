@@ -297,6 +297,40 @@ return function(T, H)
         T.noErrors()
     end)
 
+    T.case("the default MS guide list can be moved to OS and back, and MS cleared", function()
+        local ns = H.Boot({ talentPoints = { 0, 40, 21 } })
+        H.Slash("")
+        T.eq(ns.Lists:RoleOf(GUIDE), "ms", "Balanced is MS by default")
+        ClickRole("os")
+        T.eq(ns.Lists:RoleOf(GUIDE), "os", "now OS, not stuck on MS")
+        T.eq(ns.Lists:OffSpec().id, GUIDE, "OS list")
+        T.ok(ns.Lists:MainSpec() == nil or ns.Lists:MainSpec().id ~= GUIDE, "MS is something else")
+        ClickRole("ms")
+        T.eq(ns.Lists:RoleOf(GUIDE), "ms", "back to MS")
+        T.eq(ns.Lists:OffSpec(), nil, "OS cleared")
+        ClickRole("ms")
+        T.eq(ns.Lists:MainSpec(), nil, "clicking the active MS clears it, even the default")
+        T.eq(ns.Lists:RoleOf(GUIDE), nil, "no role")
+        ClickRole("ms")
+        T.eq(ns.Lists:MainSpec().id, GUIDE, "and sets it again")
+        T.noErrors()
+    end)
+
+    T.case("the active role button glows with white text; the other stays plain", function()
+        local ns = H.Boot({ talentPoints = { 0, 40, 21 } })
+        H.Slash("")
+        local ms, os
+        for _, frame in ipairs(H.AllFrames()) do
+            if rawget(frame, "role") == "ms" then ms = frame end
+            if rawget(frame, "role") == "os" then os = frame end
+        end
+        T.ok(ns.Glow.IsShown(ms), "MS glows")
+        T.eq(ms.text.textColor[3], 1, "white text")
+        T.ok(not ns.Glow.IsShown(os), "OS plain")
+        os:Click()
+        T.ok(ns.Glow.IsShown(os) and not ns.Glow.IsShown(ms), "glow moves to OS")
+    end)
+
     T.case("roles are per talent group (dual spec) and labelled in the list dropdown", function()
         local ns = H.Boot()
         local group = 1
