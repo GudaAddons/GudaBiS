@@ -140,6 +140,8 @@ local function ShowLinkTooltip(self)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
     GameTooltip:SetHyperlink(self.link)
     GameTooltip:Show()
+    ns.ItemTooltip.Compare()
+    ns.ItemTooltip.Track(self, ShowLinkTooltip)
 end
 
 local function ItemButton(parent, size)
@@ -149,7 +151,10 @@ local function ItemButton(parent, size)
     button.icon:SetAllPoints()
     ns.Theme.SlotFrame(button, size)
     button:SetScript("OnEnter", ShowLinkTooltip)
-    button:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    button:SetScript("OnLeave", function()
+        ns.ItemTooltip.Untrack()
+        GameTooltip:Hide()
+    end)
     return button
 end
 

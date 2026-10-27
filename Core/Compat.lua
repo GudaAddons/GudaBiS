@@ -25,11 +25,12 @@ local RELOCATED = {
     IsAddOnLoaded = C_AddOns,
     GetSpellTexture = C_Spell,
     GetItemStats = C_Item,
+    GetCVarBool = C_CVar,
 }
 
 Compat.resolvedNames = {
     "GetItemInfo", "GetItemInfoInstant", "GetDetailedItemLevelInfo", "IsAddOnLoaded", "GetSpellTexture",
-    "GetItemStats",
+    "GetItemStats", "GetCVarBool",
 }
 Compat.resolvedSource = {}
 

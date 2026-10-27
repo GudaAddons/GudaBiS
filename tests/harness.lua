@@ -284,6 +284,11 @@ function H.Install(opts)
     _G.ITEM_QUALITY_COLORS = { [4] = { r = 0.64, g = 0.21, b = 0.93 } }
     _G.GetInventorySlotInfo = function(name) return 1, "empty-" .. name end
     _G.IsModifiedClick = function() return H.modified end
+    H.compares = 0
+    H.alwaysCompare = false
+    _G.GameTooltip_ShowCompareItem = function() H.compares = H.compares + 1 end
+    _G.GetCVarBool = (not modern) and function(name) return name == "alwaysCompareItems" and H.alwaysCompare end or nil
+    _G.C_CVar = { GetCVarBool = function(name) return name == "alwaysCompareItems" and H.alwaysCompare end }
     H.modified = false
     H.linked = {}
     _G.HandleModifiedItemClick = function(link) H.linked[#H.linked + 1] = link end

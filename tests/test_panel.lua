@@ -304,6 +304,40 @@ return function(T, H)
         T.noErrors()
     end)
 
+    T.case("shift-compare: pressing Shift during the hover shows the comparison", function()
+        local ns = H.Boot()
+        H.Slash("")
+        local head = SlotButton(1)
+        T.ok(not H.Registered("MODIFIER_STATE_CHANGED"), "nothing listens before a hover")
+        head:Enter()
+        T.eq(H.compares, 0, "no Shift, no compare")
+        T.ok(H.Registered("MODIFIER_STATE_CHANGED"), "listens during the hover")
+        H.modified = true
+        H.Fire("MODIFIER_STATE_CHANGED", "LSHIFT", 1)
+        T.eq(H.compares, 1, "Shift pressed after hovering: compare shown")
+        head.scripts.OnLeave(head)
+        T.ok(not H.Registered("MODIFIER_STATE_CHANGED"), "stops listening on leave")
+        H.modified = false
+        H.alwaysCompare = true
+        head:Enter()
+        T.eq(H.compares, 2, "Always compare items: compare without Shift")
+        T.noErrors()
+    end)
+
+    T.case("shift-compare also on ranked-list rows", function()
+        H.Boot()
+        H.Slash("")
+        SlotButton(1):Click()
+        local row
+        for _, frame in ipairs(H.AllFrames()) do
+            if rawget(frame, "rank") and frame:IsShown() then row = frame end
+        end
+        row:Enter()
+        H.modified = true
+        H.Fire("MODIFIER_STATE_CHANGED", "LSHIFT", 1)
+        T.eq(H.compares, 1, "compare on a ranked row")
+    end)
+
     T.case("shift-click links the item", function()
         H.Boot()
         H.Slash("")

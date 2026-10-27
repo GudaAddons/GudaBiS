@@ -61,6 +61,7 @@ Integrations\RCLootCouncil.lua
 
 # UI
 UI\Theme.lua
+UI\ItemTooltip.lua
 UI\Glow.lua
 UI\Alerts.lua
 UI\TestAlerts.lua

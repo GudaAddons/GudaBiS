@@ -310,6 +310,8 @@ local function ShowTooltip(button)
     end
     GameTooltip:AddLine(L.HINT_MARK, 0.6, 0.6, 0.6)
     GameTooltip:Show()
+    ns.ItemTooltip.Compare()
+    ns.ItemTooltip.Track(button, ShowTooltip)
 end
 
 -- Puts itemID (nil clears) into the slot of the custom list being shown, when it fits.
@@ -411,7 +413,10 @@ local function OnSlotClick(button, mouseButton)
     end
 end
 
-local function HideTooltip() GameTooltip:Hide() end
+local function HideTooltip()
+    ns.ItemTooltip.Untrack()
+    GameTooltip:Hide()
+end
 
 local function ShowEnchantTooltip(self)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")

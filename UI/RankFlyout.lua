@@ -101,6 +101,10 @@ local function ShowRowTooltip(row)
         GameTooltip:AddLine(L.HINT_MARK, 0.6, 0.6, 0.6)
     end
     GameTooltip:Show()
+    if kind == "item" then
+        ns.ItemTooltip.Compare()
+        ns.ItemTooltip.Track(row, ShowRowTooltip)
+    end
 end
 
 local function OnRowClick(row, mouseButton)
@@ -154,7 +158,10 @@ local function CreateRow(index)
     row:GetHighlightTexture():SetVertexColor(unpack(ns.Theme.COLORS.highlight))
     row:RegisterForClicks("LeftButtonUp", "RightButtonUp")
     row:SetScript("OnEnter", ShowRowTooltip)
-    row:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    row:SetScript("OnLeave", function()
+        ns.ItemTooltip.Untrack()
+        GameTooltip:Hide()
+    end)
     row:SetScript("OnClick", OnRowClick)
     rows[index] = row
     return row
