@@ -38,6 +38,7 @@ Core\Events.lua
 Core\SlashCommands.lua
 Core\Log.lua
 Core\Database.lua
+Core\Probe.lua
 
 # Bootstrap (load last)
 Core\Main.lua

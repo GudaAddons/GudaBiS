@@ -12,6 +12,8 @@ L.HELP_HEADER = "|cff33ccff========== GudaBiS ==========|r"
 L.HELP_STATUS = "|cffffff00/gbis status|r: Client, feature flags and API sources"
 L.HELP_DEBUG = "|cffffff00/gbis debug [on|off]|r: Toggle debug mode (debug lines in chat)"
 L.HELP_LOG = "|cffffff00/gbis log [clear]|r: Show the debug log window"
+L.HELP_PROBE = "|cffffff00/gbis probe|r: Report which WoW APIs this client offers (written to the debug log)"
+L.PROBE_DONE = "Probe written to the debug log (/gbis log)."
 
 L.LOG_TITLE = "GudaBiS debug log"
 L.LOG_CLEARED = "Debug log cleared."
