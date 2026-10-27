@@ -149,23 +149,16 @@ function Owned:ToggleManual(itemID)
     ns.Events:Fire("GBIS_OWNED_CHANGED")
 end
 
--- The check a slot shows: "best" when the #1 item is had, "using" when one of its
--- ranked alternatives is equipped, "elsewhere" when only another character has the #1,
--- else nil. An alternative only in bags or bank gives no check (author, 2026-10-28).
--- The second value is the item that decided it. `has(itemID)` and `state(itemID)` are
--- passed in so this stays pure.
+-- The check a slot shows, about the item shown only (author, 2026-10-28): "best" when
+-- this character has it, "elsewhere" when only another character does, else nil.
+-- Alternatives never mark the slot. `has(itemID)` and `state(itemID)` are passed in so
+-- this stays pure.
 function Owned.SlotStatus(list, slot, has, state)
     if not list then return nil end
     local best = list.items[slot]
     if not best then return nil end
-    if has(best) then return "best", best end
-    local alts = list.alts and list.alts[slot]
-    if alts then
-        for _, itemID in ipairs(alts) do
-            if state(itemID) == "equipped" then return "using", itemID end
-        end
-    end
-    if state(best) == "alt" then return "elsewhere", best end
+    if has(best) then return "best" end
+    if state(best) == "alt" then return "elsewhere" end
     return nil
 end
 

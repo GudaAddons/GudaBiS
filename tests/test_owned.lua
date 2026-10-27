@@ -70,35 +70,30 @@ return function(T, H)
         T.eq(ns.Owned:Has(32521), true, "a skipped slot is done")
     end)
 
-    T.case("SlotStatus: best, using an alternative, elsewhere, nothing", function()
+    T.case("SlotStatus: only the item shown decides; alternatives never mark the slot", function()
         local ns = H.Boot()
         local list = ns.Data:Get(GUIDE)
         local owned = {}
         local states = {}
         local function has(id) return owned[id] == true end
         local function state(id) return states[id] end
-        T.eq(ns.Owned.SlotStatus(list, 1, has, state), nil, "nothing")
+        T.eq(ns.Owned.SlotStatus(list, 1, has, state), nil, "missing: no mark")
+        owned[33421] = true
+        states[33421] = "equipped"
+        T.eq(ns.Owned.SlotStatus(list, 1, has, state), nil, "wearing an alternative: no mark")
         states[32521] = "alt"
         T.eq(ns.Owned.SlotStatus(list, 1, has, state), "elsewhere", "on an alt")
-        owned[33421] = true
-        states[33421] = "bags"
-        T.eq(ns.Owned.SlotStatus(list, 1, has, state), "elsewhere", "an alternative in bags gives no check")
-        states[33421] = "equipped"
-        local status, item = ns.Owned.SlotStatus(list, 1, has, state)
-        T.eq(status, "using", "wearing an alternative")
-        T.eq(item, 33421, "which one")
         owned[32521] = true
         T.eq(ns.Owned.SlotStatus(list, 1, has, state), "best", "best owned")
         T.eq(ns.Owned.SlotStatus(list, 4, has, state), nil, "empty slot")
         T.eq(ns.Owned.SlotStatus(nil, 1, has, state), nil, "no list")
     end)
 
-    T.case("panel: yellow check and tooltip line when wearing an alternative", function()
+    T.case("panel: wearing an alternative gives no slot mark, only the tooltip line", function()
         H.Boot({ equipped = { [1] = 33421 } })
         H.Slash("")
         local head = SlotButton(1)
-        T.ok(head.check:IsShown(), "check shown")
-        T.eq(head.check.vertexColor[2], 0.82, "yellow")
+        T.ok(not head.check:IsShown(), "no check")
         head:Enter()
         local found = false
         for _, line in ipairs(_G.GameTooltip.lines) do

@@ -128,13 +128,12 @@ end
 
 local CHECK_TEXTURE = "Interface\\RaidFrame\\ReadyCheck-Ready"
 
--- A slot's check (author, 2026-10-28): green when you have the item shown, yellow when
--- you are wearing one of its ranked alternatives, grey when only another character has
--- the item shown. An alternative merely in your bags or bank puts no check on the slot;
--- the ranked list and the tooltip say so instead.
+-- A slot's check means only "you have this exact item" (author, 2026-10-28): green on
+-- this character, grey on another one. A missing item gets no mark at all, and owning
+-- or wearing an alternative never marks the slot (yellow checks read as "owned" and
+-- were dropped); the tooltip and the ranked list say it instead.
 local CHECK_COLORS = {
     best = { 1, 1, 1, false },
-    using = { 1, 0.82, 0, true },
     elsewhere = { 0.7, 0.7, 0.7, true },
 }
 
