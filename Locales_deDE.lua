@@ -13,6 +13,7 @@ local T = {
     OWNED_MANUAL = "Als vorhanden markiert",
     OWNED_SKIP = "Als nicht benötigt markiert",
     OWNED_ALTERNATIVE = "Du hast eine Alternative: %s",
+    OWNED_USING = "Du trägst eine Alternative: %s",
     HINT_MARK = "Rechtsklick: als vorhanden oder nicht benötigt markieren",
     HELP_SHOW = "|cffffff00/gbis|r: Best-in-Slot-Fenster zeigen oder verbergen",
     PANEL_TITLE = "Beste Ausrüstung (BiS)",

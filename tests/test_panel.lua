@@ -63,6 +63,44 @@ return function(T, H)
         T.eq(ns.Panel.PhaseLabel(0), "Pre-raid", "pre-raid")
     end)
 
+    T.case("Wowhead layout: 7 left, 7 right, 3 weapons, no shirt or tabard", function()
+        local ns = H.Boot()
+        T.eq(#ns.Panel.LEFT_SLOTS, 7, "left")
+        T.eq(#ns.Panel.RIGHT_SLOTS, 7, "right")
+        T.eq(#ns.Panel.BOTTOM_SLOTS, 3, "weapons")
+        local seen = {}
+        for _, group in ipairs({ ns.Panel.LEFT_SLOTS, ns.Panel.RIGHT_SLOTS, ns.Panel.BOTTOM_SLOTS }) do
+            for _, slot in ipairs(group) do
+                T.ok(not seen[slot], "slot once " .. slot)
+                seen[slot] = true
+            end
+        end
+        T.ok(not seen[4] and not seen[19], "no shirt, no tabard")
+        H.Slash("")
+        T.eq(SlotButton(10).point[1], "TOPLEFT", "hands in the left column")
+        T.eq(SlotButton(6).point[1], "TOPRIGHT", "waist in the right column")
+        T.eq(SlotButton(6).name.point[1], "TOPRIGHT", "right column name before the icon")
+        T.eq(SlotButton(16).point[1], "TOP", "weapons along the bottom")
+    end)
+
+    T.case("enchant and gem icons beside each slot, with their tooltips", function()
+        H.Boot()
+        H.Slash("")
+        local head = SlotButton(1)
+        T.ok(head.enchant:IsShown(), "enchant shown")
+        T.eq(head.enchant.spell, 35447, "enchant spell")
+        T.eq(head.enchant.icon.texture, "spellicon35447", "spell icon")
+        T.ok(head.gems[1]:IsShown() and head.gems[2]:IsShown(), "two gems")
+        T.ok(not head.gems[3]:IsShown(), "no third socket")
+        T.eq(head.gems[1].item, 25896, "meta gem first")
+        head.gems[1]:Enter()
+        T.eq(_G.GameTooltip.item, 25896, "gem tooltip")
+        local neck = SlotButton(2)
+        T.ok(not neck.enchant:IsShown(), "no neck enchant")
+        T.ok(not neck.gems[1]:IsShown(), "no neck gems")
+        T.noErrors()
+    end)
+
     T.case("nothing is built before the Character frame or /gbis", function()
         local ns = H.Boot()
         T.eq(_G.GudaBiSPanel, nil, "no panel at login")

@@ -13,6 +13,7 @@ local T = {
     OWNED_MANUAL = "Marqué comme possédé",
     OWNED_SKIP = "Marqué comme inutile",
     OWNED_ALTERNATIVE = "Vous avez une alternative : %s",
+    OWNED_USING = "Vous portez une alternative : %s",
     HINT_MARK = "Clic droit : marquer comme possédé ou inutile",
     HELP_SHOW = "|cffffff00/gbis|r : affiche ou masque le panneau du meilleur équipement",
     PANEL_TITLE = "Meilleur équipement (BiS)",

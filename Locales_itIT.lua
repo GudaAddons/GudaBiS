@@ -13,6 +13,7 @@ local T = {
     OWNED_MANUAL = "Segnato come posseduto",
     OWNED_SKIP = "Segnato come non necessario",
     OWNED_ALTERNATIVE = "Hai un'alternativa: %s",
+    OWNED_USING = "Indossi un'alternativa: %s",
     HINT_MARK = "Clic destro: segna come posseduto o non necessario",
     HELP_SHOW = "|cffffff00/gbis|r: mostra o nasconde il pannello dell'equipaggiamento migliore",
     PANEL_TITLE = "Equipaggiamento migliore (BiS)",

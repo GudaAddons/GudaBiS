@@ -13,6 +13,7 @@ local T = {
     OWNED_MANUAL = "Marcado como conseguido",
     OWNED_SKIP = "Marcado como no necesario",
     OWNED_ALTERNATIVE = "Tienes una alternativa: %s",
+    OWNED_USING = "Llevas equipada una alternativa: %s",
     HINT_MARK = "Clic derecho: marcar como conseguido o no necesario",
     HELP_SHOW = "|cffffff00/gbis|r: Muestra u oculta el panel del mejor equipo",
     PANEL_TITLE = "Mejor equipo (BiS)",

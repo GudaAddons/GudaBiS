@@ -39,6 +39,7 @@ L.OWNED_ALT = "On %s"
 L.OWNED_MANUAL = "Marked as owned"
 L.OWNED_SKIP = "Marked as not needed"
 L.OWNED_ALTERNATIVE = "You have an alternative: %s"
+L.OWNED_USING = "You are wearing an alternative: %s"
 L.HINT_MARK = "Right-click: mark as owned or not needed"
 L.TOOLTIP_TOGGLE ="GudaBiS: show or hide best-in-slot gear"
 

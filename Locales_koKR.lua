@@ -13,6 +13,7 @@ local T = {
     OWNED_MANUAL = "보유로 표시됨",
     OWNED_SKIP = "필요 없음으로 표시됨",
     OWNED_ALTERNATIVE = "대체 아이템 보유: %s",
+    OWNED_USING = "대체 아이템 착용 중: %s",
     HINT_MARK = "오른쪽 클릭: 보유 또는 필요 없음으로 표시",
     HELP_SHOW = "|cffffff00/gbis|r: 최고 장비(BiS) 창 표시/숨기기",
     PANEL_TITLE = "최고 장비 (BiS)",

@@ -13,6 +13,7 @@ local T = {
     OWNED_MANUAL = "已標記為擁有",
     OWNED_SKIP = "已標記為不需要",
     OWNED_ALTERNATIVE = "你有替代裝備：%s",
+    OWNED_USING = "你正裝備替代裝備：%s",
     HINT_MARK = "右鍵：標記為擁有或不需要",
     HELP_SHOW = "|cffffff00/gbis|r：顯示或隱藏最佳裝備面板",
     PANEL_TITLE = "最佳裝備（BiS）",

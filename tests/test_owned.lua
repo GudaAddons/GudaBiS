@@ -70,7 +70,7 @@ return function(T, H)
         T.eq(ns.Owned:Has(32521), true, "a skipped slot is done")
     end)
 
-    T.case("SlotStatus: best, alt, elsewhere, nothing", function()
+    T.case("SlotStatus: best, using an alternative, elsewhere, nothing", function()
         local ns = H.Boot()
         local list = ns.Data:Get(GUIDE)
         local owned = {}
@@ -81,13 +81,30 @@ return function(T, H)
         states[32521] = "alt"
         T.eq(ns.Owned.SlotStatus(list, 1, has, state), "elsewhere", "on an alt")
         owned[33421] = true
+        states[33421] = "bags"
+        T.eq(ns.Owned.SlotStatus(list, 1, has, state), "elsewhere", "an alternative in bags gives no check")
+        states[33421] = "equipped"
         local status, item = ns.Owned.SlotStatus(list, 1, has, state)
-        T.eq(status, "alt", "alternative owned")
+        T.eq(status, "using", "wearing an alternative")
         T.eq(item, 33421, "which one")
         owned[32521] = true
         T.eq(ns.Owned.SlotStatus(list, 1, has, state), "best", "best owned")
         T.eq(ns.Owned.SlotStatus(list, 4, has, state), nil, "empty slot")
         T.eq(ns.Owned.SlotStatus(nil, 1, has, state), nil, "no list")
+    end)
+
+    T.case("panel: yellow check and tooltip line when wearing an alternative", function()
+        H.Boot({ equipped = { [1] = 33421 } })
+        H.Slash("")
+        local head = SlotButton(1)
+        T.ok(head.check:IsShown(), "check shown")
+        T.eq(head.check.vertexColor[2], 0.82, "yellow")
+        head:Enter()
+        local found = false
+        for _, line in ipairs(_G.GameTooltip.lines) do
+            if line:find("^You are wearing an alternative") then found = true end
+        end
+        T.ok(found, "tooltip says so")
     end)
 
     T.case("panel: check on the slot, tooltip says where, right-click marks", function()

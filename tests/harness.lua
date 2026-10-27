@@ -214,6 +214,9 @@ function H.Install(opts)
     }
     _G.C_Item = itemFns
     _G.C_AddOns = { IsAddOnLoaded = function() return false end, GetAddOnMetadata = function() return "0.0.0-test" end }
+    local function SpellTexture(spellID) return "spellicon" .. spellID end
+    _G.C_Spell = { GetSpellTexture = SpellTexture }
+    _G.GetSpellTexture = (not modern) and SpellTexture or nil
     _G.GetItemInfo = (not modern) and itemFns.GetItemInfo or nil
     _G.GetItemInfoInstant = (not modern) and itemFns.GetItemInfoInstant or nil
     _G.GetDetailedItemLevelInfo = nil

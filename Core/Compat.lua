@@ -15,14 +15,19 @@ local addonName, ns = ...
 
 local Compat = ns:RegisterModule("Compat")
 
+-- GetSpellTexture: C_Spell's version also returns the original icon as a second value;
+-- the first value is the same, so callers read only that one.
 local RELOCATED = {
     GetItemInfo = C_Item,
     GetItemInfoInstant = C_Item,
     GetDetailedItemLevelInfo = C_Item,
     IsAddOnLoaded = C_AddOns,
+    GetSpellTexture = C_Spell,
 }
 
-Compat.resolvedNames = { "GetItemInfo", "GetItemInfoInstant", "GetDetailedItemLevelInfo", "IsAddOnLoaded" }
+Compat.resolvedNames = {
+    "GetItemInfo", "GetItemInfoInstant", "GetDetailedItemLevelInfo", "IsAddOnLoaded", "GetSpellTexture",
+}
 Compat.resolvedSource = {}
 
 for name, namespace in pairs(RELOCATED) do

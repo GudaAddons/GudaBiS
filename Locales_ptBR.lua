@@ -13,6 +13,7 @@ local T = {
     OWNED_MANUAL = "Marcado como obtido",
     OWNED_SKIP = "Marcado como desnecessário",
     OWNED_ALTERNATIVE = "Você tem uma alternativa: %s",
+    OWNED_USING = "Você está usando uma alternativa: %s",
     HINT_MARK = "Clique direito: marcar como obtido ou desnecessário",
     HELP_SHOW = "|cffffff00/gbis|r: mostra ou oculta o painel do melhor equipamento",
     PANEL_TITLE = "Melhor equipamento (BiS)",

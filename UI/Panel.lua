@@ -20,18 +20,27 @@ local Panel = ns:RegisterModule("Panel")
 local GetItemInfo = ns.GetItemInfo
 local GetItemInfoInstant = ns.GetItemInfoInstant
 
-local SLOT_SIZE = 30
-local NAME_WIDTH = 112
-local ROW_HEIGHT = 34
-local COLUMN_WIDTH = SLOT_SIZE + 6 + NAME_WIDTH
+-- The Wowhead gear-planner layout (author, 2026-10-28): left column icon then name,
+-- right column name then icon (right-aligned), weapons centred along the bottom with
+-- the name under the icon. Each slot has its enchant icon on the outer side and its
+-- gems under the name. No shirt or tabard: guides never list them.
+Panel.LEFT_SLOTS = { 1, 2, 3, 15, 5, 9, 10 }
+Panel.RIGHT_SLOTS = { 6, 7, 8, 11, 12, 13, 14 }
+Panel.BOTTOM_SLOTS = { 16, 17, 18 }
+
+local SLOT_SIZE = 32
+local ENCHANT_SIZE = 16
+local GEM_SIZE = 14
+local NAME_WIDTH = 132
+local ROW_HEIGHT = 44
 local PADDING = 12
-local HEADER_HEIGHT = 74
-local WIDTH = PADDING * 2 + COLUMN_WIDTH * 2 + 8
-
-Panel.LEFT_SLOTS = { 1, 2, 3, 15, 5, 9, 16, 17, 18 }
-Panel.RIGHT_SLOTS = { 10, 6, 7, 8, 11, 12, 13, 14 }
-
-local HEIGHT = HEADER_HEIGHT + #Panel.LEFT_SLOTS * ROW_HEIGHT + PADDING
+local HEADER_HEIGHT = 70
+local WEAPON_ROW_HEIGHT = 66
+local WEAPON_SPACING = 124
+local COLUMN_WIDTH = ENCHANT_SIZE + 4 + SLOT_SIZE + 6 + NAME_WIDTH
+local WIDTH = PADDING * 2 + COLUMN_WIDTH * 2 + 12
+local HEIGHT = HEADER_HEIGHT + #Panel.LEFT_SLOTS * ROW_HEIGHT + WEAPON_ROW_HEIGHT + PADDING
+local UNKNOWN_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
 
 local SLOT_NAMES = {
     [1] = "HeadSlot", [2] = "NeckSlot", [3] = "ShoulderSlot", [15] = "BackSlot", [5] = "ChestSlot",
@@ -54,6 +63,8 @@ function Panel.SlotView(list, slot)
         slot = slot,
         item = list and list.items[slot] or nil,
         alts = list and list.alts and list.alts[slot] or NO_ALTS,
+        enchant = list and list.enchants and list.enchants[slot] or nil,
+        gems = list and list.gems and list.gems[slot] or NO_ALTS,
     }
 end
 
@@ -113,11 +124,13 @@ end
 
 local CHECK_TEXTURE = "Interface\\RaidFrame\\ReadyCheck-Ready"
 
--- A slot's check is about the item it shows (author, 2026-10-28): green when you have
--- it, grey when only another character has it. Owning an alternative puts no check on
--- the slot; the ranked list and the tooltip say so instead.
+-- A slot's check (author, 2026-10-28): green when you have the item shown, yellow when
+-- you are wearing one of its ranked alternatives, grey when only another character has
+-- the item shown. An alternative merely in your bags or bank puts no check on the slot;
+-- the ranked list and the tooltip say so instead.
 local CHECK_COLORS = {
     best = { 1, 1, 1, false },
+    using = { 1, 0.82, 0, true },
     elsewhere = { 0.7, 0.7, 0.7, true },
 }
 
@@ -136,10 +149,37 @@ local function PaintCheck(button, list)
     button.check:Show()
 end
 
+local function PaintEnchant(button, spellID)
+    local enchant = button.enchant
+    enchant.spell = spellID
+    if not spellID then
+        enchant:Hide()
+        return
+    end
+    enchant.icon:SetTexture(ns.GetSpellTexture and ns.GetSpellTexture(spellID) or UNKNOWN_ICON)
+    enchant:Show()
+end
+
+local function PaintGems(button, gems)
+    for i, gemButton in ipairs(button.gems) do
+        local gemID = gems[i]
+        gemButton.item = gemID
+        if gemID then
+            local _, _, _, _, icon = GetItemInfoInstant(gemID)
+            gemButton.icon:SetTexture(icon or UNKNOWN_ICON)
+            gemButton:Show()
+        else
+            gemButton:Hide()
+        end
+    end
+end
+
 local function PaintSlot(button, view, list)
     button.item = view.item
     button.alts = view.alts
     PaintCheck(button, list)
+    PaintEnchant(button, view.item and view.enchant)
+    PaintGems(button, view.item and view.gems or NO_ALTS)
     if not view.item then
         button.icon:SetTexture(EmptyTexture(view.slot))
         button.name:SetText("")
@@ -156,6 +196,13 @@ local function AddOwnedLine(button)
     if text then
         GameTooltip:AddLine(text, r, g, b)
         return
+    end
+    for _, itemID in ipairs(button.alts) do
+        if ns.Owned:State(itemID) == "equipped" then
+            local name = GetItemInfo(itemID) or tostring(itemID)
+            GameTooltip:AddLine(string.format(L.OWNED_USING, name), 1, 0.82, 0)
+            return
+        end
     end
     for _, itemID in ipairs(button.alts) do
         if ns.Owned:Has(itemID) then
@@ -195,8 +242,37 @@ local function OnSlotClick(button, mouseButton)
     ns.RankFlyout:Toggle(button, Panel.RankedItems(frame.list, button.slot))
 end
 
-local function CreateSlotButton(parent, slot)
-    local button = CreateFrame("Button", nil, parent)
+local function HideTooltip() GameTooltip:Hide() end
+
+local function ShowEnchantTooltip(self)
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+    GameTooltip:SetSpellByID(self.spell)
+    GameTooltip:Show()
+end
+
+local function ShowGemTooltip(self)
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+    GameTooltip:SetItemByID(self.item)
+    GameTooltip:Show()
+end
+
+local function SmallIcon(parent, size, onEnter)
+    local icon = CreateFrame("Button", nil, parent)
+    icon:SetSize(size, size)
+    icon.icon = icon:CreateTexture(nil, "ARTWORK")
+    icon.icon:SetAllPoints()
+    icon:SetScript("OnEnter", onEnter)
+    icon:SetScript("OnLeave", HideTooltip)
+    icon:Hide()
+    return icon
+end
+
+local MAX_GEMS = 3
+
+-- side: "left" (icon, then name), "right" (name, then icon, right-aligned) or
+-- "bottom" (name under the icon, gems to the right of it).
+local function CreateSlotButton(slot, side)
+    local button = CreateFrame("Button", nil, frame)
     button:SetSize(SLOT_SIZE, SLOT_SIZE)
     button.icon = button:CreateTexture(nil, "ARTWORK")
     button.icon:SetAllPoints()
@@ -209,25 +285,70 @@ local function CreateSlotButton(parent, slot)
     button.check:SetPoint("BOTTOMRIGHT", 4, -4)
     button.check:Hide()
     button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-    button.name = button:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    button.name:SetPoint("LEFT", button, "RIGHT", 6, 0)
-    button.name:SetWidth(NAME_WIDTH)
-    button.name:SetJustifyH("LEFT")
-    button.name:SetWordWrap(false)
     button:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square", "ADD")
     button:SetScript("OnEnter", ShowTooltip)
-    button:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    button:SetScript("OnLeave", HideTooltip)
     button:SetScript("OnClick", OnSlotClick)
     button.slot = slot
     button.alts = NO_ALTS
+
+    local name = button:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    name:SetWordWrap(false)
+    button.name = name
+
+    local enchant = SmallIcon(frame, ENCHANT_SIZE, ShowEnchantTooltip)
+    button.enchant = enchant
+
+    button.gems = {}
+    for i = 1, MAX_GEMS do
+        button.gems[i] = SmallIcon(frame, GEM_SIZE, ShowGemTooltip)
+    end
+
+    if side == "left" then
+        enchant:SetPoint("RIGHT", button, "LEFT", -4, 0)
+        name:SetPoint("TOPLEFT", button, "TOPRIGHT", 6, -2)
+        name:SetWidth(NAME_WIDTH)
+        name:SetJustifyH("LEFT")
+        for i, gem in ipairs(button.gems) do
+            gem:SetPoint("TOPLEFT", name, "BOTTOMLEFT", (i - 1) * (GEM_SIZE + 3), -4)
+        end
+    elseif side == "right" then
+        enchant:SetPoint("LEFT", button, "RIGHT", 4, 0)
+        name:SetPoint("TOPRIGHT", button, "TOPLEFT", -6, -2)
+        name:SetWidth(NAME_WIDTH)
+        name:SetJustifyH("RIGHT")
+        for i, gem in ipairs(button.gems) do
+            gem:SetPoint("TOPRIGHT", name, "BOTTOMRIGHT", -(i - 1) * (GEM_SIZE + 3), -4)
+        end
+    else
+        enchant:SetPoint("RIGHT", button, "LEFT", -4, 0)
+        name:SetPoint("TOP", button, "BOTTOM", 0, -3)
+        name:SetWidth(WEAPON_SPACING - 8)
+        name:SetJustifyH("CENTER")
+        for i, gem in ipairs(button.gems) do
+            gem:SetPoint("TOPLEFT", button, "TOPRIGHT", 4, -(i - 1) * (GEM_SIZE + 1))
+        end
+    end
+
+    slotButtons[slot] = button
     return button
 end
 
-local function LayoutColumn(slots, x)
-    for row, slot in ipairs(slots) do
-        local button = CreateSlotButton(frame, slot)
-        button:SetPoint("TOPLEFT", frame, "TOPLEFT", x, -HEADER_HEIGHT - (row - 1) * ROW_HEIGHT)
-        slotButtons[slot] = button
+local function LayoutSlots()
+    local slotX = PADDING + ENCHANT_SIZE + 4
+    for row, slot in ipairs(Panel.LEFT_SLOTS) do
+        local button = CreateSlotButton(slot, "left")
+        button:SetPoint("TOPLEFT", frame, "TOPLEFT", slotX, -HEADER_HEIGHT - (row - 1) * ROW_HEIGHT)
+    end
+    for row, slot in ipairs(Panel.RIGHT_SLOTS) do
+        local button = CreateSlotButton(slot, "right")
+        button:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -slotX, -HEADER_HEIGHT - (row - 1) * ROW_HEIGHT)
+    end
+    local weaponTop = -HEADER_HEIGHT - #Panel.LEFT_SLOTS * ROW_HEIGHT - 4
+    local middle = (#Panel.BOTTOM_SLOTS + 1) / 2
+    for i, slot in ipairs(Panel.BOTTOM_SLOTS) do
+        local button = CreateSlotButton(slot, "bottom")
+        button:SetPoint("TOP", frame, "TOP", (i - middle) * WEAPON_SPACING, weaponTop)
     end
 end
 
@@ -265,8 +386,7 @@ local function Create()
     frame.emptyNote:SetPoint("TOP", 0, -HEADER_HEIGHT + 14)
     frame.emptyNote:SetText(L.NO_LIST)
 
-    LayoutColumn(Panel.LEFT_SLOTS, PADDING)
-    LayoutColumn(Panel.RIGHT_SLOTS, PADDING + COLUMN_WIDTH + 8)
+    LayoutSlots()
 
     frame:SetScript("OnHide", function()
         GameTooltip:Hide()
