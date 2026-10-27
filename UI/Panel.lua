@@ -188,12 +188,36 @@ local function PaintGems(button, gems)
     end
 end
 
+local WARN_COLOR = { 1, 0.25, 0.25 }
+
+local function Warn(icon, on)
+    if on then
+        icon.icon:SetVertexColor(WARN_COLOR[1], WARN_COLOR[2], WARN_COLOR[3])
+        icon.warn:Show()
+    else
+        icon.icon:SetVertexColor(1, 1, 1)
+        icon.warn:Hide()
+    end
+end
+
+-- Red enchant and gem icons where the equipped item misses what the list asks for.
+local function PaintFinish(button, list)
+    local state = button.item and ns.Enchants:ForSlot(list, button.slot) or nil
+    button.enchant.missing = state ~= nil and state.missingEnchant
+    Warn(button.enchant, button.enchant.missing)
+    for i, gem in ipairs(button.gems) do
+        gem.state = state and state.gems[i] or nil
+        Warn(gem, gem.state == "empty" or gem.state == "wrong")
+    end
+end
+
 local function PaintSlot(button, view, list)
     button.item = view.item
     button.alts = view.alts
     PaintCheck(button, list)
     PaintEnchant(button, view.item and view.enchant)
     PaintGems(button, view.item and view.gems or NO_ALTS)
+    PaintFinish(button, list)
     if not view.item then
         button.icon:SetTexture(EmptyTexture(view.slot))
         button.name:SetText("")
@@ -312,12 +336,27 @@ local function HideTooltip() GameTooltip:Hide() end
 local function ShowEnchantTooltip(self)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
     GameTooltip:SetSpellByID(self.spell)
+    if self.missing then
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddLine(L.ENCHANT_MISSING, WARN_COLOR[1], WARN_COLOR[2], WARN_COLOR[3])
+    end
     GameTooltip:Show()
 end
+
+local GEM_LINES = {
+    ok = { "GEM_OK", 0.1, 1, 0.1 },
+    empty = { "GEM_EMPTY", WARN_COLOR[1], WARN_COLOR[2], WARN_COLOR[3] },
+    wrong = { "GEM_WRONG", WARN_COLOR[1], WARN_COLOR[2], WARN_COLOR[3] },
+}
 
 local function ShowGemTooltip(self)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
     GameTooltip:SetItemByID(self.item)
+    local line = self.state and GEM_LINES[self.state]
+    if line then
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddLine(L[line[1]], line[2], line[3], line[4])
+    end
     GameTooltip:Show()
 end
 
@@ -326,6 +365,11 @@ local function SmallIcon(parent, size, onEnter)
     icon:SetSize(size, size)
     icon.icon = icon:CreateTexture(nil, "ARTWORK")
     icon.icon:SetAllPoints()
+    icon.warn = icon:CreateTexture(nil, "OVERLAY")
+    icon.warn:SetTexture(QUALITY_BORDER)
+    icon.warn:SetAllPoints()
+    icon.warn:SetVertexColor(WARN_COLOR[1], WARN_COLOR[2], WARN_COLOR[3])
+    icon.warn:Hide()
     icon:SetScript("OnEnter", onEnter)
     icon:SetScript("OnLeave", HideTooltip)
     icon:Hide()
@@ -647,11 +691,18 @@ function Panel:RefreshChecks()
     if not self:IsShown() then return end
     for _, button in pairs(slotButtons) do
         PaintCheck(button, frame.list)
+        PaintFinish(button, frame.list)
         if GameTooltip:IsOwned(button) then ShowTooltip(button) end
     end
 end
 
 ns.Events:Register("GBIS_OWNED_CHANGED", function() Panel:RefreshChecks() end, "Panel")
+
+-- Enchanting or socketing a worn item changes no equipment, only the item; this is the
+-- event that says so. It also fires for durability, so it only repaints an open panel.
+ns.Events:Register("UNIT_INVENTORY_CHANGED", function(_, unit)
+    if unit == "player" then Panel:RefreshChecks() end
+end, "Panel")
 
 function Panel:IsShown()
     return frame ~= nil and frame:IsShown()

@@ -6,6 +6,10 @@ if ns.locale ~= "ruRU" then return end
 local L = ns.L
 
 local T = {
+    ENCHANT_MISSING = "На надетом здесь предмете нет чар",
+    GEM_OK = "В надетом предмете этот самоцвет",
+    GEM_EMPTY = "Это гнездо надетого предмета пустое",
+    GEM_WRONG = "В надетом предмете здесь другой самоцвет",
     OWNED_EQUIPPED = "Надето на вас",
     OWNED_BAGS = "В ваших сумках",
     OWNED_BANK = "В вашем банке",

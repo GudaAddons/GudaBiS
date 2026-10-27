@@ -6,6 +6,10 @@ if ns.locale ~= "zhTW" then return end
 local L = ns.L
 
 local T = {
+    ENCHANT_MISSING = "你此處裝備的物品沒有附魔",
+    GEM_OK = "你裝備的物品鑲嵌了這顆寶石",
+    GEM_EMPTY = "你裝備的物品此插槽為空",
+    GEM_WRONG = "你裝備的物品此處鑲嵌了其他寶石",
     OWNED_EQUIPPED = "已裝備",
     OWNED_BAGS = "在你的背包中",
     OWNED_BANK = "在你的銀行中",

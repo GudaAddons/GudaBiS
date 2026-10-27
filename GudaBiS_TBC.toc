@@ -49,6 +49,7 @@ Gear\Spec.lua
 Gear\Lists.lua
 Gear\Items.lua
 Gear\Owned.lua
+Gear\Enchants.lua
 
 # UI
 UI\Theme.lua

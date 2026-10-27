@@ -6,6 +6,10 @@ if ns.locale ~= "esMX" then return end
 local L = ns.L
 
 local T = {
+    ENCHANT_MISSING = "Tu objeto equipado aquí no tiene encantamiento",
+    GEM_OK = "Tu objeto equipado tiene esta gema",
+    GEM_EMPTY = "Esta ranura está vacía en tu objeto equipado",
+    GEM_WRONG = "Tu objeto equipado tiene otra gema aquí",
     OWNED_EQUIPPED = "Lo llevas equipado",
     OWNED_BAGS = "En tus bolsas",
     OWNED_BANK = "En tu banco",

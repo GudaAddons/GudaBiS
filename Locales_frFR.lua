@@ -6,6 +6,10 @@ if ns.locale ~= "frFR" then return end
 local L = ns.L
 
 local T = {
+    ENCHANT_MISSING = "Votre objet équipé ici n'a pas d'enchantement",
+    GEM_OK = "Votre objet équipé a cette gemme",
+    GEM_EMPTY = "Cette châsse est vide sur votre objet équipé",
+    GEM_WRONG = "Votre objet équipé a une autre gemme ici",
     OWNED_EQUIPPED = "Vous le portez",
     OWNED_BAGS = "Dans vos sacs",
     OWNED_BANK = "Dans votre banque",

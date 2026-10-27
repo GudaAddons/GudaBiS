@@ -6,6 +6,10 @@ if ns.locale ~= "ptBR" then return end
 local L = ns.L
 
 local T = {
+    ENCHANT_MISSING = "Seu item equipado aqui não tem encantamento",
+    GEM_OK = "Seu item equipado tem esta gema",
+    GEM_EMPTY = "Este engaste está vazio no seu item equipado",
+    GEM_WRONG = "Seu item equipado tem outra gema aqui",
     OWNED_EQUIPPED = "Você está usando",
     OWNED_BAGS = "Nas suas bolsas",
     OWNED_BANK = "No seu banco",

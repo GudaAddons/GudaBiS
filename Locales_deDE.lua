@@ -6,6 +6,10 @@ if ns.locale ~= "deDE" then return end
 local L = ns.L
 
 local T = {
+    ENCHANT_MISSING = "Dein angelegter Gegenstand hat hier keine Verzauberung",
+    GEM_OK = "Dein angelegter Gegenstand hat diesen Edelstein",
+    GEM_EMPTY = "Dieser Sockel ist an deinem angelegten Gegenstand leer",
+    GEM_WRONG = "Dein angelegter Gegenstand hat hier einen anderen Edelstein",
     OWNED_EQUIPPED = "Du hast es angelegt",
     OWNED_BAGS = "In deinen Taschen",
     OWNED_BANK = "In deiner Bank",

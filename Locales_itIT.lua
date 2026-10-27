@@ -6,6 +6,10 @@ if ns.locale ~= "itIT" then return end
 local L = ns.L
 
 local T = {
+    ENCHANT_MISSING = "L'oggetto che indossi qui non ha un incantamento",
+    GEM_OK = "L'oggetto che indossi ha questa gemma",
+    GEM_EMPTY = "Questo incavo è vuoto sull'oggetto che indossi",
+    GEM_WRONG = "L'oggetto che indossi ha un'altra gemma qui",
     OWNED_EQUIPPED = "Lo indossi",
     OWNED_BAGS = "Nelle tue borse",
     OWNED_BANK = "Nella tua banca",

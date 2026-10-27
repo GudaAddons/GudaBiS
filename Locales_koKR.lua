@@ -6,6 +6,10 @@ if ns.locale ~= "koKR" then return end
 local L = ns.L
 
 local T = {
+    ENCHANT_MISSING = "착용한 아이템에 마법부여가 없습니다",
+    GEM_OK = "착용한 아이템에 이 보석이 있습니다",
+    GEM_EMPTY = "착용한 아이템의 이 보석 홈이 비어 있습니다",
+    GEM_WRONG = "착용한 아이템에 다른 보석이 박혀 있습니다",
     OWNED_EQUIPPED = "착용 중",
     OWNED_BAGS = "가방에 있음",
     OWNED_BANK = "은행에 있음",

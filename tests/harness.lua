@@ -191,6 +191,12 @@ function H.Install(opts)
     _G.NUM_BANKBAGSLOTS = 6
     _G.BANK_CONTAINER = -1
     _G.GetInventoryItemID = function(_, slot) return H.equipped[slot] end
+    H.links = opts.links or {}
+    _G.GetInventoryItemLink = function(_, slot)
+        if H.links[slot] then return H.links[slot] end
+        local itemID = H.equipped[slot]
+        return itemID and ("|cffa335ee|Hitem:" .. itemID .. ":0:0:0:0:0:0:0:70|h[x]|h|r") or nil
+    end
     _G.C_Container = {
         GetContainerNumSlots = function(bag) return H.containers[bag] and #H.containers[bag] or 0 end,
         GetContainerItemID = function(bag, slot)
