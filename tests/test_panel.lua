@@ -156,11 +156,19 @@ return function(T, H)
         head:Enter()
         local tip = _G.GameTooltip
         T.eq(tip.item, 32521, "item tooltip")
-        T.eq(tip.lines[2], "Alternatives", "header")
-        T.eq(tip.lines[3], "1. Item30987", "cached alternative")
-        T.eq(tip.lines[4], "Item 33421 (loading...)", "loading alternative")
+        local function IndexOf(text)
+            for i, line in ipairs(tip.lines) do
+                if line == text then return i end
+            end
+        end
+        local header = IndexOf("Alternatives")
+        T.ok(header ~= nil, "header")
+        T.ok(IndexOf("Right-click: mark as owned or not needed") < header, "hint above the alternatives")
+        T.eq(tip.lines[header + 1], "1. Item30987", "cached alternative")
+        T.eq(tip.lines[header + 2], "Item 33421 (loading...)", "loading alternative")
         H.LoadItems()
-        T.eq(tip.lines[4], "2. Item33421", "redrawn after load")
+        header = IndexOf("Alternatives")
+        T.eq(tip.lines[header + 2], "2. Item33421", "redrawn after load")
         T.noErrors()
     end)
 

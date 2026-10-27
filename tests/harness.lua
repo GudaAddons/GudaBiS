@@ -160,13 +160,29 @@ function H.Install(opts)
     -- queue in H.itemLoads until H.LoadItems() runs them.
     H.cached = {}
     H.itemLoads = {}
+    H.itemClass = {}
+
+    -- Inventory: H.equipped[slot] = itemID, H.containers[bag] = { itemID or false, ... }
+    H.equipped = opts.equipped or {}
+    H.containers = opts.containers or {}
+    _G.NUM_BAG_SLOTS = 4
+    _G.NUM_BANKBAGSLOTS = 6
+    _G.BANK_CONTAINER = -1
+    _G.GetInventoryItemID = function(_, slot) return H.equipped[slot] end
+    _G.C_Container = {
+        GetContainerNumSlots = function(bag) return H.containers[bag] and #H.containers[bag] or 0 end,
+        GetContainerItemID = function(bag, slot)
+            local itemID = H.containers[bag] and H.containers[bag][slot]
+            return itemID or nil
+        end,
+    }
     local itemFns = {
         GetItemInfo = function(itemID)
             if not H.cached[itemID] then return nil end
             return "Item" .. itemID, "|cffa335ee|Hitem:" .. itemID .. "|h[Item" .. itemID .. "]|h|r", 4
         end,
         GetItemInfoInstant = function(itemID)
-            return itemID, "Armor", "Plate", "INVTYPE_HEAD", "icon" .. itemID
+            return itemID, "Armor", "Plate", "INVTYPE_HEAD", "icon" .. itemID, H.itemClass[itemID] or 4
         end,
         GetDetailedItemLevelInfo = function() end,
     }

@@ -6,6 +6,14 @@ if ns.locale ~= "zhCN" then return end
 local L = ns.L
 
 local T = {
+    OWNED_EQUIPPED = "已装备",
+    OWNED_BAGS = "在你的背包中",
+    OWNED_BANK = "在你的银行中",
+    OWNED_ALT = "在 %s 身上",
+    OWNED_MANUAL = "已标记为拥有",
+    OWNED_SKIP = "已标记为不需要",
+    OWNED_ALTERNATIVE = "你有替代装备：%s",
+    HINT_MARK = "右键：标记为拥有或不需要",
     HELP_SHOW = "|cffffff00/gbis|r：显示或隐藏最佳装备面板",
     PANEL_TITLE = "最佳装备（BiS）",
     PHASE = "第%d阶段",

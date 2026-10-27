@@ -6,6 +6,14 @@ if ns.locale ~= "ptBR" then return end
 local L = ns.L
 
 local T = {
+    OWNED_EQUIPPED = "Você está usando",
+    OWNED_BAGS = "Nas suas bolsas",
+    OWNED_BANK = "No seu banco",
+    OWNED_ALT = "Com %s",
+    OWNED_MANUAL = "Marcado como obtido",
+    OWNED_SKIP = "Marcado como desnecessário",
+    OWNED_ALTERNATIVE = "Você tem uma alternativa: %s",
+    HINT_MARK = "Clique direito: marcar como obtido ou desnecessário",
     HELP_SHOW = "|cffffff00/gbis|r: mostra ou oculta o painel do melhor equipamento",
     PANEL_TITLE = "Melhor equipamento (BiS)",
     PHASE = "Fase %d",

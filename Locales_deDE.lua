@@ -6,6 +6,14 @@ if ns.locale ~= "deDE" then return end
 local L = ns.L
 
 local T = {
+    OWNED_EQUIPPED = "Du hast es angelegt",
+    OWNED_BAGS = "In deinen Taschen",
+    OWNED_BANK = "In deiner Bank",
+    OWNED_ALT = "Bei %s",
+    OWNED_MANUAL = "Als vorhanden markiert",
+    OWNED_SKIP = "Als nicht benötigt markiert",
+    OWNED_ALTERNATIVE = "Du hast eine Alternative: %s",
+    HINT_MARK = "Rechtsklick: als vorhanden oder nicht benötigt markieren",
     HELP_SHOW = "|cffffff00/gbis|r: Best-in-Slot-Fenster zeigen oder verbergen",
     PANEL_TITLE = "Beste Ausrüstung (BiS)",
     PHASE = "Phase %d",

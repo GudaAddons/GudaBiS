@@ -43,7 +43,7 @@ end
 
 local SUITES = {
     "test_toc", "test_expansion", "test_events", "test_commands", "test_database", "test_log",
-    "test_probe", "test_data", "test_panel", "test_locales",
+    "test_probe", "test_data", "test_panel", "test_owned", "test_locales",
 }
 
 for _, suite in ipairs(SUITES) do

@@ -47,6 +47,7 @@ Data\TBC\Lists.lua
 # Gear
 Gear\Spec.lua
 Gear\Lists.lua
+Gear\Owned.lua
 
 # UI
 UI\Theme.lua

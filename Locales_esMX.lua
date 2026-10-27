@@ -6,6 +6,14 @@ if ns.locale ~= "esMX" then return end
 local L = ns.L
 
 local T = {
+    OWNED_EQUIPPED = "Lo llevas equipado",
+    OWNED_BAGS = "En tus bolsas",
+    OWNED_BANK = "En tu banco",
+    OWNED_ALT = "Lo tiene %s",
+    OWNED_MANUAL = "Marcado como conseguido",
+    OWNED_SKIP = "Marcado como no necesario",
+    OWNED_ALTERNATIVE = "Tienes una alternativa: %s",
+    HINT_MARK = "Clic derecho: marcar como conseguido o no necesario",
     HELP_SHOW = "|cffffff00/gbis|r: Muestra u oculta el panel del mejor equipo",
     PANEL_TITLE = "Mejor equipo (BiS)",
     PHASE = "Fase %d",

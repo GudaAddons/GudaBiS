@@ -6,6 +6,14 @@ if ns.locale ~= "itIT" then return end
 local L = ns.L
 
 local T = {
+    OWNED_EQUIPPED = "Lo indossi",
+    OWNED_BAGS = "Nelle tue borse",
+    OWNED_BANK = "Nella tua banca",
+    OWNED_ALT = "Ce l'ha %s",
+    OWNED_MANUAL = "Segnato come posseduto",
+    OWNED_SKIP = "Segnato come non necessario",
+    OWNED_ALTERNATIVE = "Hai un'alternativa: %s",
+    HINT_MARK = "Clic destro: segna come posseduto o non necessario",
     HELP_SHOW = "|cffffff00/gbis|r: mostra o nasconde il pannello dell'equipaggiamento migliore",
     PANEL_TITLE = "Equipaggiamento migliore (BiS)",
     PHASE = "Fase %d",

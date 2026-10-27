@@ -114,9 +114,35 @@ local function PaintName(button)
     end)
 end
 
-local function PaintSlot(button, view)
+local CHECK_TEXTURE = "Interface\\RaidFrame\\ReadyCheck-Ready"
+
+-- Green: the #1 item is had. Yellow: a ranked alternative is. Grey: only another
+-- character has the #1 (it still needs moving over).
+local CHECK_COLORS = {
+    best = { 1, 1, 1, false },
+    alt = { 1, 0.82, 0, true },
+    elsewhere = { 0.7, 0.7, 0.7, true },
+}
+
+local function HasItem(itemID) return ns.Owned:Has(itemID) end
+local function ItemState(itemID) return ns.Owned:State(itemID) end
+
+local function PaintCheck(button, list)
+    local status = ns.Owned.SlotStatus(list, button.slot, HasItem, ItemState)
+    local color = status and CHECK_COLORS[status]
+    if not color then
+        button.check:Hide()
+        return
+    end
+    button.check:SetDesaturated(color[4])
+    button.check:SetVertexColor(color[1], color[2], color[3])
+    button.check:Show()
+end
+
+local function PaintSlot(button, view, list)
     button.item = view.item
     button.alts = view.alts
+    PaintCheck(button, list)
     if not view.item then
         button.icon:SetTexture(EmptyTexture(view.slot))
         button.name:SetText("")
@@ -128,10 +154,35 @@ local function PaintSlot(button, view)
     PaintName(button)
 end
 
+local OWNED_TEXT = {
+    equipped = "OWNED_EQUIPPED", bags = "OWNED_BAGS", bank = "OWNED_BANK",
+    manual = "OWNED_MANUAL", skip = "OWNED_SKIP",
+}
+
+local function AddOwnedLines(button)
+    local state, altName = ns.Owned:State(button.item)
+    if state == "alt" then
+        GameTooltip:AddLine(string.format(L.OWNED_ALT, altName), 0.7, 0.7, 0.7)
+    elseif state then
+        GameTooltip:AddLine(L[OWNED_TEXT[state]], 0.1, 1, 0.1)
+    else
+        for _, itemID in ipairs(button.alts) do
+            if ns.Owned:Has(itemID) then
+                local name = GetItemInfo(itemID) or tostring(itemID)
+                GameTooltip:AddLine(string.format(L.OWNED_ALTERNATIVE, name), 1, 0.82, 0)
+                break
+            end
+        end
+    end
+end
+
 local function ShowTooltip(button)
     if not button.item then return end
     GameTooltip:SetOwner(button, "ANCHOR_RIGHT")
     GameTooltip:SetItemByID(button.item)
+    GameTooltip:AddLine(" ")
+    AddOwnedLines(button)
+    GameTooltip:AddLine(L.HINT_MARK, 0.6, 0.6, 0.6)
     if #button.alts > 0 then
         GameTooltip:AddLine(" ")
         GameTooltip:AddLine(L.TOOLTIP_ALTERNATIVES, 1, 0.82, 0)
@@ -139,7 +190,8 @@ local function ShowTooltip(button)
             local name, _, quality = GetItemInfo(itemID)
             if name then
                 local r, g, b = QualityColor(quality)
-                GameTooltip:AddLine(i .. ". " .. name, r, g, b)
+                local mark = ns.Owned:Has(itemID) and " |TInterface\\RaidFrame\\ReadyCheck-Ready:0|t" or ""
+                GameTooltip:AddLine(i .. ". " .. name .. mark, r, g, b)
             else
                 GameTooltip:AddLine(string.format(L.TOOLTIP_ITEM_LOADING, itemID), 0.6, 0.6, 0.6)
                 WhenLoaded(itemID, function()
@@ -151,8 +203,14 @@ local function ShowTooltip(button)
     GameTooltip:Show()
 end
 
-local function OnSlotClick(button)
-    if not button.item or not IsModifiedClick() then return end
+local function OnSlotClick(button, mouseButton)
+    if not button.item then return end
+    if mouseButton == "RightButton" then
+        ns.Owned:ToggleManual(button.item)
+        if GameTooltip:IsOwned(button) then ShowTooltip(button) end
+        return
+    end
+    if not IsModifiedClick() then return end
     local _, link = GetItemInfo(button.item)
     if link then HandleModifiedItemClick(link) end
 end
@@ -165,6 +223,12 @@ local function CreateSlotButton(parent, slot)
     button.border = button:CreateTexture(nil, "OVERLAY")
     button.border:SetTexture(QUALITY_BORDER)
     button.border:SetAllPoints()
+    button.check = button:CreateTexture(nil, "OVERLAY", nil, 2)
+    button.check:SetTexture(CHECK_TEXTURE)
+    button.check:SetSize(16, 16)
+    button.check:SetPoint("BOTTOMRIGHT", 4, -4)
+    button.check:Hide()
+    button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
     button.name = button:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     button.name:SetPoint("LEFT", button, "RIGHT", 6, 0)
     button.name:SetWidth(NAME_WIDTH)
@@ -279,10 +343,22 @@ function Panel:Refresh()
     listDropdown:SetOptions(listOptions, current and current.id)
     frame.emptyNote:SetShown(current == nil)
 
+    frame.list = current
     for slot, button in pairs(slotButtons) do
-        PaintSlot(button, Panel.SlotView(current, slot))
+        PaintSlot(button, Panel.SlotView(current, slot), current)
     end
 end
+
+-- Owned changes repaint only the checks of an open panel, and an open tooltip.
+function Panel:RefreshChecks()
+    if not self:IsShown() then return end
+    for _, button in pairs(slotButtons) do
+        PaintCheck(button, frame.list)
+        if GameTooltip:IsOwned(button) then ShowTooltip(button) end
+    end
+end
+
+ns.Events:Register("GBIS_OWNED_CHANGED", function() Panel:RefreshChecks() end, "Panel")
 
 function Panel:IsShown()
     return frame ~= nil and frame:IsShown()

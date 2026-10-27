@@ -6,6 +6,14 @@ if ns.locale ~= "ruRU" then return end
 local L = ns.L
 
 local T = {
+    OWNED_EQUIPPED = "Надето на вас",
+    OWNED_BAGS = "В ваших сумках",
+    OWNED_BANK = "В вашем банке",
+    OWNED_ALT = "У персонажа %s",
+    OWNED_MANUAL = "Отмечено как полученное",
+    OWNED_SKIP = "Отмечено как ненужное",
+    OWNED_ALTERNATIVE = "У вас есть альтернатива: %s",
+    HINT_MARK = "Правый клик: отметить как полученное или ненужное",
     HELP_SHOW = "|cffffff00/gbis|r: показать или скрыть панель лучшей экипировки",
     PANEL_TITLE = "Лучшая экипировка (BiS)",
     PHASE = "Фаза %d",
