@@ -2,16 +2,21 @@
 -- "1. the BiS item, 2., 3. ... the guide's alternatives" next to it, each with its own
 -- owned check.
 --
--- On a custom list the same flyout is the item picker (GB-041): the rows are every
--- guide item for that slot, a click puts one in the slot, a "Clear" row empties it, and
--- a box takes an item ID or a Wowhead/item link. While the picker is open, shift-clicking
--- any item (bags, chat, AtlasLoot) also picks it; items that do not fit the slot are
--- refused with a chat line.
+-- On a custom list the same flyout is the picker (GB-041, GB-052), for one of three
+-- kinds of choice:
+--   item    the slot's item: every guide item for the slot; must fit the slot
+--   enchant the slot's enchant: every guide enchant for the slot; a spell ID box
+--   gem     one socket's gem: every gem the class's guides use; must be a gem; a note
+--           when its colour misses the socket (allowed: socket bonuses are sometimes
+--           skipped on purpose)
+-- A click picks a row, "Clear" empties, the box takes an ID or a Wowhead/item link, and
+-- while an item or gem picker is open, shift-clicking any item anywhere picks it.
 --
 -- One flyout for the whole panel, rows reused. It closes when its slot is clicked again,
 -- when another slot opens it, when the panel changes list or phase, and with the panel.
 --
---   RankFlyout:Toggle(slotButton, items, picker)   picker = { slot, onPick(itemID|nil) }
+--   RankFlyout:Toggle(anchor, ids, picker)
+--       picker = { kind = "item"|"enchant"|"gem", slot, socket = colour, onPick(id|nil) }
 --   RankFlyout:Close(), RankFlyout:Refresh()
 
 local addonName, ns = ...
@@ -29,40 +34,72 @@ local ICON_SIZE = 18
 local PICKER_FOOTER = 52
 local CHECK_TEXTURE = "Interface\\RaidFrame\\ReadyCheck-Ready"
 local CLEAR_ICON = "Interface\\Buttons\\UI-GroupLoot-Pass-Up"
+local UNKNOWN_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
+
+local ID_PLACEHOLDER = { item = "PICK_ID", gem = "PICK_GEM_ID", enchant = "PICK_ENCHANT_ID" }
 
 local flyout
 local rows = {}
 local owner
-local items
+local ids
 local picker
 local linkingOwnRow = false
 
--- Puts itemID in the picker's slot when it fits there; says why not otherwise.
-local function Pick(itemID)
-    if not picker then return false end
-    if itemID then
-        local _, _, _, equipLoc = GetItemInfoInstant(itemID)
+local function Kind()
+    return picker and picker.kind or "item"
+end
+
+-- An error text when id may not go where the picker puts it, else nil.
+local function Refusal(id)
+    local kind = picker.kind
+    if kind == "item" then
+        local _, _, _, equipLoc = GetItemInfoInstant(id)
         if not ns.Lists.FitsSlot(equipLoc, picker.slot) then
-            ns:Print(string.format(L.PICK_WRONG_SLOT, itemID))
-            return false
+            return string.format(L.PICK_WRONG_SLOT, id)
         end
+    elseif kind == "gem" and not ns.Items.IsGem(id) then
+        return string.format(L.PICK_NOT_GEM, id)
+    end
+    return nil
+end
+
+local function Pick(id)
+    if not picker then return false end
+    local refusal = id and Refusal(id)
+    if refusal then
+        ns:Print(refusal)
+        return false
     end
     local onPick = picker.onPick
     RankFlyout:Close()
-    onPick(itemID)
+    onPick(id)
     return true
 end
 
 local function ShowRowTooltip(row)
-    if not row.item then return end
+    if not row.id then return end
     GameTooltip:SetOwner(row, "ANCHOR_RIGHT")
-    GameTooltip:SetItemByID(row.item)
-    local text, r, g, b = ns.Owned:Describe(row.item)
-    if text then
-        GameTooltip:AddLine(" ")
-        GameTooltip:AddLine(text, r, g, b)
+    local kind = Kind()
+    if kind == "enchant" then
+        GameTooltip:SetSpellByID(row.id)
+    else
+        GameTooltip:SetItemByID(row.id)
     end
-    GameTooltip:AddLine(picker and L.HINT_PICK or L.HINT_MARK, 0.6, 0.6, 0.6)
+    if kind == "item" then
+        local text, r, g, b = ns.Owned:Describe(row.id)
+        if text then
+            GameTooltip:AddLine(" ")
+            GameTooltip:AddLine(text, r, g, b)
+        end
+    elseif kind == "gem" and not ns.Items.GemMatches(row.id, picker.socket) then
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddLine(L.GEM_COLOR_MISMATCH, 1, 0.5, 0.25)
+    end
+    if picker then
+        GameTooltip:AddLine(L.HINT_PICK, 0.6, 0.6, 0.6)
+    else
+        GameTooltip:AddLine(L.HINT_MARK, 0.6, 0.6, 0.6)
+    end
     GameTooltip:Show()
 end
 
@@ -71,12 +108,13 @@ local function OnRowClick(row, mouseButton)
         Pick(nil)
         return
     end
+    local kind = Kind()
     if mouseButton == "RightButton" then
-        ns.Owned:ToggleManual(row.item)
+        if kind == "item" then ns.Owned:ToggleManual(row.id) end
         return
     end
-    if IsModifiedClick() then
-        local _, link = GetItemInfo(row.item)
+    if IsModifiedClick() and kind ~= "enchant" then
+        local _, link = GetItemInfo(row.id)
         if link then
             linkingOwnRow = true
             HandleModifiedItemClick(link)
@@ -84,7 +122,7 @@ local function OnRowClick(row, mouseButton)
         end
         return
     end
-    if picker then Pick(row.item) end
+    if picker then Pick(row.id) end
 end
 
 local function RowTop(index)
@@ -123,12 +161,16 @@ local function CreateRow(index)
 end
 
 local function PaintCheck(row)
-    local state = ns.Owned:State(row.item)
+    if Kind() ~= "item" then
+        row.check:Hide()
+        return
+    end
+    local state = ns.Owned:State(row.id)
     if state == "alt" then
         row.check:SetDesaturated(true)
         row.check:SetVertexColor(0.7, 0.7, 0.7)
         row.check:Show()
-    elseif ns.Owned:Has(row.item) then
+    elseif ns.Owned:Has(row.id) then
         row.check:SetDesaturated(false)
         row.check:SetVertexColor(1, 1, 1)
         row.check:Show()
@@ -137,8 +179,15 @@ local function PaintCheck(row)
     end
 end
 
-local function PaintRow(row)
-    local itemID = row.item
+local function PaintEnchantRow(row)
+    local spellID = row.id
+    row.icon:SetTexture(ns.GetSpellTexture and ns.GetSpellTexture(spellID) or UNKNOWN_ICON)
+    row.name:SetText(ns.Compat.SpellName(spellID) or string.format(L.SPELL_UNKNOWN, spellID))
+    row.name:SetTextColor(1, 1, 1)
+end
+
+local function PaintItemRow(row)
+    local itemID = row.id
     local _, _, _, _, icon = GetItemInfoInstant(itemID)
     row.icon:SetTexture(icon)
     local name, _, quality = GetItemInfo(itemID)
@@ -149,14 +198,22 @@ local function PaintRow(row)
         row.name:SetText(string.format(L.TOOLTIP_ITEM_LOADING, itemID))
         row.name:SetTextColor(0.6, 0.6, 0.6)
         ns.Items.WhenLoaded(itemID, function()
-            if row.item == itemID and flyout:IsShown() then PaintRow(row) end
+            if row.id == itemID and flyout:IsShown() then PaintItemRow(row) end
         end)
+    end
+end
+
+local function PaintRow(row)
+    if Kind() == "enchant" then
+        PaintEnchantRow(row)
+    else
+        PaintItemRow(row)
     end
     PaintCheck(row)
 end
 
 local function PaintClearRow(row)
-    row.item = nil
+    row.id = nil
     row.rank:SetText("")
     row.icon:SetTexture(CLEAR_ICON)
     row.name:SetText(L.PICK_CLEAR)
@@ -165,10 +222,16 @@ local function PaintClearRow(row)
 end
 
 local function OnIdEntered(edit)
-    local itemID = ns.Lists.ParseItemID(edit:GetText())
+    local text = edit:GetText()
+    local id
+    if Kind() == "enchant" then
+        id = ns.Lists.ParseSpellID(text)
+    else
+        id = ns.Lists.ParseItemID(text)
+    end
     edit:SetText("")
     edit:ClearFocus()
-    if itemID then Pick(itemID) end
+    if id then Pick(id) end
 end
 
 local function CreateFooter()
@@ -186,13 +249,14 @@ local function CreateFooter()
     footer.edit = edit
     local placeholder = edit:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     placeholder:SetPoint("LEFT", 2, 0)
-    placeholder:SetText(L.PICK_ID)
     edit:SetScript("OnTextChanged", function(self) placeholder:SetShown(self:GetText() == "") end)
+    footer.placeholder = placeholder
     local hint = footer:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     hint:SetPoint("TOPLEFT", edit, "BOTTOMLEFT", -4, -6)
     hint:SetPoint("RIGHT", 0, 0)
     hint:SetJustifyH("LEFT")
     hint:SetText(L.PICK_HINT)
+    footer.hint = hint
     flyout.footer = footer
 end
 
@@ -215,11 +279,11 @@ end
 function RankFlyout:Refresh()
     if not (flyout and flyout:IsShown()) then return end
     local count = 0
-    for _, itemID in ipairs(items) do
+    for _, id in ipairs(ids) do
         count = count + 1
         local row = rows[count] or CreateRow(count)
         row.clear = nil
-        row.item = itemID
+        row.id = id
         row.rank:SetText(picker and "" or (count .. "."))
         PaintRow(row)
         row:Show()
@@ -232,26 +296,31 @@ function RankFlyout:Refresh()
         row:Show()
     end
     for i = count + 1, #rows do rows[i]:Hide() end
-    flyout.footer:SetShown(picker ~= nil)
+    local footer = flyout.footer
+    footer:SetShown(picker ~= nil)
+    if picker then
+        footer.placeholder:SetText(L[ID_PLACEHOLDER[picker.kind]])
+        footer.hint:SetShown(picker.kind ~= "enchant")
+    end
     flyout:SetHeight(12 + count * ROW_HEIGHT + (picker and PICKER_FOOTER or 0))
 end
 
-function RankFlyout:IsOpenFor(button)
-    return flyout ~= nil and flyout:IsShown() and owner == button
+function RankFlyout:IsOpenFor(anchor)
+    return flyout ~= nil and flyout:IsShown() and owner == anchor
 end
 
-function RankFlyout:Toggle(button, rankedItems, pickerOptions)
-    if self:IsOpenFor(button) then
+function RankFlyout:Toggle(anchor, choices, pickerOptions)
+    if self:IsOpenFor(anchor) then
         self:Close()
         return
     end
     if not flyout then Create() end
     flyout:Hide()
-    owner = button
-    items = rankedItems
+    owner = anchor
+    ids = choices
     picker = pickerOptions
     flyout:ClearAllPoints()
-    flyout:SetPoint("TOPLEFT", button, "TOPRIGHT", 4, 0)
+    flyout:SetPoint("TOPLEFT", anchor, "TOPRIGHT", 4, 0)
     flyout:Show()
     self:Refresh()
 end
@@ -260,10 +329,11 @@ function RankFlyout:Close()
     if flyout then flyout:Hide() end
 end
 
--- Shift-clicking an item anywhere while the picker is open picks it. A post-hook, so
--- the click still does what the game does with it.
+-- Shift-clicking an item anywhere while an item or gem picker is open picks it. A
+-- post-hook, so the click still does what the game does with it.
 local function OnModifiedItemClick(link)
-    if linkingOwnRow or not picker or not (flyout and flyout:IsShown()) then return end
+    if linkingOwnRow or not picker or picker.kind == "enchant" then return end
+    if not (flyout and flyout:IsShown()) then return end
     local itemID = ns.Lists.ParseItemID(link)
     if itemID then Pick(itemID) end
 end

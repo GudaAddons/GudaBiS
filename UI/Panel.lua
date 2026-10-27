@@ -124,6 +124,10 @@ function Panel.RankedItems(list, slot)
     return out
 end
 
+-- Repaints one slot from the list shown (an item's data arriving can add its name and,
+-- on a custom list, its sockets). Defined after PaintSlot.
+local RepaintSlot
+
 local function PaintName(button)
     local itemID = button.item
     local name, _, quality = GetItemInfo(itemID)
@@ -137,7 +141,7 @@ local function PaintName(button)
     button.name:SetText("")
     button.border:Hide()
     WhenLoaded(itemID, function()
-        if button.item == itemID then PaintName(button) end
+        if button.item == itemID then RepaintSlot(button) end
     end)
 end
 
@@ -167,24 +171,46 @@ local function PaintCheck(button, list)
     button.check:Show()
 end
 
-local function PaintEnchant(button, spellID)
+local EMPTY_ENCHANT = "Interface\\PaperDoll\\UI-Backpack-EmptySlot"
+local EMPTY_SOCKET = "Interface\\ItemSocketingFrame\\UI-EmptySocket-"
+local SOCKET_TEXTURE_NAMES = { META = "Meta", RED = "Red", YELLOW = "Yellow", BLUE = "Blue" }
+
+-- editable: a custom list with an item in the slot; then an empty enchant shows a
+-- placeholder to click.
+local function PaintEnchant(button, spellID, editable)
     local enchant = button.enchant
     enchant.spell = spellID
-    if not spellID then
+    enchant.editable = editable
+    if spellID then
+        enchant.icon:SetTexture(ns.GetSpellTexture and ns.GetSpellTexture(spellID) or UNKNOWN_ICON)
+        enchant.icon:SetDesaturated(false)
+        enchant:Show()
+    elseif editable then
+        enchant.icon:SetTexture(EMPTY_ENCHANT)
+        enchant.icon:SetDesaturated(true)
+        enchant:Show()
+    else
         enchant:Hide()
-        return
     end
-    enchant.icon:SetTexture(ns.GetSpellTexture and ns.GetSpellTexture(spellID) or UNKNOWN_ICON)
-    enchant:Show()
 end
 
-local function PaintGems(button, gems)
+-- Guide lists show their gems. A custom list shows one icon per socket the item really
+-- has (Items.Sockets): the chosen gem, or the game's empty-socket art of that colour.
+local function PaintGems(button, gems, editable)
+    local sockets = editable and ns.Items.Sockets(button.item) or NO_ALTS
     for i, gemButton in ipairs(button.gems) do
         local gemID = gems[i]
+        if gemID == 0 then gemID = nil end
         gemButton.item = gemID
+        gemButton.index = i
+        gemButton.socket = sockets[i]
+        gemButton.editable = editable
         if gemID then
             local _, _, _, _, icon = GetItemInfoInstant(gemID)
             gemButton.icon:SetTexture(icon or UNKNOWN_ICON)
+            gemButton:Show()
+        elseif editable and sockets[i] then
+            gemButton.icon:SetTexture(EMPTY_SOCKET .. SOCKET_TEXTURE_NAMES[sockets[i]])
             gemButton:Show()
         else
             gemButton:Hide()
@@ -218,9 +244,10 @@ end
 local function PaintSlot(button, view, list)
     button.item = view.item
     button.alts = view.alts
+    local editable = view.item ~= nil and ns.Lists.IsCustom(list)
     PaintCheck(button, list)
-    PaintEnchant(button, view.item and view.enchant)
-    PaintGems(button, view.item and view.gems or NO_ALTS)
+    PaintEnchant(button, view.item and view.enchant, editable)
+    PaintGems(button, view.item and view.gems or NO_ALTS, editable)
     PaintFinish(button, list)
     if not view.item then
         button.icon:SetTexture(EmptyTexture(view.slot))
@@ -231,6 +258,11 @@ local function PaintSlot(button, view, list)
     local _, _, _, _, icon = GetItemInfoInstant(view.item)
     button.icon:SetTexture(icon or EMPTY_SLOT)
     PaintName(button)
+end
+
+RepaintSlot = function(button)
+    if not frame then return end
+    PaintSlot(button, Panel.SlotView(frame.list, button.slot), frame.list)
 end
 
 local function AddOwnedLine(button)
@@ -306,12 +338,56 @@ end
 local function OpenPicker(button)
     local slot = button.slot
     ns.RankFlyout:Toggle(button, ns.Lists:GuideItemsForSlot(slot), {
+        kind = "item",
         slot = slot,
         onPick = function(itemID)
             ns.Lists:SetSlot(frame.list.id, slot, itemID)
             Panel:Refresh()
         end,
     })
+end
+
+local function OpenEnchantPicker(icon)
+    if not (icon.editable and EditingCustom()) then return end
+    local slot = icon.owner.slot
+    GameTooltip:Hide()
+    ns.RankFlyout:Toggle(icon, ns.Lists:GuideEnchantsForSlot(slot), {
+        kind = "enchant",
+        slot = slot,
+        onPick = function(spellID)
+            ns.Lists:SetEnchant(frame.list.id, slot, spellID)
+            Panel:Refresh()
+        end,
+    })
+end
+
+local function OpenGemPicker(icon)
+    if not (icon.editable and EditingCustom()) then return end
+    local slot, index = icon.owner.slot, icon.index
+    GameTooltip:Hide()
+    ns.RankFlyout:Toggle(icon, ns.Lists:GuideGems(), {
+        kind = "gem",
+        slot = slot,
+        socket = icon.socket,
+        onPick = function(gemID)
+            ns.Lists:SetGem(frame.list.id, slot, index, gemID)
+            Panel:Refresh()
+        end,
+    })
+end
+
+-- A gem dragged onto a socket of a custom list.
+local function OnGemReceiveDrag(icon)
+    if not (icon.editable and EditingCustom()) then return end
+    local kind, itemID = GetCursorInfo()
+    if kind ~= "item" or not itemID then return end
+    ClearCursor()
+    if not ns.Items.IsGem(itemID) then
+        ns:Print(string.format(L.PICK_NOT_GEM, itemID))
+        return
+    end
+    ns.Lists:SetGem(frame.list.id, icon.owner.slot, icon.index, itemID)
+    Panel:Refresh()
 end
 
 local function OnSlotClick(button, mouseButton)
@@ -339,10 +415,17 @@ local function HideTooltip() GameTooltip:Hide() end
 
 local function ShowEnchantTooltip(self)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-    GameTooltip:SetSpellByID(self.spell)
+    if self.spell then
+        GameTooltip:SetSpellByID(self.spell)
+    else
+        GameTooltip:SetText(L.ENCHANT_NONE)
+    end
     if self.missing then
         GameTooltip:AddLine(" ")
         GameTooltip:AddLine(L.ENCHANT_MISSING, WARN_COLOR[1], WARN_COLOR[2], WARN_COLOR[3])
+    end
+    if self.editable and EditingCustom() then
+        GameTooltip:AddLine(L.HINT_EDIT_ENCHANT, 0.6, 0.6, 0.6)
     end
     GameTooltip:Show()
 end
@@ -355,18 +438,32 @@ local GEM_LINES = {
 
 local function ShowGemTooltip(self)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-    GameTooltip:SetItemByID(self.item)
+    if self.item then
+        GameTooltip:SetItemByID(self.item)
+        if not ns.Items.GemMatches(self.item, self.socket) then
+            GameTooltip:AddLine(" ")
+            GameTooltip:AddLine(L.GEM_COLOR_MISMATCH, 1, 0.5, 0.25)
+        end
+    else
+        GameTooltip:SetText(_G["EMPTY_SOCKET_" .. (self.socket or "")] or L.SOCKET_EMPTY)
+    end
     local line = self.state and GEM_LINES[self.state]
     if line then
         GameTooltip:AddLine(" ")
         GameTooltip:AddLine(L[line[1]], line[2], line[3], line[4])
     end
+    if self.editable and EditingCustom() then
+        GameTooltip:AddLine(L.HINT_EDIT_GEM, 0.6, 0.6, 0.6)
+    end
     GameTooltip:Show()
 end
 
-local function SmallIcon(parent, size, onEnter)
-    local icon = CreateFrame("Button", nil, parent)
+-- An enchant or gem icon. On a custom list a click opens its picker, and a gem icon
+-- also takes a dragged gem.
+local function SmallIcon(owner, size, onEnter, onClick, onDrag)
+    local icon = CreateFrame("Button", nil, frame)
     icon:SetSize(size, size)
+    icon.owner = owner
     icon.icon = icon:CreateTexture(nil, "ARTWORK")
     icon.icon:SetAllPoints()
     icon.warn = icon:CreateTexture(nil, "OVERLAY")
@@ -376,6 +473,8 @@ local function SmallIcon(parent, size, onEnter)
     icon.warn:Hide()
     icon:SetScript("OnEnter", onEnter)
     icon:SetScript("OnLeave", HideTooltip)
+    icon:SetScript("OnClick", onClick)
+    if onDrag then icon:SetScript("OnReceiveDrag", onDrag) end
     icon:Hide()
     return icon
 end
@@ -413,12 +512,12 @@ local function CreateSlotButton(slot, side)
     name:SetWordWrap(false)
     button.name = name
 
-    local enchant = SmallIcon(frame, ENCHANT_SIZE, ShowEnchantTooltip)
+    local enchant = SmallIcon(button, ENCHANT_SIZE, ShowEnchantTooltip, OpenEnchantPicker)
     button.enchant = enchant
 
     button.gems = {}
     for i = 1, MAX_GEMS do
-        button.gems[i] = SmallIcon(frame, GEM_SIZE, ShowGemTooltip)
+        button.gems[i] = SmallIcon(button, GEM_SIZE, ShowGemTooltip, OpenGemPicker, OnGemReceiveDrag)
     end
 
     if side == "left" then

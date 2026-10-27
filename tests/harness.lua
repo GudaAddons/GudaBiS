@@ -176,6 +176,8 @@ function H.Install(opts)
     H.cached = {}
     H.itemLoads = {}
     H.itemClass = {}
+    H.itemSubclass = {}
+    H.itemStats = {}
     H.equipLoc = {}
     H.cursor = nil
     _G.GetCursorInfo = function()
@@ -219,7 +221,12 @@ function H.Install(opts)
             return "Item" .. itemID, "|cffa335ee|Hitem:" .. itemID .. "|h[Item" .. itemID .. "]|h|r", 4
         end,
         GetItemInfoInstant = function(itemID)
-            return itemID, "Armor", "Plate", H.equipLoc[itemID] or "INVTYPE_HEAD", "icon" .. itemID, H.itemClass[itemID] or 4
+            return itemID, "Armor", "Plate", H.equipLoc[itemID] or "INVTYPE_HEAD", "icon" .. itemID,
+                H.itemClass[itemID] or 4, H.itemSubclass[itemID] or 0
+        end,
+        GetItemStats = function(link)
+            local itemID = tonumber(link:match("item:(%d+)"))
+            return H.itemStats[itemID] or {}
         end,
         GetDetailedItemLevelInfo = function() end,
     }
@@ -254,6 +261,8 @@ function H.Install(opts)
     local function SpellTexture(spellID) return "spellicon" .. spellID end
     _G.C_Spell = { GetSpellTexture = SpellTexture }
     _G.GetSpellTexture = (not modern) and SpellTexture or nil
+    _G.GetItemStats = (not modern) and itemFns.GetItemStats or nil
+    _G.GetSpellInfo = (not modern) and function(spellID) return "Spell" .. spellID end or nil
     _G.GetItemInfo = (not modern) and itemFns.GetItemInfo or nil
     _G.GetItemInfoInstant = (not modern) and itemFns.GetItemInfoInstant or nil
     _G.GetDetailedItemLevelInfo = nil

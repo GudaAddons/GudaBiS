@@ -45,6 +45,11 @@ function Data:Count()
     return #lists
 end
 
+-- Every guide list of the loaded flavor, in registration order. Read only.
+function Data:All()
+    return lists
+end
+
 -- The guide lists for a spec and phase that a character of `faction` may use, in
 -- the guide's tab order. A list without a faction is for both.
 function Data:ForSpec(spec, phase, faction)

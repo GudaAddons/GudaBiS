@@ -17,6 +17,9 @@ local Lists = ns:RegisterModule("Lists")
 
 local CUSTOM_PREFIX = "custom:"
 
+-- Ring and trinket slots come in pairs that share their candidates.
+local PAIR = { [11] = 12, [12] = 11, [13] = 14, [14] = 13 }
+
 local function Char()
     return ns.Database:Char()
 end
@@ -157,13 +160,92 @@ function Lists:Delete(id)
     end
 end
 
--- Setting nil clears the slot, with its enchant and gems.
+-- The gems a guide puts in this exact item in this slot, copied; nil when no guide
+-- list has the item there with gems.
+local function GuideGemsFor(slot, itemID)
+    for _, list in ipairs(ns.Data:All()) do
+        if list.items[slot] == itemID and list.gems and list.gems[slot] then
+            local copy = {}
+            for i, gemID in ipairs(list.gems[slot]) do copy[i] = gemID end
+            return copy
+        end
+    end
+    return nil
+end
+
+-- A new item keeps the slot's enchant (enchants belong to the slot) and takes the
+-- gems a guide gives that same item; otherwise its sockets start empty (author,
+-- 2026-10-28). Setting nil clears the slot, enchant and gems too.
 function Lists:SetSlot(id, slot, itemID)
     local list = Customs()[id]
     if not list then return end
     list.items[slot] = itemID
-    list.enchants[slot] = nil
-    list.gems[slot] = nil
+    if not itemID then
+        list.enchants[slot] = nil
+        list.gems[slot] = nil
+        return
+    end
+    list.gems[slot] = GuideGemsFor(slot, itemID)
+end
+
+function Lists:SetEnchant(id, slot, spellID)
+    local list = Customs()[id]
+    if list then list.enchants[slot] = spellID end
+end
+
+-- index: the socket, 1-based. A nil gem empties that socket.
+function Lists:SetGem(id, slot, index, gemID)
+    local list = Customs()[id]
+    if not list then return end
+    local gems = list.gems[slot] or {}
+    for i = #gems + 1, index - 1 do gems[i] = 0 end
+    gems[index] = gemID or 0
+    while #gems > 0 and gems[#gems] == 0 do gems[#gems] = nil end
+    list.gems[slot] = #gems > 0 and gems or nil
+end
+
+local function ClassListsNewestFirst()
+    local Spec = ns.Spec
+    local phases = ns.Data:Phases()
+    local out = {}
+    for i = #phases, 1, -1 do
+        for _, list in ipairs(ns.Data:ForClass(Spec:PlayerClass(), phases[i], Spec:PlayerFaction())) do
+            out[#out + 1] = list
+        end
+    end
+    return out
+end
+
+-- Every enchant the class's guide lists use for a slot (and its pair), newest phase
+-- first, without repeats: what the enchant picker offers.
+function Lists:GuideEnchantsForSlot(slot)
+    local out, seen = {}, {}
+    for _, list in ipairs(ClassListsNewestFirst()) do
+        for _, s in ipairs({ slot, PAIR[slot] }) do
+            local spellID = list.enchants and list.enchants[s]
+            if spellID and not seen[spellID] then
+                seen[spellID] = true
+                out[#out + 1] = spellID
+            end
+        end
+    end
+    return out
+end
+
+-- Every gem the class's guide lists use, in any slot: what the gem picker offers.
+function Lists:GuideGems()
+    local out, seen = {}, {}
+    for _, list in ipairs(ClassListsNewestFirst()) do
+        for _, gems in pairs(list.gems or {}) do
+            for _, gemID in ipairs(gems) do
+                if gemID ~= 0 and not seen[gemID] then
+                    seen[gemID] = true
+                    out[#out + 1] = gemID
+                end
+            end
+        end
+    end
+    return out
 end
 
 local function TalentGroup()
@@ -219,8 +301,6 @@ function Lists:RoleOf(id)
     return nil
 end
 
-local PAIR = { [11] = 12, [12] = 11, [13] = 14, [14] = 13 }
-
 -- Every guide item of the player's class for a slot (and its ring/trinket pair), from
 -- the newest phase down, in guide order without repeats: what the picker offers.
 function Lists:GuideItemsForSlot(slot)
@@ -267,5 +347,12 @@ end
 function Lists.ParseItemID(text)
     if type(text) ~= "string" then return nil end
     local id = text:match("item[=:](%d+)") or text:match("^%s*(%d+)%s*$")
+    return id and tonumber(id) or nil
+end
+
+-- A spell ID the same way: a number, a spell link, or a Wowhead URL ("spell=27957").
+function Lists.ParseSpellID(text)
+    if type(text) ~= "string" then return nil end
+    local id = text:match("spell[=:](%d+)") or text:match("enchant:(%d+)") or text:match("^%s*(%d+)%s*$")
     return id and tonumber(id) or nil
 end
