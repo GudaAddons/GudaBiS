@@ -42,6 +42,10 @@ local WIDTH = PADDING * 2 + COLUMN_WIDTH * 2 + 12
 local HEIGHT = HEADER_HEIGHT + #Panel.LEFT_SLOTS * ROW_HEIGHT + WEAPON_ROW_HEIGHT + PADDING
 local UNKNOWN_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
 
+-- Item names one size below GameFontHighlightSmall (author, 2026-10-28). The client's
+-- font file is kept, so every locale's alphabet still renders.
+local NAME_FONT_SIZE = 9
+
 local SLOT_NAMES = {
     [1] = "HeadSlot", [2] = "NeckSlot", [3] = "ShoulderSlot", [15] = "BackSlot", [5] = "ChestSlot",
     [9] = "WristSlot", [10] = "HandsSlot", [6] = "WaistSlot", [7] = "LegsSlot", [8] = "FeetSlot",
@@ -293,6 +297,8 @@ local function CreateSlotButton(slot, side)
     button.alts = NO_ALTS
 
     local name = button:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    local fontFile, _, fontFlags = name:GetFont()
+    if fontFile then name:SetFont(fontFile, NAME_FONT_SIZE, fontFlags) end
     name:SetWordWrap(false)
     button.name = name
 
