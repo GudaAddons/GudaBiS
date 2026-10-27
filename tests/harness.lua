@@ -75,6 +75,7 @@ local function NewFrame(name)
         return self.checkedTexture
     end
     function frame:SetBlendMode(mode) self.blendMode = mode end
+    function frame:IsMouseOver() return rawget(self, "mouseOver") or false end
     function frame:SetChecked(checked) self.checked = checked and true or false end
     function frame:GetChecked() return rawget(self, "checked") or false end
     function frame:Script(name, ...)

@@ -163,6 +163,36 @@ return function(T, H)
         T.noErrors()
     end)
 
+    T.case("dropdown: no frame over the options; an outside click closes, only while open", function()
+        local ns = H.Boot()
+        _G.C_EventUtils = { IsEventValid = function(event) return event == "GLOBAL_MOUSE_DOWN" end }
+        H.Slash("")
+        local listButton
+        for _, frame in ipairs(H.AllFrames()) do
+            local text = rawget(frame, "text")
+            if type(text) == "table" and text.shownText and text.shownText:find("Balanced set", 1, true) then
+                listButton = frame
+            end
+        end
+        T.ok(not H.Registered("GLOBAL_MOUSE_DOWN"), "nothing listens while closed")
+        listButton:Click()
+        T.ok(H.Registered("GLOBAL_MOUSE_DOWN"), "listens while open")
+        local menu
+        for _, frame in ipairs(H.AllFrames()) do
+            if rawget(frame, "rows") and frame:IsShown() then menu = frame end
+        end
+        T.ok(menu ~= nil, "menu open")
+        menu.mouseOver = true
+        H.Fire("GLOBAL_MOUSE_DOWN", "LeftButton")
+        T.ok(menu:IsShown(), "a click on the menu keeps it open")
+        menu.mouseOver = false
+        H.Fire("GLOBAL_MOUSE_DOWN", "LeftButton")
+        T.ok(not menu:IsShown(), "a click elsewhere closes it")
+        T.ok(not H.Registered("GLOBAL_MOUSE_DOWN"), "stops listening")
+        _G.C_EventUtils = nil
+        T.noErrors()
+    end)
+
     T.case("choosing a phase or list repaints and saves", function()
         local ns = H.Boot()
         H.Slash("")

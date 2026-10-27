@@ -1,7 +1,11 @@
 -- A small dropdown: a button showing the current choice and a menu of options.
 -- Options are { value = v, text = "..." }. The menu closes on a choice, on a second
--- click of the button, or on a click anywhere else, caught by a full-screen catcher
--- frame behind the menu, so nothing polls while it is open (RULES.md Rule 1).
+-- click of the button, or on a click anywhere else.
+--
+-- "Anywhere else" is the client's GLOBAL_MOUSE_DOWN, listened to only while a menu is
+-- open (RULES.md Rule 1). An earlier full-screen catcher frame behind the menu ended up
+-- drawn over the options in game and swallowed every click on them (2026-10-28), so
+-- nothing may sit between the player and the rows.
 --
 --   local dd = ns.Dropdown.Create(parent, width, onSelect)
 --   dd:SetOptions(options, selectedValue)
@@ -11,34 +15,35 @@ local addonName, ns = ...
 local Dropdown = ns:RegisterModule("Dropdown")
 
 local ROW_HEIGHT = 18
+local OUTSIDE_EVENT = "GLOBAL_MOUSE_DOWN"
 
-local catcher
+local open
 
-local function Catcher()
-    if catcher then return catcher end
-    catcher = CreateFrame("Button", nil, UIParent)
-    catcher:SetAllPoints(UIParent)
-    catcher:SetFrameStrata("FULLSCREEN_DIALOG")
-    catcher:RegisterForClicks("AnyUp")
-    catcher:Hide()
-    catcher:SetScript("OnClick", function(self)
-        if self.owner then self.owner:Close() end
-    end)
-    return catcher
+local function OutsideClicksSupported()
+    local utils = C_EventUtils
+    if not (utils and utils.IsEventValid) then return false end
+    local ok, valid = pcall(utils.IsEventValid, OUTSIDE_EVENT)
+    return ok and valid == true
+end
+
+local function OnMouseDown()
+    if open and not open.menu:IsMouseOver() and not open.button:IsMouseOver() then
+        open:Close()
+    end
 end
 
 local methods = {}
 
 function methods:Close()
     self.menu:Hide()
-    local c = Catcher()
-    if c.owner == self then
-        c.owner = nil
-        c:Hide()
+    if open == self then
+        open = nil
+        ns.Events:Unregister(OUTSIDE_EVENT, "Dropdown")
     end
 end
 
 function methods:Open()
+    if open and open ~= self then open:Close() end
     local menu = self.menu
     local rows = menu.rows
     for i, option in ipairs(self.options) do
@@ -70,11 +75,13 @@ function methods:Open()
     end
     for i = #self.options + 1, #rows do rows[i]:Hide() end
     menu:SetHeight(8 + #self.options * ROW_HEIGHT)
-    local c = Catcher()
-    if c.owner and c.owner ~= self then c.owner:Close() end
-    c.owner = self
-    c:Show()
     menu:Show()
+    if open ~= self then
+        open = self
+        if OutsideClicksSupported() then
+            ns.Events:Register(OUTSIDE_EVENT, OnMouseDown, "Dropdown")
+        end
+    end
 end
 
 function methods:Choose(value)
@@ -121,9 +128,6 @@ function Dropdown.Create(parent, width, onSelect)
     end)
     dd.button = button
 
-    -- The menu sits one strata above the catcher (FULLSCREEN_DIALOG), not just a few
-    -- frame levels: levels get re-based when the panel is raised, and a catcher drawn
-    -- over the rows swallowed every click on an option (in game, 2026-10-28).
     local menu = ns.Theme.CreateWindow("Frame", nil, button)
     menu:SetFrameStrata("TOOLTIP")
     menu:SetPoint("TOPLEFT", button, "BOTTOMLEFT", 0, -2)
