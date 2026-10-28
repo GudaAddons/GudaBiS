@@ -12,8 +12,12 @@
 --   - a link in raid warning                -> also "Rolling now", unless Gargul or
 --                                              RCLootCouncil shows its own roll window
 --                                              for that item (checked a second later)
--- The same item announced on two channels at once alerts once. Two copies announced in
--- two messages alert twice.
+-- One item is announced several times while it is handed out: at loot, at the roll call
+-- and with the winner (author, 2026-10-29: three "dropped" toasts for one wishlist item).
+-- So an item toasts once per ITEM_WINDOW, and a raid warning with it counts as its roll
+-- call once per ITEM_WINDOW too, which also keeps auto-roll from rolling again when the
+-- winner is announced in raid warning. A second copy of the same item within that time
+-- gets no second alert.
 --
 -- Every matched drop also goes to AutoRoll (GB-070), whether or not alerts are on; a
 -- raid-warning item it rolled for gets no "Rolling now" popup.
@@ -27,7 +31,7 @@ local Detect = ns:RegisterModule("Detect")
 
 local Match = ns.Match
 
-local DUPLICATE_WINDOW = 3
+local ITEM_WINDOW = 300
 local OTHER_WINDOW_DELAY = 1
 local MIN_SECONDS, MAX_SECONDS = 5, 120
 
@@ -37,6 +41,11 @@ local CHAT_EVENTS = {
 }
 
 local lastDropped = {}
+local lastRollCall = {}
+
+local function Recent(seen, itemID, now)
+    return seen[itemID] ~= nil and now - seen[itemID] <= ITEM_WINDOW
+end
 
 local function ShortName(name)
     if not name then return nil end
@@ -113,12 +122,13 @@ local function OnChat(event, message, sender)
         local itemID = Match.ItemIDFromLink(link)
         local match = itemID and Match:Item(itemID, nil, link)
         if match then
-            if alerts and (not lastDropped[itemID] or now - lastDropped[itemID] > DUPLICATE_WINDOW) then
+            if alerts and not Recent(lastDropped, itemID, now) then
                 ns.Alerts:Dropped(link, match)
+                lastDropped[itemID] = now
             end
-            lastDropped[itemID] = now
             ns.History:Seen(link)
-            if warning then
+            if warning and not Recent(lastRollCall, itemID, now) then
+                lastRollCall[itemID] = now
                 local seconds = Detect.RollSeconds(message)
                 C_Timer.After(OTHER_WINDOW_DELAY, function()
                     if OtherAddonRolls(itemID) then return end
