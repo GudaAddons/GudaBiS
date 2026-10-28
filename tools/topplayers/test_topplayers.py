@@ -125,3 +125,42 @@ class BuildListTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class EraTest(unittest.TestCase):
+    def setUp(self):
+        import era
+        self.era = era
+
+    def test_specs_cover_every_era_class_with_their_talent_tab(self):
+        made = {s["key"]: s for s in self.era.specs()}
+        self.assertEqual(len(made), 28)
+        self.assertEqual(made["WARRIOR_FURY"]["tree"], 2)
+        self.assertEqual(made["DRUID_GUARDIAN"]["tree"], 2)
+        self.assertEqual(made["ROGUE_COMBAT"]["wclSpec"], "Combat")
+        self.assertNotIn("DEATHKNIGHT_BLOOD", made)
+
+    def test_ranking_gear_is_in_slot_order(self):
+        gear = self.era.gear_from_ranking({"gear": [{"id": 12640}, {"id": 23053}, {"id": 0}, {"id": 4335},
+                                                    {"id": 23000}] + [{"id": 0}] * 12 + [{"id": 22812}]})
+        self.assertEqual(gear[1]["item"], 12640, "head")
+        self.assertEqual(gear[2]["item"], 23053, "neck")
+        self.assertNotIn(3, gear, "empty shoulder")
+        self.assertEqual(gear[18]["item"], 22812, "ranged")
+
+    def test_phase_list_and_labels(self):
+        players = [{1: {"item": 12640, "level": None, "bonus": [], "enchant": 2543, "enchantName": "+4 Haste",
+                        "gems": []}, 18: {"item": 22812, "level": None, "bonus": [], "enchant": None,
+                                          "enchantName": None, "gems": []}}] * 3
+        spec = {"key": "WARRIOR_FURY", "class": "WARRIOR", "tree": 2}
+        made = aggregate.build_list(spec, players, None, "2026-10-28", set_name="Top 50 raiders",
+                                    suffix="top:6", phase=6)
+        self.assertEqual(made["id"], "WARRIOR_FURY:top:6")
+        self.assertEqual(made["phase"], 6)
+        self.assertIsNone(made["anyPhase"])
+        self.assertEqual(made["items"][18], 22812, "ranged slot listed")
+        text = self.era.render([made], "2026-10-28")
+        self.assertIn('flavor = "Vanilla",', text)
+        self.assertIn("defaultPhase = 6,", text)
+        self.assertIn('[2] = "Phase 1-2"', text)
+        self.assertIn("phase = 6,", text)

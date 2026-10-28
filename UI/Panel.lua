@@ -112,7 +112,11 @@ function Panel.ListLabel(list, treeName, role)
     return label
 end
 
+-- A data set may name its phases itself (Era: Warcraft Logs groups "Phase 1-2" and
+-- "Phase 3-4", GB-101); otherwise "Pre-Raid" or "Phase N".
 function Panel.PhaseLabel(phase)
+    local labels = ns.Data.phaseLabels
+    if labels and labels[phase] then return labels[phase] end
     if phase == 0 then return L.PHASE_PRERAID end
     return string.format(L.PHASE, phase)
 end

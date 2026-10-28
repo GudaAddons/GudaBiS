@@ -31,7 +31,7 @@ OFF_HAND_SHARE = 0.5
 SLOTS = {
     "HEAD": 1, "NECK": 2, "SHOULDER": 3, "CHEST": 5, "WAIST": 6, "LEGS": 7, "FEET": 8,
     "WRIST": 9, "HANDS": 10, "FINGER_1": 11, "FINGER_2": 12, "TRINKET_1": 13, "TRINKET_2": 14,
-    "BACK": 15, "MAIN_HAND": 16, "OFF_HAND": 17,
+    "BACK": 15, "MAIN_HAND": 16, "OFF_HAND": 17, "RANGED": 18,
 }
 PAIRS = {11: (11, 12), 12: (11, 12), 13: (13, 14), 14: (13, 14)}
 
@@ -69,8 +69,10 @@ def _sorted(counter):
     return sorted(counter.items(), key=lambda kv: (-kv[1], kv[0]))
 
 
-def build_list(spec, players, season, updated):
-    """spec: {key, class, specID, tree, name}; players: list of equipped() results."""
+def build_list(spec, players, season, updated, set_name="Top 50 M+", suffix="mplus", phase=None):
+    """spec: {key, class, specID, tree, name}; players: list of equipped() results.
+    A phase (Era, GB-101) makes the list that phase's; without one it belongs to every
+    phase (Retail)."""
     total = len(players)
     worn = defaultdict(Counter)
     levels, bonuses = {}, {}
@@ -127,9 +129,10 @@ def build_list(spec, players, season, updated):
             gems[slot] = chosen
     listed = set(items.values()) | {item for rest in alts.values() for item in rest}
     return {
-        "id": f"{spec['key']}:mplus", "spec": spec["key"], "class": spec["class"],
-        "specID": spec["specID"], "tree": spec["tree"], "anyPhase": True,
-        "set": "Top 50 M+", "season": season, "players": total, "updated": updated,
+        "id": f"{spec['key']}:{suffix}", "spec": spec["key"], "class": spec["class"],
+        "specID": spec.get("specID"), "tree": spec["tree"],
+        "phase": phase, "anyPhase": None if phase is not None else True,
+        "set": set_name, "season": season, "players": total, "updated": updated,
         "items": items, "enchantIDs": enchants, "enchantNames": names, "gems": gems,
         "alts": alts, "usage": usage,
         "itemLevels": {item: levels[item] for item in listed if item in levels},

@@ -23,6 +23,7 @@ function Data:Register(def)
     assert(self.flavor == nil, "a second flavor registered data: " .. tostring(def.flavor))
     self.flavor = def.flavor
     self.defaultPhase = def.defaultPhase
+    self.phaseLabels = def.phaseLabels
     self.source = def.source
     for _, list in ipairs(def.lists) do
         lists[#lists + 1] = list
