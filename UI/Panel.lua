@@ -57,7 +57,7 @@ local SLOT_NAMES = {
     [16] = "MainHandSlot", [17] = "SecondaryHandSlot", [18] = "RangedSlot",
 }
 
-local TOGGLE_ICON = "Interface\\Icons\\INV_Chest_Plate06"
+local TOGGLE_ICON = "Interface\\AddOns\\GudaBiS\\Assets\\logo.png"
 local TAB_BACKGROUND = "Interface\\SpellBook\\SpellBook-SkillLineTab"
 local TAB_TOP = -60
 local EMPTY_SLOT = "Interface\\PaperDoll\\UI-Backpack-EmptySlot"
@@ -697,20 +697,33 @@ local function PaintListButtons(current)
     end
 end
 
--- Gear and History tabs under the panel, like the Character frame's own (GB-071). The
--- tab template is the client's; a plain button stands in on a client without it.
+-- Gear and History tabs under the panel, the same as the Character frame's own tabs on
+-- this client (GB-071; author, 2026-10-28: generic tabs looked foreign next to them).
+-- Classic flavors draw those with CharacterFrameTabButtonTemplate, Retail with
+-- PanelTabButtonTemplate; the first one the client has is used, a plain button last.
+-- The Character tab template's own click and tooltip scripts belong to the Character
+-- frame, so they are replaced.
 local TABS = { { key = "gear", text = "TAB_GEAR" }, { key = "history", text = "TAB_HISTORY" } }
+local TAB_TEMPLATES = { "CharacterFrameTabButtonTemplate", "PanelTabButtonTemplate" }
 local TAB_OVERLAP = -14
+
+local function CreateTabButton(name)
+    for _, template in ipairs(TAB_TEMPLATES) do
+        local ok, button = pcall(CreateFrame, "Button", name, frame, template)
+        if ok and button then return button end
+    end
+    local button = CreateFrame("Button", name, frame, "UIPanelButtonTemplate")
+    button:SetSize(90, 22)
+    return button
+end
 
 local function CreateTabs()
     local previous
     for i, info in ipairs(TABS) do
-        local name = "GudaBiSPanelTab" .. i
-        local ok, tabButton = pcall(CreateFrame, "Button", name, frame, "PanelTabButtonTemplate")
-        if not ok or not tabButton then
-            tabButton = CreateFrame("Button", name, frame, "UIPanelButtonTemplate")
-            tabButton:SetSize(90, 22)
-        end
+        local tabButton = CreateTabButton("GudaBiSPanelTab" .. i)
+        tabButton:SetScript("OnEnter", nil)
+        tabButton:SetScript("OnLeave", nil)
+        tabButton:SetScript("OnShow", nil)
         tabButton:SetID(i)
         tabButton:SetText(L[info.text])
         if PanelTemplates_TabResize then PanelTemplates_TabResize(tabButton, 0) end

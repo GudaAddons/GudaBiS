@@ -73,6 +73,8 @@ UI\NameDialog.lua
 UI\RankFlyout.lua
 UI\HistoryTab.lua
 UI\Panel.lua
+UI\SettingsPanel.lua
+UI\MinimapButton.lua
 
 # Bootstrap (load last)
 Core\Main.lua

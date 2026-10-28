@@ -164,6 +164,7 @@ function HistoryTab:Refresh()
     for _, char in ipairs(chars) do options[#options + 1] = { value = char, text = char } end
     selectedChar = selectedChar or player
     charDropdown:SetOptions(options, selectedChar)
+    charDropdown.button:SetShown(#chars > 0)
 
     local sessions = HistoryTab.SessionsOf(selectedChar)
     local sessionOptions, found = {}, false
@@ -173,6 +174,7 @@ function HistoryTab:Refresh()
     end
     if not found then selectedSession, offset = sessions[1], 0 end
     sessionDropdown:SetOptions(sessionOptions, selectedSession)
+    sessionDropdown.button:SetShown(#sessions > 0)
     PaintRows()
 end
 

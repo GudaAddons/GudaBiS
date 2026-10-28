@@ -25,6 +25,10 @@ local DEFAULTS = {
             sound = true,
             alts = true,
         },
+        minimap = {
+            angle = 200,
+            hidden = false,
+        },
     },
     chars = {},
     history = {
@@ -69,12 +73,31 @@ function Database:Initialize()
     ns.debugMode = db.settings.debug and true or false
 end
 
-function Database:GetSetting(key)
-    return ns.db and ns.db.settings[key]
+-- A setting by path: "debug", or "alerts.sound" for a nested one. The table holding it
+-- and its last key, or nil when a part of the path is missing.
+local function Resolve(path)
+    local node = ns.db and ns.db.settings
+    local parent, key = nil, nil
+    for part in path:gmatch("[^%.]+") do
+        if type(node) ~= "table" then return nil end
+        parent, key = node, part
+        node = node[part]
+    end
+    return parent, key
 end
 
-function Database:SetSetting(key, value)
-    if ns.db then ns.db.settings[key] = value end
+function Database:GetSetting(path)
+    local parent, key = Resolve(path)
+    return parent and parent[key]
+end
+
+-- Fires GBIS_SETTING_CHANGED(path, value), so the settings page, the minimap button and
+-- slash commands stay in step with each other.
+function Database:SetSetting(path, value)
+    local parent, key = Resolve(path)
+    if not parent then return end
+    parent[key] = value
+    ns.Events:Fire("GBIS_SETTING_CHANGED", path, value)
 end
 
 -- The player's character key. Forever names are two words with no realm

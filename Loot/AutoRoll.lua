@@ -98,7 +98,7 @@ local function OnRollGone(_, rollID)
 end
 
 local function SetEnabled(on)
-    ns.db.settings.autoRoll = on
+    ns.Database:SetSetting("autoRoll", on)
     if on and AutoRoll:GargulLoaded() then
         ns:Print(L.AUTOROLL_GARGUL)
     else

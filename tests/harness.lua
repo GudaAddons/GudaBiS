@@ -267,6 +267,8 @@ function H.Install(opts)
     _G.GetTime = function() return H.clock end
     _G.NUM_GROUP_LOOT_FRAMES = 4
     _G.LibStub = nil
+    _G.Settings = nil
+    _G.Minimap = nil
     _G.Gargul = nil
 
     -- Inventory: H.equipped[slot] = itemID, H.containers[bag] = { itemID or false, ... }
