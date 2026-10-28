@@ -41,7 +41,39 @@ end
 
 local methods = {}
 
+-- Retail (ns.Features.HasRetailFrameArt) has its own dropdown widget and menu system
+-- (WowStyle1DropdownTemplate on a DropdownButton): there the button and the open menu
+-- are Blizzard's (author, 2026-10-28: ours looked out of place). Options become radio
+-- entries, action rows plain buttons after a divider. It sits inside the same holder
+-- frame, so every anchor and width stays the same. Nil where the client has no such
+-- widget: the drawn dropdown below is used instead.
+local function NativeDropdown(dd, holder)
+    if not ns.Features.HasRetailFrameArt then return nil end
+    local ok, native = pcall(CreateFrame, "DropdownButton", nil, holder, "WowStyle1DropdownTemplate")
+    if not ok or not native or type(native.SetupMenu) ~= "function" then return nil end
+    local margin = ns.Theme.DROPDOWN_MARGIN
+    native:SetPoint("LEFT", holder, "LEFT", margin, 0)
+    native:SetPoint("RIGHT", holder, "RIGHT", -margin, 0)
+    native:SetupMenu(function(_, root)
+        for _, option in ipairs(dd.options) do
+            if option.separator and root.CreateDivider then root:CreateDivider() end
+            if option.action then
+                root:CreateButton(option.text, option.action)
+            else
+                root:CreateRadio(option.text,
+                    function() return dd.value == option.value end,
+                    function() dd:Choose(option.value) end)
+            end
+        end
+    end)
+    return native
+end
+
 function methods:Close()
+    if self.native then
+        if self.native.CloseMenu then pcall(self.native.CloseMenu, self.native) end
+        return
+    end
     self.menu:Hide()
     if open == self then
         open = nil
@@ -50,6 +82,10 @@ function methods:Close()
 end
 
 function methods:Open()
+    if self.native then
+        if self.native.OpenMenu then pcall(self.native.OpenMenu, self.native) end
+        return
+    end
     if open and open ~= self then open:Close() end
     local menu = self.menu
     local rows = menu.rows
@@ -128,7 +164,17 @@ function methods:SetOptions(options, value)
     self.options = options
     self.value = value
     self:Refresh()
+    if self.native then
+        if self.native.GenerateMenu then pcall(self.native.GenerateMenu, self.native) end
+        return
+    end
     if self.menu:IsShown() then self:Open() end
+end
+
+local function ShowTooltip(frame, text)
+    GameTooltip:SetOwner(frame, "ANCHOR_TOP")
+    GameTooltip:SetText(text, 1, 1, 1, 1, true)
+    GameTooltip:Show()
 end
 
 function Dropdown.Create(parent, width, onSelect, tooltip)
@@ -137,18 +183,22 @@ function Dropdown.Create(parent, width, onSelect, tooltip)
 
     local button = CreateFrame("Button", nil, parent)
     button:SetWidth(width)
-    button.text = ns.Theme.DropdownArt(button)
-    button:SetScript("OnClick", function()
-        if dd.menu:IsShown() then dd:Close() else dd:Open() end
-    end)
+    dd.native = NativeDropdown(dd, button)
+    if dd.native then
+        button:SetHeight(ns.Theme.DROPDOWN_HEIGHT)
+        button.text = button:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+        button.text:Hide()
+    else
+        button.text = ns.Theme.DropdownArt(button)
+        button:SetScript("OnClick", function()
+            if dd.menu:IsShown() then dd:Close() else dd:Open() end
+        end)
+    end
     if tooltip then
         button.tooltip = tooltip
-        button:SetScript("OnEnter", function(self)
-            GameTooltip:SetOwner(self, "ANCHOR_TOP")
-            GameTooltip:SetText(self.tooltip, 1, 1, 1, 1, true)
-            GameTooltip:Show()
-        end)
-        button:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        local target = dd.native or button
+        target:HookScript("OnEnter", function(self) ShowTooltip(self, tooltip) end)
+        target:HookScript("OnLeave", function() GameTooltip:Hide() end)
     end
     dd.button = button
 

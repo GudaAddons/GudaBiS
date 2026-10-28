@@ -224,11 +224,7 @@ return function(T, H)
         H.Slash("")
         local panel = _G.GudaBiSPanel
         T.ok(panel.portraitHidden and panel.buttonBarHidden, "ButtonFrameTemplate, portrait and button bar hidden")
-        local found
-        for _, frame in ipairs(H.AllFrames()) do
-            if rawget(frame, "atlas") == "common-dropdown-a-button" then found = true end
-        end
-        T.ok(found, "Retail dropdown art")
+        T.ok(ns.Panel.listDropdown.native ~= nil, "dropdowns are Retail's own widget")
         local flyout = ns.Theme.Popup("Frame", nil, UIParent)
         T.eq(flyout.retailBorder.layout, "TooltipDefaultLayout", "popups: tooltip border")
         local dialog = ns.Theme.Dialog(nil, UIParent)
@@ -264,6 +260,42 @@ return function(T, H)
         _G.CharacterFrame:Show()
         T.eq(tbc.Panel.tab.point[4], -32, "Classic art keeps its margin")
         _G.CharacterFrame:Hide()
+        T.noErrors()
+    end)
+
+    T.case("Retail dropdowns: Blizzard's widget, radio entries, actions after a divider", function()
+        local ns = Retail()
+        H.Slash("")
+        T.ok(ns.Panel.listDropdown.native ~= nil, "native dropdown")
+        local generator
+        local built = {}
+        local root = {}
+        function root:CreateRadio(text, isSelected, select) built[#built + 1] = { kind = "radio", text = text, isSelected = isSelected, select = select } end
+        function root:CreateButton(text, action) built[#built + 1] = { kind = "button", text = text, action = action } end
+        function root:CreateDivider() built[#built + 1] = { kind = "divider" } end
+        -- A dropdown built against a stand-in widget, to read the menu it describes.
+        local holder = CreateFrame("Button")
+        local native = CreateFrame("Button")
+        function native:SetupMenu(fn) generator = fn end
+        _G.CreateFrame = (function(original)
+            return function(frameType, ...)
+                if frameType == "DropdownButton" then return native end
+                return original(frameType, ...)
+            end
+        end)(_G.CreateFrame)
+        local fresh = ns.Dropdown.Create(holder, 200, function() end)
+        fresh:SetOptions({
+            { value = "a", text = "List A" }, { value = "b", text = "List B" },
+            { action = function() end, text = "New list", separator = true },
+        }, "b")
+        generator(native, root)
+        T.eq(built[1].kind, "radio", "lists are radio entries")
+        T.ok(built[2].isSelected(), "the chosen one is selected")
+        T.ok(not built[1].isSelected(), "the other is not")
+        T.eq(built[3].kind, "divider", "divider before the actions")
+        T.eq(built[4].kind, "button", "actions are buttons")
+        built[1].select()
+        T.eq(fresh.value, "a", "choosing a radio entry chooses it")
         T.noErrors()
     end)
 
