@@ -61,7 +61,13 @@ return function(T, H)
     T.case("Adventure Guide: shields on loot rows once the guide loads, source saved", function()
         local ns = Retail()
         local callback
-        _G.ScrollUtil = { AddInitializedFrameCallback = function(_, fn) callback = fn end }
+        -- As Blizzard's SharedXML ScrollUtil: new rows call back with (owner, frame,
+        -- elementData), rows that already exist (ForEachFrame) with (frame, elementData).
+        local existing
+        _G.ScrollUtil = { AddInitializedFrameCallback = function(_, fn, owner)
+            existing = fn
+            callback = function(frame, elementData) fn(owner, frame, elementData) end
+        end }
         _G.EncounterJournal = { encounterID = 7, encounter = { info = { LootContainer = { ScrollBox = {} } } } }
         _G.EJ_GetInstanceInfo = function() return "Windrunner Spire" end
         _G.EJ_GetEncounterInfo = function(id) return id == 7 and "Emberdawn" or nil end
@@ -82,6 +88,12 @@ return function(T, H)
         _G.C_EncounterJournal.GetLootInfoByIndex = function() return nil end
         callback(header, { index = 9 })
         T.eq(header.gudaBiSWish, nil, "no shield without an item")
+        _G.C_EncounterJournal.GetLootInfoByIndex = function(i) return { itemID = 250000 + i } end
+        local shown = CreateFrame("Button")
+        shown.itemID = 250042
+        existing(shown, { index = 42 })
+        T.ok(shown.gudaBiSWish and shown.gudaBiSWish:IsShown(), "rows already on screen get one too")
+        T.eq(shown.gudaBiSWish.itemID, 250042, "from the row's own itemID")
         _G.ScrollUtil, _G.EncounterJournal, _G.C_EncounterJournal = nil, nil, nil
         _G.EJ_GetInstanceInfo, _G.EJ_GetEncounterInfo = nil, nil
         T.noErrors()

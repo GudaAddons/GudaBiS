@@ -4,20 +4,25 @@
 -- shields without a change here (author, 2026-10-28).
 --
 -- The guide (Blizzard_EncounterJournal) loads on demand, so the hook waits for it. Its
--- loot list is a ScrollBox: ScrollUtil.AddInitializedFrameCallback tells us each time a
--- row is filled. The row's item comes from row.itemID, else from the row's loot index
--- through C_EncounterJournal.GetLootInfoByIndex; rows without an item (headers) get no
--- shield. Wishing an item here saves the instance and boss names as its source.
+-- loot list is a ScrollBox (EncounterJournal.encounter.info.LootContainer.ScrollBox):
+-- ScrollUtil.AddInitializedFrameCallback tells us each time a row is filled. Item rows
+-- (EncounterJournalItemMixin:Init) set row.itemID from their loot index; header rows
+-- (EncounterItemDividerTemplate) have none and get no shield. Wishing an item here
+-- saves the instance and boss names as its source.
 --
--- Written from Blizzard's published UI patterns, not yet seen in game (RULES.md: prove
--- in game); every access is guarded, and a failure only means no shields.
+-- Checked against Blizzard's Mainline source (Blizzard_EncounterJournal.lua and
+-- SharedXML ScrollUtil.lua, 2026-10-28): the helper calls back with (owner, frame,
+-- elementData) for new rows but (frame, elementData) for rows that already exist, so
+-- the frame is whichever argument is one (author, 2026-10-28: no shields were shown,
+-- because the owner was taken for the row). Every access is guarded. The shield sits in the
+-- row's top-right corner, above the armour type and past the name (321 x 45 rows).
 
 local addonName, ns = ...
 
 local AdventureGuideBridge = ns:RegisterModule("AdventureGuideBridge")
 
 local GUIDE_ADDON = "Blizzard_EncounterJournal"
-local CORNER_X, CORNER_Y = -6, -6
+local CORNER_X, CORNER_Y = -4, -2
 
 local hooked = false
 
@@ -68,13 +73,23 @@ local function OnRowInitialized(row, elementData)
     ns.WishToggle.Paint(row, "TOPRIGHT", row, "TOPRIGHT", CORNER_X, CORNER_Y, itemID, Source())
 end
 
+local function IsFrame(value)
+    return type(value) == "table" and type(value.GetObjectType) == "function"
+end
+
+-- (owner, frame, elementData) or (frame, elementData) -> frame, elementData.
+function AdventureGuideBridge.RowAndData(first, second, third)
+    if IsFrame(first) then return first, second end
+    return second, third
+end
+
 function AdventureGuideBridge:Hook()
     if hooked then return true end
     local scrollBox = LootScrollBox()
     local utils = ScrollUtil
     if not (scrollBox and utils and type(utils.AddInitializedFrameCallback) == "function") then return false end
-    local ok, err = pcall(utils.AddInitializedFrameCallback, scrollBox, function(row, elementData)
-        local fine, failure = pcall(OnRowInitialized, row, elementData)
+    local ok, err = pcall(utils.AddInitializedFrameCallback, scrollBox, function(...)
+        local fine, failure = pcall(OnRowInitialized, AdventureGuideBridge.RowAndData(...))
         if not fine then ns:Debug("Adventure Guide shield:", failure) end
     end, AdventureGuideBridge, true)
     if not ok then
