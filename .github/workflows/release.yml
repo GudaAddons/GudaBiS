@@ -1,5 +1,7 @@
 # Packages the addon and uploads it to Wago Addons (X-Wago-ID in the TOC) on every
 # pushed tag. Needs the WAGO_API_TOKEN secret; CurseForge keeps its own webhook.
+# Both build a GudaBiS/ folder from .pkgmeta; never upload GitHub's source zip
+# (its GudaBiS-<tag>/ folder does not match the TOC names and is rejected).
 name: Release
 
 on:

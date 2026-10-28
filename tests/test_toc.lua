@@ -24,6 +24,55 @@ return function(T, H)
         T.ok(found, "GudaBiS_TBC.toc")
     end)
 
+    local function PackageName()
+        local handle = assert(io.open(H.ROOT .. "/.pkgmeta", "r"))
+        local name
+        for line in handle:lines() do
+            name = name or line:match("^package%-as:%s*(%S+)")
+        end
+        handle:close()
+        return name
+    end
+
+    local function Metadata(toc)
+        local fields = {}
+        local handle = assert(io.open(H.ROOT .. "/" .. toc, "r"))
+        for line in handle:lines() do
+            local key, value = line:gsub("\r", ""):match("^##%s*([^:]+):%s*(.-)%s*$")
+            if key then fields[key] = value end
+        end
+        handle:close()
+        return fields
+    end
+
+    local packageName = PackageName()
+
+    T.case(".pkgmeta names the package GudaBiS", function()
+        T.eq(packageName, "GudaBiS", "package-as")
+    end)
+
+    -- The addon folder (package-as) must match every TOC's base name, or the
+    -- client and CurseForge reject it. Flavor TOCs only: no plain GudaBiS.toc.
+    for _, toc in ipairs(tocs) do
+        T.case(toc .. " is named <package-as>_<Flavor>.toc", function()
+            T.ok(toc:match("^" .. packageName .. "_%a+%.toc$") ~= nil, toc)
+        end)
+
+        T.case(toc .. " ships the release metadata", function()
+            local fields = Metadata(toc)
+            T.eq(fields["Version"], "@project-version@", "Version")
+            T.eq(fields["IconTexture"], "Interface\\AddOns\\" .. packageName .."\\Assets\\logo.png", "IconTexture")
+            T.eq(fields["X-Wago-ID"], "kGr98MKy", "X-Wago-ID")
+            T.eq(fields["SavedVariables"], "GudaBiS_DB", "SavedVariables")
+        end)
+    end
+
+    T.case("the TOC icon file exists", function()
+        local handle = io.open(H.ROOT .. "/Assets/logo.png", "rb")
+        T.ok(handle ~= nil, "Assets/logo.png")
+        if handle then handle:close() end
+    end)
+
     for _, toc in ipairs(tocs) do
         T.case(toc .. " lists every shared file exactly once, and they exist", function()
             local listed = {}
