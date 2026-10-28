@@ -300,6 +300,10 @@ function H.Install(opts)
             local itemID = H.containers[bag] and H.containers[bag][slot]
             return itemID or nil
         end,
+        GetContainerItemLink = function(bag, slot)
+            local itemID = H.containers[bag] and H.containers[bag][slot]
+            return itemID and ("|cffa335ee|Hitem:" .. itemID .. ":0:0:0:0:0:0:0:70|h[x]|h|r") or nil
+        end,
     }
     local itemFns = {
         GetItemInfo = function(itemID)

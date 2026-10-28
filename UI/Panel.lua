@@ -179,11 +179,7 @@ local FULL_LEVEL_COLOR = { 0.25, 1, 0.25 }
 -- turns the green check yellow while the player's best equipped or bagged copy is
 -- below the level the top players wear it at (author, 2026-10-28; GB-065).
 local function LevelState(list, itemID)
-    if not (ns.Features.ItemLevelMatters and list and list.itemLevels and itemID) then return nil end
-    local target = list.itemLevels[itemID]
-    if not target then return nil end
-    local have = ns.Owned:BestLevel(itemID)
-    return ns.Owned.LevelStatus(have, target), have, target
+    return ns.Owned:LevelState(list, itemID)
 end
 
 local function HasItem(itemID) return ns.Owned:Has(itemID) end

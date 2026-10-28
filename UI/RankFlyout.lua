@@ -241,7 +241,11 @@ local function PaintCheck(row)
         row.check:Show()
     elseif ns.Owned:Has(row.id) then
         row.check:SetDesaturated(false)
-        row.check:SetVertexColor(1, 1, 1)
+        if ranked and ns.Owned:LevelState(ranked.list, row.id) == "lower" then
+            row.check:SetVertexColor(1, 0.82, 0)
+        else
+            row.check:SetVertexColor(1, 1, 1)
+        end
         row.check:Show()
     else
         row.check:Hide()

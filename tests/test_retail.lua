@@ -180,6 +180,37 @@ return function(T, H)
         T.noErrors()
     end)
 
+    T.case("item levels: a bag copy is read where it sits; the ranked list turns yellow too", function()
+        local ns = Retail()
+        local list = ns.Data:Get(TOP_ID)
+        local head, target = list.items[1], list.itemLevels[list.items[1]]
+        ns.GetDetailedItemLevelInfo = function() return nil end
+        _G.ItemLocation = {
+            CreateFromBagAndSlot = function(_, bag, slot) return { bag = bag, slot = slot } end,
+            CreateFromEquipmentSlot = function(_, slot) return { equip = slot } end,
+        }
+        _G.C_Item.GetCurrentItemLevel = function(location)
+            return location.bag == 0 and location.slot == 2 and 259 or nil
+        end
+        H.containers[0] = { false, head }
+        H.Fire("BAG_UPDATE_DELAYED")
+        T.eq(ns.Owned:BestLevel(head), 259, "read from the bag slot, no cached link needed")
+        T.eq(ns.Owned:LevelState(list, head), "lower", "259 under " .. target)
+        H.Slash("")
+        local button = SlotButton(1)
+        T.eq(button.check.vertexColor[2], 0.82, "yellow in the panel")
+        button:Click()
+        local row
+        for _, frame in ipairs(H.AllFrames()) do
+            if rawget(frame, "rank") and frame:IsShown() and rawget(frame, "id") == head then row = frame end
+        end
+        T.ok(row ~= nil, "the item in the ranked list")
+        T.eq(row.check.vertexColor[2], 0.82, "yellow there too")
+        _G.ItemLocation = nil
+        _G.C_Item.GetCurrentItemLevel = nil
+        T.noErrors()
+    end)
+
     T.case("item levels: an owned item alerts again only as an upgrade; auto-roll stays out", function()
         local ns = Retail()
         WithLevels(ns)

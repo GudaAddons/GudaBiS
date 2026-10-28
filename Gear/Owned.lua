@@ -161,24 +161,58 @@ end
 -- this stays pure.
 -- The highest item level among the player's equipped and bagged copies of itemID, or
 -- nil when there is none there (or the client cannot tell).
-function Owned:BestLevel(itemID)
-    local levelOf = ns.GetDetailedItemLevelInfo
-    if not (itemID and levelOf) then return nil end
-    local best
-    local function Consider(link)
-        local level = link and levelOf(link)
-        if level and (not best or level > best) then best = level end
+-- One copy's item level. Retail reads the item where it sits (C_Item.GetCurrentItemLevel
+-- on an ItemLocation), which needs no cached item data; the item link's level is the
+-- fallback (author, 2026-10-28: a 259 bag item read as unknown and stayed green).
+local function LevelAt(location, link)
+    local api = C_Item
+    if location and api and api.GetCurrentItemLevel and ItemLocation then
+        local ok, level = pcall(api.GetCurrentItemLevel, location)
+        if ok and type(level) == "number" and level > 0 then return level end
     end
+    local levelOf = ns.GetDetailedItemLevelInfo
+    local level = link and levelOf and levelOf(link)
+    return type(level) == "number" and level > 0 and level or nil
+end
+
+local function EquipmentLocation(slot)
+    return ItemLocation and ItemLocation.CreateFromEquipmentSlot and ItemLocation:CreateFromEquipmentSlot(slot) or nil
+end
+
+local function BagLocation(bag, slot)
+    return ItemLocation and ItemLocation.CreateFromBagAndSlot and ItemLocation:CreateFromBagAndSlot(bag, slot) or nil
+end
+
+function Owned:BestLevel(itemID)
+    if not itemID then return nil end
+    local best
     for slot = FIRST_EQUIP_SLOT, LAST_EQUIP_SLOT do
-        if GetInventoryItemID("player", slot) == itemID then Consider(GetInventoryItemLink("player", slot)) end
+        if GetInventoryItemID("player", slot) == itemID then
+            local level = LevelAt(EquipmentLocation(slot), GetInventoryItemLink("player", slot))
+            if level and (not best or level > best) then best = level end
+        end
     end
     local api = C_Container
     for bag = 0, NUM_BAG_SLOTS or 4 do
         for slot = 1, api.GetContainerNumSlots(bag) or 0 do
-            if api.GetContainerItemID(bag, slot) == itemID then Consider(api.GetContainerItemLink(bag, slot)) end
+            if api.GetContainerItemID(bag, slot) == itemID then
+                local level = LevelAt(BagLocation(bag, slot), api.GetContainerItemLink(bag, slot))
+                if level and (not best or level > best) then best = level end
+            end
         end
     end
     return best
+end
+
+-- The check's level state of itemID against a list with target levels (top-player
+-- lists), shared by the panel and the ranked list: "lower" (yellow), "full", or nil when
+-- levels do not apply or are unknown; then the player's level and the target.
+function Owned:LevelState(list, itemID)
+    if not (ns.Features.ItemLevelMatters and list and list.itemLevels and itemID) then return nil end
+    local target = list.itemLevels[itemID]
+    if not target then return nil end
+    local have = self:BestLevel(itemID)
+    return Owned.LevelStatus(have, target), have, target
 end
 
 -- "lower" when the player's best copy is under the list's target level for the item
