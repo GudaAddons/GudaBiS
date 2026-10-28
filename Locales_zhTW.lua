@@ -48,6 +48,7 @@ local T = {
     TOOLTIP_DELETE = "刪除此清單",
     ROLE_MS = "主",
     ROLE_OS = "副",
+    LIST_BY = "作者：%s",
     TOOLTIP_MS = "主天賦：拾取提醒和擲骰使用此清單。再次點擊可取消。",
     TOOLTIP_OS = "副天賦：副天賦裝備的拾取提醒和擲骰使用此清單。再次點擊可取消。",
     HINT_CHOOSE = "點擊：為此欄位選擇裝備",

@@ -48,6 +48,7 @@ local T = {
     TOOLTIP_DELETE = "Borrar esta lista",
     ROLE_MS = "EP",
     ROLE_OS = "ES",
+    LIST_BY = "por %s",
     TOOLTIP_MS = "Especialización principal: los avisos de botín y las tiradas usan esta lista. Clic otra vez para quitarla.",
     TOOLTIP_OS = "Especialización secundaria: los avisos de botín y las tiradas usan esta lista para objetos secundarios. Clic otra vez para quitarla.",
     HINT_CHOOSE = "Clic: elige un objeto para esta ranura",

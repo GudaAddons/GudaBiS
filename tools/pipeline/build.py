@@ -52,7 +52,7 @@ def lists_from_guide(guide, first_index=1):
             "spec": spec["key"], "class": spec["class"], "specID": spec["specID"], "tree": spec["tree"],
             "phase": None if any_phase else guide["phase"], "anyPhase": True if any_phase else None,
             "set": gear_set["name"], "faction": gear_set["faction"],
-            "url": guide["url"], "updated": guide["updated"],
+            "url": guide["url"], "updated": guide["updated"], "author": guide.get("author"),
             "items": items, "enchants": enchants, "gems": gems, "alts": alts,
         })
     return result
@@ -92,7 +92,7 @@ def lua_value(value, indent):
 
 
 FIELD_ORDER = ["id", "spec", "class", "specID", "tree", "phase", "anyPhase", "set", "faction", "url",
-               "updated", "items", "enchants", "gems", "alts"]
+               "updated", "author", "items", "enchants", "gems", "alts"]
 
 
 def render(flavor, default_phase, lists):

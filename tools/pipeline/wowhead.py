@@ -84,6 +84,18 @@ def _updated(html):
     return f"{m.group(1)}-{m.group(2)}-{m.group(3)}" if m else None
 
 
+# The guide's writer, from the page's structured data ("author":{"@type":"Person","name":...}).
+# Guides credited to the site itself have no writer to name (author, 2026-10-28: Wowhead
+# only hosts the guides), so they get None.
+HOST_AUTHORS = {"Wowhead"}
+
+
+def _author(html):
+    m = re.search(r'"author":\{"@type":"Person","name":"([^"]+)"', html)
+    name = m.group(1).strip() if m else None
+    return None if not name or name in HOST_AUTHORS else name
+
+
 def phase_of(title, filename):
     """0 for pre-raid, n for Phase n, "res" for a resistance guide (any phase)."""
     lowered = title.lower()
@@ -208,6 +220,7 @@ def parse(html, spec, filename):
         "title": title,
         "url": _canonical(html),
         "updated": _updated(html),
+        "author": _author(html),
         "spec": spec,
         "phase": phase_of(title, filename),
         "sets": sets,

@@ -48,6 +48,7 @@ local T = {
     TOOLTIP_DELETE = "Supprimer cette liste",
     ROLE_MS = "SP",
     ROLE_OS = "SS",
+    LIST_BY = "par %s",
     TOOLTIP_MS = "Spécialisation principale : les alertes de butin et les jets utilisent cette liste. Cliquez à nouveau pour la retirer.",
     TOOLTIP_OS = "Spécialisation secondaire : les alertes de butin et les jets utilisent cette liste pour les objets secondaires. Cliquez à nouveau pour la retirer.",
     HINT_CHOOSE = "Clic : choisir un objet pour cet emplacement",

@@ -19,6 +19,7 @@ ns.Data:Register({
             phase = 0,
             set = "Best in Slot",
             updated = "2026-01-29",
+            author = "Kyxie",
             items = {
                 [1] = 24266,
                 [2] = 28134,
@@ -66,6 +67,7 @@ ns.Data:Register({
             phase = 1,
             set = "Best in Slot",
             updated = "2026-02-01",
+            author = "Kyxie",
             items = {
                 [1] = 29093,
                 [2] = 28530,
@@ -113,6 +115,7 @@ ns.Data:Register({
             phase = 2,
             set = "Best in Slot",
             updated = "2026-05-12",
+            author = "Kyxie",
             items = {
                 [1] = 30233,
                 [2] = 30015,
@@ -161,6 +164,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/balance-druid-dps-bt-hyjal-phase-3-best-in-slot-gear-burning-crusade",
             updated = "2026-08-21",
+            author = "Kyxie",
             items = {
                 [1] = 31040,
                 [2] = 30015,
@@ -228,6 +232,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/balance-druid-dps-za-phase-4-best-in-slot-gear-burning-crusade",
             updated = "2026-10-16",
+            author = "Kyxie",
             items = {
                 [1] = 31040,
                 [2] = 33281,
@@ -296,6 +301,7 @@ ns.Data:Register({
             phase = 0,
             set = "Best in Slot",
             updated = "2026-01-29",
+            author = "NerdEgghead",
             items = {
                 [1] = 29502,
                 [2] = 29815,
@@ -341,6 +347,7 @@ ns.Data:Register({
             phase = 1,
             set = "Best in Slot",
             updated = "2026-06-29",
+            author = "NerdEgghead",
             items = {
                 [1] = 29098,
                 [2] = 28509,
@@ -386,6 +393,7 @@ ns.Data:Register({
             phase = 2,
             set = "Best in Slot",
             updated = "2026-05-12",
+            author = "NerdEgghead",
             items = {
                 [1] = 30228,
                 [2] = 33066,
@@ -453,6 +461,7 @@ ns.Data:Register({
             phase = 3,
             set = "Best in Slot",
             updated = "2026-09-17",
+            author = "NerdEgghead",
             items = {
                 [1] = 31039,
                 [2] = 32362,
@@ -520,6 +529,7 @@ ns.Data:Register({
             phase = 5,
             set = "Progression",
             updated = "2026-02-26",
+            author = "NerdEgghead",
             items = {
                 [1] = 31039,
                 [2] = 32508,
@@ -565,6 +575,7 @@ ns.Data:Register({
             phase = 5,
             set = "Best in Slot",
             updated = "2026-02-25",
+            author = "NerdEgghead",
             items = {
                 [1] = 34404,
                 [2] = 34178,
@@ -610,6 +621,7 @@ ns.Data:Register({
             anyPhase = true,
             set = "Tanking Second Flame or First in Low DPS Groups",
             updated = "2026-04-20",
+            author = "NerdEgghead",
             items = {
                 [1] = 8345,
                 [2] = 33923,
@@ -667,6 +679,7 @@ ns.Data:Register({
             anyPhase = true,
             set = "Tanking First Flame",
             updated = "2026-04-20",
+            author = "NerdEgghead",
             items = {
                 [1] = 8345,
                 [2] = 33923,
@@ -724,6 +737,7 @@ ns.Data:Register({
             anyPhase = true,
             set = "Early Frost Resist Gear Set",
             updated = "2026-04-30",
+            author = "NerdEgghead",
             items = {
                 [1] = 8345,
                 [2] = 24093,
@@ -783,6 +797,7 @@ ns.Data:Register({
             anyPhase = true,
             set = "Harder to get Frost Resist Gearset",
             updated = "2026-04-30",
+            author = "NerdEgghead",
             items = {
                 [1] = 8345,
                 [2] = 24093,
@@ -842,6 +857,7 @@ ns.Data:Register({
             anyPhase = true,
             set = "Best in Slot",
             updated = "2021-08-21",
+            author = "NerdEgghead",
             items = {
                 [1] = 8345,
                 [2] = 24095,
@@ -890,6 +906,7 @@ ns.Data:Register({
             phase = 0,
             set = "Best in Slot",
             updated = "2026-08-01",
+            author = "Veramos",
             items = {
                 [1] = 28275,
                 [2] = 29381,
@@ -954,6 +971,7 @@ ns.Data:Register({
             phase = 1,
             set = "Best in Slot",
             updated = "2026-02-01",
+            author = "Veramos",
             items = {
                 [1] = 28275,
                 [2] = 29381,
@@ -1001,6 +1019,7 @@ ns.Data:Register({
             phase = 2,
             set = "Phase 2 Best In Slot",
             updated = "2026-05-12",
+            author = "Veramos",
             items = {
                 [1] = 30141,
                 [2] = 30017,
@@ -1068,6 +1087,7 @@ ns.Data:Register({
             phase = 2,
             set = "Phase 2 Best In Slot #2",
             updated = "2026-05-12",
+            author = "Veramos",
             items = {
                 [1] = 30141,
                 [2] = 30017,
@@ -1135,6 +1155,7 @@ ns.Data:Register({
             phase = 3,
             set = "Phase 3 Best In Slot",
             updated = "2026-09-01",
+            author = "Veramos",
             items = {
                 [1] = 32235,
                 [2] = 32591,
@@ -1202,6 +1223,7 @@ ns.Data:Register({
             phase = 3,
             set = "Phase 3 Best In Slot #2",
             updated = "2026-09-01",
+            author = "Veramos",
             items = {
                 [1] = 32235,
                 [2] = 32591,
@@ -1268,6 +1290,7 @@ ns.Data:Register({
             phase = 4,
             set = "Phase 4 Best In Slot",
             updated = "2026-10-18",
+            author = "Veramos",
             items = {
                 [1] = 32235,
                 [2] = 32260,
@@ -1336,6 +1359,7 @@ ns.Data:Register({
             phase = 4,
             set = "Phase 4 Best In Slot Realistic",
             updated = "2026-10-18",
+            author = "Veramos",
             items = {
                 [1] = 32235,
                 [2] = 32591,
@@ -1405,6 +1429,7 @@ ns.Data:Register({
             phase = 0,
             set = "Best in Slot",
             updated = "2026-08-01",
+            author = "Veramos",
             items = {
                 [1] = 28275,
                 [2] = 29381,
@@ -1470,6 +1495,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/marksmanship-hunter-dps-karazhan-best-in-slot-gear-burning-crusade-classic-wow",
             updated = "2026-02-06",
+            author = "Veramos",
             items = {
                 [1] = 28275,
                 [2] = 29381,
@@ -1537,6 +1563,7 @@ ns.Data:Register({
             set = "Phase 2 Best In Slot",
             url = "https://www.wowhead.com/tbc/guide/classes/hunter/marksmanship/dps-bis-gear-pve-phase-2",
             updated = "2026-05-12",
+            author = "Veramos",
             items = {
                 [1] = 30141,
                 [2] = 30017,
@@ -1605,6 +1632,7 @@ ns.Data:Register({
             set = "Phase 2 Best In Slot #2",
             url = "https://www.wowhead.com/tbc/guide/classes/hunter/marksmanship/dps-bis-gear-pve-phase-2",
             updated = "2026-05-12",
+            author = "Veramos",
             items = {
                 [1] = 30141,
                 [2] = 30017,
@@ -1673,6 +1701,7 @@ ns.Data:Register({
             set = "Phase 3 Best In Slot",
             url = "https://www.wowhead.com/tbc/guide/marksmanship-hunter-dps-bt-hyjal-phase-3-best-in-slot-gear-burning-crusade",
             updated = "2026-08-21",
+            author = "Veramos",
             items = {
                 [1] = 32235,
                 [2] = 32591,
@@ -1743,6 +1772,7 @@ ns.Data:Register({
             set = "Phase 3 Best In Slot #2",
             url = "https://www.wowhead.com/tbc/guide/marksmanship-hunter-dps-bt-hyjal-phase-3-best-in-slot-gear-burning-crusade",
             updated = "2026-08-21",
+            author = "Veramos",
             items = {
                 [1] = 32235,
                 [2] = 32591,
@@ -1812,6 +1842,7 @@ ns.Data:Register({
             set = "Phase 4 Best In Slot",
             url = "https://www.wowhead.com/tbc/guide/marksmanship-hunter-dps-za-phase-4-best-in-slot-gear-burning-crusade",
             updated = "2026-10-18",
+            author = "Veramos",
             items = {
                 [1] = 32235,
                 [2] = 32260,
@@ -1881,6 +1912,7 @@ ns.Data:Register({
             set = "Phase 4 Best In Slot Realistic",
             url = "https://www.wowhead.com/tbc/guide/marksmanship-hunter-dps-za-phase-4-best-in-slot-gear-burning-crusade",
             updated = "2026-10-18",
+            author = "Veramos",
             items = {
                 [1] = 32235,
                 [2] = 32591,
@@ -1950,6 +1982,7 @@ ns.Data:Register({
             phase = 0,
             set = "Best in Slot",
             updated = "2026-08-01",
+            author = "Veramos",
             items = {
                 [1] = 28275,
                 [2] = 28343,
@@ -2018,6 +2051,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/survival-hunter-dps-karazhan-best-in-slot-gear-burning-crusade-classic-wow",
             updated = "2026-02-01",
+            author = "Veramos",
             items = {
                 [1] = 28275,
                 [2] = 29381,
@@ -2084,6 +2118,7 @@ ns.Data:Register({
             phase = 2,
             set = "Best in Slot",
             updated = "2026-05-12",
+            author = "Veramos",
             items = {
                 [1] = 30141,
                 [2] = 30017,
@@ -2153,6 +2188,7 @@ ns.Data:Register({
             phase = 3,
             set = "Best in Slot",
             updated = "2026-08-21",
+            author = "Veramos",
             items = {
                 [1] = 31003,
                 [2] = 30017,
@@ -2223,6 +2259,7 @@ ns.Data:Register({
             set = "Phase 4 Best In Slot Raid-Wide DPS",
             url = "https://www.wowhead.com/tbc/guide/survival-hunter-dps-za-phase-4-best-in-slot-gear-burning-crusade",
             updated = "2026-10-18",
+            author = "Veramos",
             items = {
                 [1] = 31003,
                 [2] = 30017,
@@ -2293,6 +2330,7 @@ ns.Data:Register({
             set = "Phase 4 Best In Slot Personal DPS",
             url = "https://www.wowhead.com/tbc/guide/survival-hunter-dps-za-phase-4-best-in-slot-gear-burning-crusade",
             updated = "2026-10-18",
+            author = "Veramos",
             items = {
                 [1] = 32235,
                 [2] = 30017,
@@ -2362,6 +2400,7 @@ ns.Data:Register({
             phase = 5,
             set = "Best in Slot",
             updated = "2026-02-22",
+            author = "Veramos",
             items = {
                 [1] = 34333,
                 [2] = 34177,
@@ -2407,6 +2446,7 @@ ns.Data:Register({
             phase = 0,
             set = "Best in Slot",
             updated = "2026-03-20",
+            author = "Foolipe",
             items = {
                 [1] = 32089,
                 [2] = 28134,
@@ -2455,6 +2495,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/arcane-mage-dps-karazhan-best-in-slot-gear-burning-crusade-classic-wow",
             updated = "2026-04-12",
+            author = "Foolipe",
             items = {
                 [1] = 29076,
                 [2] = 28762,
@@ -2503,6 +2544,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/classes/mage/arcane/dps-bis-gear-pve-phase-2",
             updated = "2026-05-12",
+            author = "Foolipe",
             items = {
                 [1] = 30206,
                 [2] = 30015,
@@ -2550,6 +2592,7 @@ ns.Data:Register({
             phase = 3,
             set = "Single Target BiS",
             updated = "2026-08-21",
+            author = "Foolipe",
             items = {
                 [1] = 30206,
                 [2] = 30015,
@@ -2618,6 +2661,7 @@ ns.Data:Register({
             phase = 3,
             set = "Single Target BiS #2",
             updated = "2026-08-21",
+            author = "Foolipe",
             items = {
                 [1] = 30206,
                 [2] = 30015,
@@ -2688,6 +2732,7 @@ ns.Data:Register({
             set = "Single Target BiS",
             url = "https://www.wowhead.com/tbc/guide/arcane-mage-dps-za-phase-4-best-in-slot-gear-burning-crusade",
             updated = "2026-10-16",
+            author = "Foolipe",
             items = {
                 [1] = 30206,
                 [2] = 33281,
@@ -2758,6 +2803,7 @@ ns.Data:Register({
             set = "Single Target BiS #2",
             url = "https://www.wowhead.com/tbc/guide/arcane-mage-dps-za-phase-4-best-in-slot-gear-burning-crusade",
             updated = "2026-10-16",
+            author = "Foolipe",
             items = {
                 [1] = 30206,
                 [2] = 33281,
@@ -2829,6 +2875,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/arcane-mage-dps-swp-phase-5-best-in-slot-gear-burning-crusade",
             updated = "2026-02-19",
+            author = "Foolipe",
             items = {
                 [1] = 30206,
                 [2] = 34204,
@@ -2876,6 +2923,7 @@ ns.Data:Register({
             phase = 0,
             set = "Best in Slot",
             updated = "2026-02-15",
+            author = "Foolipe",
             items = {
                 [1] = 28193,
                 [2] = 28134,
@@ -2923,6 +2971,7 @@ ns.Data:Register({
             phase = 1,
             set = "Best in Slot",
             updated = "2026-02-15",
+            author = "Foolipe",
             items = {
                 [1] = 29076,
                 [2] = 28530,
@@ -2970,6 +3019,7 @@ ns.Data:Register({
             phase = 2,
             set = "Best in Slot",
             updated = "2026-05-12",
+            author = "Foolipe",
             items = {
                 [1] = 32494,
                 [2] = 30015,
@@ -3017,6 +3067,7 @@ ns.Data:Register({
             phase = 3,
             set = "Best in Slot",
             updated = "2026-08-21",
+            author = "Foolipe",
             items = {
                 [1] = 32525,
                 [2] = 32589,
@@ -3086,6 +3137,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/fire-mage-dps-za-phase-4-best-in-slot-gear-burning-crusade",
             updated = "2026-10-16",
+            author = "Foolipe",
             items = {
                 [1] = 32525,
                 [2] = 32589,
@@ -3154,6 +3206,7 @@ ns.Data:Register({
             phase = 5,
             set = "Best in Slot",
             updated = "2026-02-26",
+            author = "Foolipe",
             items = {
                 [1] = 34340,
                 [2] = 34204,
@@ -3201,6 +3254,7 @@ ns.Data:Register({
             phase = 0,
             set = "Best in Slot",
             updated = "2026-08-23",
+            author = "Foolipe",
             items = {
                 [1] = 28193,
                 [2] = 28134,
@@ -3249,6 +3303,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/frost-mage-dps-karazhan-best-in-slot-gear-burning-crusade-classic-wow",
             updated = "2026-02-02",
+            author = "Foolipe",
             items = {
                 [1] = 29076,
                 [2] = 28530,
@@ -3297,6 +3352,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/classes/mage/frost/dps-bis-gear-pve-phase-2",
             updated = "2026-05-12",
+            author = "Foolipe",
             items = {
                 [1] = 30206,
                 [2] = 30015,
@@ -3345,6 +3401,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/frost-mage-dps-bt-hyjal-phase-3-best-in-slot-gear-burning-crusade",
             updated = "2026-08-21",
+            author = "Foolipe",
             items = {
                 [1] = 32525,
                 [2] = 30015,
@@ -3413,6 +3470,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/frost-mage-dps-za-phase-4-best-in-slot-gear-burning-crusade",
             updated = "2026-10-16",
+            author = "Foolipe",
             items = {
                 [1] = 32525,
                 [2] = 33281,
@@ -3769,6 +3827,7 @@ ns.Data:Register({
             phase = 1,
             set = "Best in Slot",
             updated = "2026-03-10",
+            author = "Jurdi",
             items = {
                 [1] = 29068,
                 [2] = 28516,
@@ -3912,6 +3971,7 @@ ns.Data:Register({
             set = "Balanced set",
             url = "https://www.wowhead.com/tbc/guide/paladin-tank-za-phase-4-best-in-slot-gear-burning-crusade",
             updated = "2026-10-18",
+            author = "WaltherLeopold",
             items = {
                 [1] = 32521,
                 [2] = 32362,
@@ -3985,6 +4045,7 @@ ns.Data:Register({
             faction = "Horde",
             url = "https://www.wowhead.com/tbc/guide/paladin-tank-za-phase-4-best-in-slot-gear-burning-crusade",
             updated = "2026-10-18",
+            author = "WaltherLeopold",
             items = {
                 [1] = 32521,
                 [2] = 30007,
@@ -4058,6 +4119,7 @@ ns.Data:Register({
             faction = "Alliance",
             url = "https://www.wowhead.com/tbc/guide/paladin-tank-za-phase-4-best-in-slot-gear-burning-crusade",
             updated = "2026-10-18",
+            author = "WaltherLeopold",
             items = {
                 [1] = 32521,
                 [2] = 33921,
@@ -4130,6 +4192,7 @@ ns.Data:Register({
             phase = 5,
             set = "Balanced set",
             updated = "2026-02-23",
+            author = "WaltherLeopold",
             items = {
                 [1] = 34401,
                 [2] = 34178,
@@ -4203,6 +4266,7 @@ ns.Data:Register({
             phase = 5,
             set = "Mitigation Set",
             updated = "2026-02-23",
+            author = "WaltherLeopold",
             items = {
                 [1] = 34400,
                 [2] = 34178,
@@ -4276,6 +4340,7 @@ ns.Data:Register({
             phase = 5,
             set = "Threat Set",
             updated = "2026-02-23",
+            author = "WaltherLeopold",
             items = {
                 [1] = 34401,
                 [2] = 34178,
@@ -4532,6 +4597,7 @@ ns.Data:Register({
             phase = 0,
             set = "Phase 3 - Black Temple & Mount Hyjal",
             updated = "2026-09-01",
+            author = "Surveillant",
             items = {
                 [1] = 32461,
                 [2] = 29381,
@@ -4596,6 +4662,7 @@ ns.Data:Register({
             phase = 1,
             set = "Best in Slot",
             updated = "2026-05-30",
+            author = "Surveillant",
             items = {
                 [1] = 29073,
                 [2] = 29381,
@@ -4642,6 +4709,7 @@ ns.Data:Register({
             phase = 2,
             set = "Best in Slot",
             updated = "2026-06-18",
+            author = "Surveillant",
             items = {
                 [1] = 32461,
                 [2] = 30022,
@@ -4688,6 +4756,7 @@ ns.Data:Register({
             phase = 3,
             set = "Phase 3 - Black Temple & Mount Hyjal",
             updated = "2026-10-23",
+            author = "Surveillant",
             items = {
                 [1] = 32235,
                 [2] = 30022,
@@ -4756,6 +4825,7 @@ ns.Data:Register({
             phase = 4,
             set = "Phase 4 - Zul'Aman",
             updated = "2026-10-23",
+            author = "Surveillant",
             items = {
                 [1] = 32235,
                 [2] = 30022,
@@ -4823,6 +4893,7 @@ ns.Data:Register({
             phase = 5,
             set = "Best in Slot",
             updated = "2026-02-28",
+            author = "terryn",
             items = {
                 [1] = 34244,
                 [2] = 34177,
@@ -5193,6 +5264,7 @@ ns.Data:Register({
             phase = 1,
             set = "Best in Slot",
             updated = "2026-02-19",
+            author = "Passion",
             items = {
                 [1] = 24266,
                 [2] = 30666,
@@ -5241,6 +5313,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/classes/priest/shadow/dps-bis-gear-pve-phase-2",
             updated = "2026-05-12",
+            author = "Passion",
             items = {
                 [1] = 32494,
                 [2] = 30666,
@@ -5289,6 +5362,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/shadow-priest-dps-bt-hyjal-phase-3-best-in-slot-gear-burning-crusade",
             updated = "2026-08-21",
+            author = "Passion",
             items = {
                 [1] = 31064,
                 [2] = 32349,
@@ -5356,6 +5430,7 @@ ns.Data:Register({
             phase = 4,
             set = "Best in Slot",
             updated = "2026-10-16",
+            author = "Passion",
             items = {
                 [1] = 31064,
                 [2] = 33466,
@@ -5424,6 +5499,7 @@ ns.Data:Register({
             phase = 0,
             set = "Phase 3 - Black Temple & Mount Hyjal",
             updated = "2026-09-01",
+            author = "Simonize",
             items = {
                 [1] = 32478,
                 [2] = 29381,
@@ -5495,6 +5571,7 @@ ns.Data:Register({
             phase = 1,
             set = "Best in Slot",
             updated = "2026-03-25",
+            author = "Simonize",
             items = {
                 [1] = 29044,
                 [2] = 29381,
@@ -5543,6 +5620,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/classes/rogue/dps-bis-gear-pve-phase-2",
             updated = "2026-05-12",
+            author = "Simonize",
             items = {
                 [1] = 30146,
                 [2] = 29381,
@@ -5591,6 +5669,7 @@ ns.Data:Register({
             set = "Phase 3 - Black Temple & Mount Hyjal",
             url = "https://www.wowhead.com/tbc/guide/rogue-dps-bt-hyjal-phase-3-best-in-slot-gear-burning-crusade",
             updated = "2026-08-21",
+            author = "Simonize",
             items = {
                 [1] = 32235,
                 [2] = 32260,
@@ -5664,6 +5743,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/rogue-dps-za-phase-4-best-in-slot-gear-burning-crusade",
             updated = "2026-10-16",
+            author = "Simonize",
             items = {
                 [1] = 32235,
                 [2] = 32260,
@@ -5734,6 +5814,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/rogue-dps-swp-phase-5-best-in-slot-gear-burning-crusade",
             updated = "2026-02-24",
+            author = "Simonize",
             items = {
                 [1] = 34244,
                 [2] = 34177,
@@ -5803,6 +5884,7 @@ ns.Data:Register({
             phase = 0,
             set = "Best in Slot",
             updated = "2026-08-01",
+            author = "Woah",
             items = {
                 [1] = 32476,
                 [2] = 24116,
@@ -5872,6 +5954,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/elemental-shaman-dps-karazhan-best-in-slot-gear-burning-crusade-classic-wow",
             updated = "2026-02-19",
+            author = "Woah",
             items = {
                 [1] = 29035,
                 [2] = 28762,
@@ -5920,6 +6003,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/classes/shaman/elemental/dps-bis-gear-pve-phase-2",
             updated = "2026-05-12",
+            author = "Woah",
             items = {
                 [1] = 29035,
                 [2] = 30015,
@@ -5968,6 +6052,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/elemental-shaman-dps-bt-hyjal-phase-3-best-in-slot-gear-burning-crusade",
             updated = "2026-08-21",
+            author = "Woah",
             items = {
                 [1] = 31014,
                 [2] = 30015,
@@ -6034,6 +6119,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/elemental-shaman-dps-za-phase-4-best-in-slot-gear-burning-crusade",
             updated = "2026-10-18",
+            author = "Woah",
             items = {
                 [1] = 31014,
                 [2] = 33466,
@@ -6100,6 +6186,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/elemental-shaman-dps-swp-phase-5-best-in-slot-gear-burning-crusade",
             updated = "2026-02-22",
+            author = "Woah",
             items = {
                 [1] = 34332,
                 [2] = 34359,
@@ -6147,6 +6234,7 @@ ns.Data:Register({
             phase = 0,
             set = "Best in Slot",
             updated = "2026-08-01",
+            author = "Woah",
             items = {
                 [1] = 28224,
                 [2] = 24114,
@@ -6215,6 +6303,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/enhancement-shaman-dps-karazhan-best-in-slot-gear-burning-crusade-classic-wow",
             updated = "2026-05-11",
+            author = "Woah",
             items = {
                 [1] = 29040,
                 [2] = 29381,
@@ -6284,6 +6373,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/classes/shaman/enhancement/dps-bis-gear-pve-phase-2",
             updated = "2026-07-14",
+            author = "Woah",
             items = {
                 [1] = 30190,
                 [2] = 30017,
@@ -6350,6 +6440,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/enhancement-shaman-dps-bt-hyjal-phase-3-best-in-slot-gear-burning-crusade",
             updated = "2026-08-21",
+            author = "Woah",
             items = {
                 [1] = 32235,
                 [2] = 32260,
@@ -6414,6 +6505,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/enhancement-shaman-dps-za-phase-4-best-in-slot-gear-burning-crusade",
             updated = "2026-10-18",
+            author = "Woah",
             items = {
                 [1] = 32235,
                 [2] = 32260,
@@ -6479,6 +6571,7 @@ ns.Data:Register({
             phase = 0,
             set = "Best in Slot",
             updated = "2026-09-22",
+            author = "Woah",
             items = {
                 [1] = 32475,
                 [2] = 33922,
@@ -6546,6 +6639,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/shaman-healer-karazhan-best-in-slot-gear-burning-crusade-classic-wow",
             updated = "2026-03-16",
+            author = "Woah",
             items = {
                 [1] = 24264,
                 [2] = 30726,
@@ -6594,6 +6688,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/classes/shaman/healer-bis-gear-pve-phase-2",
             updated = "2026-05-12",
+            author = "Woah",
             items = {
                 [1] = 30166,
                 [2] = 30018,
@@ -6642,6 +6737,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/shaman-healer-bt-hyjal-phase-3-best-in-slot-gear-burning-crusade",
             updated = "2026-09-22",
+            author = "Woah",
             items = {
                 [1] = 31012,
                 [2] = 32370,
@@ -6713,6 +6809,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/shaman-healer-za-phase-4-best-in-slot-gear-burning-crusade",
             updated = "2026-10-16",
+            author = "Woah",
             items = {
                 [1] = 31012,
                 [2] = 33281,
@@ -6782,6 +6879,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/shaman-healer-swp-phase-5-best-in-slot-gear-burning-crusade",
             updated = "2026-02-28",
+            author = "Woah",
             items = {
                 [1] = 34402,
                 [2] = 34360,
@@ -6829,6 +6927,7 @@ ns.Data:Register({
             phase = 0,
             set = "Best in Slot",
             updated = "2026-08-02",
+            author = "Zephan",
             items = {
                 [1] = 32494,
                 [2] = 28134,
@@ -6898,6 +6997,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/affliction-warlock-dps-karazhan-best-in-slot-gear-burning-crusade-classic-wow",
             updated = "2025-12-24",
+            author = "Zephan",
             items = {
                 [1] = 28963,
                 [2] = 28530,
@@ -6946,6 +7046,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/classes/warlock/affliction/dps-bis-gear-pve-phase-2",
             updated = "2026-05-28",
+            author = "Zephan",
             items = {
                 [1] = 32494,
                 [2] = 24116,
@@ -6994,6 +7095,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/affliction-warlock-dps-bt-hyjal-phase-3-best-in-slot-gear-burning-crusade",
             updated = "2026-08-21",
+            author = "Zephan",
             items = {
                 [1] = 31051,
                 [2] = 32349,
@@ -7061,6 +7163,7 @@ ns.Data:Register({
             set = "Alternative Example",
             url = "https://www.wowhead.com/tbc/guide/affliction-warlock-dps-bt-hyjal-phase-3-best-in-slot-gear-burning-crusade",
             updated = "2026-08-21",
+            author = "Zephan",
             items = {
                 [1] = 31051,
                 [2] = 30015,
@@ -7130,6 +7233,7 @@ ns.Data:Register({
             faction = "Alliance",
             url = "https://www.wowhead.com/tbc/guide/affliction-warlock-dps-za-phase-4-best-in-slot-gear-burning-crusade",
             updated = "2026-10-18",
+            author = "Zephan",
             items = {
                 [1] = 31051,
                 [2] = 33281,
@@ -7201,6 +7305,7 @@ ns.Data:Register({
             faction = "Horde",
             url = "https://www.wowhead.com/tbc/guide/affliction-warlock-dps-za-phase-4-best-in-slot-gear-burning-crusade",
             updated = "2026-10-18",
+            author = "Zephan",
             items = {
                 [1] = 31051,
                 [2] = 33281,
@@ -7270,6 +7375,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/affliction-warlock-dps-swp-phase-5-best-in-slot-gear-burning-crusade",
             updated = "2026-02-19",
+            author = "Zephan",
             items = {
                 [1] = 34340,
                 [2] = 34359,
@@ -7317,6 +7423,7 @@ ns.Data:Register({
             phase = 0,
             set = "Best in Slot",
             updated = "2026-08-02",
+            author = "Zephan",
             items = {
                 [1] = 32494,
                 [2] = 28134,
@@ -7385,6 +7492,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/demonology-warlock-dps-karazhan-best-in-slot-gear-burning-crusade-classic-wow",
             updated = "2025-12-30",
+            author = "Zephan",
             items = {
                 [1] = 28963,
                 [2] = 28530,
@@ -7431,6 +7539,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/classes/warlock/demonology/dps-bis-gear-pve-phase-2",
             updated = "2026-05-12",
+            author = "Zephan",
             items = {
                 [1] = 32494,
                 [2] = 24116,
@@ -7479,6 +7588,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/demonology-warlock-dps-za-phase-4-best-in-slot-gear-burning-crusade",
             updated = "2026-10-18",
+            author = "Zephan",
             items = {
                 [1] = 31051,
                 [2] = 32349,
@@ -7545,6 +7655,7 @@ ns.Data:Register({
             set = "Alternative BiS",
             url = "https://www.wowhead.com/tbc/guide/demonology-warlock-dps-za-phase-4-best-in-slot-gear-burning-crusade",
             updated = "2026-10-18",
+            author = "Zephan",
             items = {
                 [1] = 31051,
                 [2] = 30015,
@@ -7612,6 +7723,7 @@ ns.Data:Register({
             set = "Safety BIS",
             url = "https://www.wowhead.com/tbc/guide/demonology-warlock-dps-za-phase-4-best-in-slot-gear-burning-crusade",
             updated = "2026-10-18",
+            author = "Zephan",
             items = {
                 [1] = 32525,
                 [2] = 32349,
@@ -7677,6 +7789,7 @@ ns.Data:Register({
             phase = 5,
             set = "Best in Slot",
             updated = "2026-02-19",
+            author = "Zephan",
             items = {
                 [1] = 34340,
                 [2] = 34359,
@@ -7724,6 +7837,7 @@ ns.Data:Register({
             phase = 0,
             set = "Best in Slot",
             updated = "2026-08-02",
+            author = "Zephan",
             items = {
                 [1] = 32494,
                 [2] = 28134,
@@ -7793,6 +7907,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/destruction-warlock-dps-karazhan-best-in-slot-gear-burning-crusade-classic-wow",
             updated = "2026-04-15",
+            author = "Zephan",
             items = {
                 [1] = 28963,
                 [2] = 28530,
@@ -7841,6 +7956,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/classes/warlock/destruction/dps-bis-gear-pve-phase-2",
             updated = "2026-05-12",
+            author = "Zephan",
             items = {
                 [1] = 32494,
                 [2] = 24116,
@@ -7888,6 +8004,7 @@ ns.Data:Register({
             phase = 3,
             set = "Best In Slot Setup",
             updated = "2026-08-21",
+            author = "Zephan",
             items = {
                 [1] = 31051,
                 [2] = 32349,
@@ -7954,6 +8071,7 @@ ns.Data:Register({
             phase = 3,
             set = "Alternative Example",
             updated = "2026-08-21",
+            author = "Zephan",
             items = {
                 [1] = 31051,
                 [2] = 30015,
@@ -8022,6 +8140,7 @@ ns.Data:Register({
             faction = "Alliance",
             url = "https://www.wowhead.com/tbc/guide/destruction-warlock-dps-za-phase-4-best-in-slot-gear-burning-crusade",
             updated = "2026-10-18",
+            author = "Zephan",
             items = {
                 [1] = 31051,
                 [2] = 33281,
@@ -8093,6 +8212,7 @@ ns.Data:Register({
             faction = "Horde",
             url = "https://www.wowhead.com/tbc/guide/destruction-warlock-dps-za-phase-4-best-in-slot-gear-burning-crusade",
             updated = "2026-10-18",
+            author = "Zephan",
             items = {
                 [1] = 31051,
                 [2] = 33281,
@@ -8162,6 +8282,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/destruction-warlock-dps-swp-phase-5-best-in-slot-gear-burning-crusade",
             updated = "2026-02-19",
+            author = "Zephan",
             items = {
                 [1] = 34340,
                 [2] = 34359,
@@ -8209,6 +8330,7 @@ ns.Data:Register({
             phase = 0,
             set = "Best in Slot",
             updated = "2026-10-16",
+            author = "Beanna",
             items = {
                 [1] = 32087,
                 [2] = 29381,
@@ -8262,6 +8384,7 @@ ns.Data:Register({
             phase = 1,
             set = "Best in Slot",
             updated = "2026-05-02",
+            author = "Beanna",
             items = {
                 [1] = 29021,
                 [2] = 29349,
@@ -8309,6 +8432,7 @@ ns.Data:Register({
             phase = 2,
             set = "Best in Slot",
             updated = "2026-05-12",
+            author = "Beanna",
             items = {
                 [1] = 30120,
                 [2] = 30022,
@@ -8378,6 +8502,7 @@ ns.Data:Register({
             set = "Two-Handed BiS",
             url = "https://www.wowhead.com/tbc/guide/arms-warrior-dps-bt-hyjal-phase-3-best-in-slot-gear-burning-crusade",
             updated = "2026-08-21",
+            author = "Beanna",
             items = {
                 [1] = 30972,
                 [2] = 32591,
@@ -8448,6 +8573,7 @@ ns.Data:Register({
             set = "Dual-Wield BiS",
             url = "https://www.wowhead.com/tbc/guide/arms-warrior-dps-bt-hyjal-phase-3-best-in-slot-gear-burning-crusade",
             updated = "2026-08-21",
+            author = "Beanna",
             items = {
                 [1] = 32235,
                 [2] = 32260,
@@ -8518,6 +8644,7 @@ ns.Data:Register({
             phase = 4,
             set = "Best in Slot",
             updated = "2026-10-16",
+            author = "Babyhoof",
             items = {
                 [1] = 32235,
                 [2] = 32260,
@@ -8586,6 +8713,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/arms-warrior-dps-swp-phase-5-best-in-slot-gear-burning-crusade",
             updated = "2026-02-27",
+            author = "Babyhoof",
             items = {
                 [1] = 34333,
                 [2] = 34358,
@@ -8632,6 +8760,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/fury-warrior-dps-karazhan-best-in-slot-gear-burning-crusade-classic-wow",
             updated = "2026-03-10",
+            author = "Beanna",
             items = {
                 [1] = 30120,
                 [2] = 30022,
@@ -8700,6 +8829,7 @@ ns.Data:Register({
             phase = 2,
             set = "Best in Slot",
             updated = "2026-05-12",
+            author = "Beanna",
             items = {
                 [1] = 30120,
                 [2] = 30022,
@@ -8769,6 +8899,7 @@ ns.Data:Register({
             set = "Phase 3 BiS",
             url = "https://www.wowhead.com/tbc/guide/fury-warrior-dps-bt-hyjal-phase-3-best-in-slot-gear-burning-crusade",
             updated = "2026-08-21",
+            author = "Beanna",
             items = {
                 [1] = 32235,
                 [2] = 32260,
@@ -8840,6 +8971,7 @@ ns.Data:Register({
             set = "4p T6",
             url = "https://www.wowhead.com/tbc/guide/fury-warrior-dps-bt-hyjal-phase-3-best-in-slot-gear-burning-crusade",
             updated = "2026-08-21",
+            author = "Beanna",
             items = {
                 [1] = 30972,
                 [2] = 32260,
@@ -8910,6 +9042,7 @@ ns.Data:Register({
             phase = 4,
             set = "Best in Slot",
             updated = "2026-10-16",
+            author = "Babyhoof",
             items = {
                 [1] = 32235,
                 [2] = 32260,
@@ -8978,6 +9111,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/fury-warrior-dps-swp-phase-5-best-in-slot-gear-burning-crusade",
             updated = "2026-02-27",
+            author = "Babyhoof",
             items = {
                 [1] = 34333,
                 [2] = 34358,
@@ -9023,6 +9157,7 @@ ns.Data:Register({
             phase = 0,
             set = "Best in Slot",
             updated = "2026-02-13",
+            author = "Beanna",
             items = {
                 [1] = 32083,
                 [2] = 29386,
@@ -9071,6 +9206,7 @@ ns.Data:Register({
             set = "Best in Slot",
             url = "https://www.wowhead.com/tbc/guide/protection-warrior-tank-karazhan-best-in-slot-gear-burning-crusade-classic-wow",
             updated = "2026-03-28",
+            author = "Beanna",
             items = {
                 [1] = 29011,
                 [2] = 29386,
@@ -9118,6 +9254,7 @@ ns.Data:Register({
             phase = 2,
             set = "Phase 2 Best In Slot",
             updated = "2026-05-12",
+            author = "Beanna",
             items = {
                 [1] = 32473,
                 [2] = 30099,
@@ -9188,6 +9325,7 @@ ns.Data:Register({
             phase = 2,
             set = "Phase 2 Best In Slot #2",
             updated = "2026-05-12",
+            author = "Beanna",
             items = {
                 [1] = 30115,
                 [2] = 33066,
@@ -9258,6 +9396,7 @@ ns.Data:Register({
             phase = 2,
             set = "Phase 2 Best In Slot #3",
             updated = "2026-05-12",
+            author = "Beanna",
             items = {
                 [1] = 30488,
                 [2] = 30099,
@@ -9327,6 +9466,7 @@ ns.Data:Register({
             phase = 3,
             set = "Balanced",
             updated = "2026-08-21",
+            author = "Beanna",
             items = {
                 [1] = 33730,
                 [2] = 33923,
@@ -9395,6 +9535,7 @@ ns.Data:Register({
             phase = 3,
             set = "Balanced #2",
             updated = "2026-08-21",
+            author = "Beanna",
             items = {
                 [1] = 33730,
                 [2] = 33923,
@@ -9464,6 +9605,7 @@ ns.Data:Register({
             phase = 3,
             set = "Balanced #3",
             updated = "2026-08-21",
+            author = "Beanna",
             items = {
                 [1] = 32521,
                 [2] = 33923,
@@ -9532,6 +9674,7 @@ ns.Data:Register({
             phase = 3,
             set = "Mitigation",
             updated = "2026-08-21",
+            author = "Beanna",
             items = {
                 [1] = 32521,
                 [2] = 33923,
@@ -9602,6 +9745,7 @@ ns.Data:Register({
             set = "Brutallus BiS",
             url = "https://www.wowhead.com/tbc/guide/protection-warrior-tank-swp-phase-5-best-in-slot-gear-burning-crusade",
             updated = "2026-02-24",
+            author = "Beanna",
             items = {
                 [1] = 34400,
                 [2] = 34178,
@@ -9672,6 +9816,7 @@ ns.Data:Register({
             set = "Balanced",
             url = "https://www.wowhead.com/tbc/guide/protection-warrior-tank-swp-phase-5-best-in-slot-gear-burning-crusade",
             updated = "2026-02-24",
+            author = "Beanna",
             items = {
                 [1] = 35068,
                 [2] = 34178,
@@ -9742,6 +9887,7 @@ ns.Data:Register({
             set = "Balanced #2",
             url = "https://www.wowhead.com/tbc/guide/protection-warrior-tank-swp-phase-5-best-in-slot-gear-burning-crusade",
             updated = "2026-02-24",
+            author = "Beanna",
             items = {
                 [1] = 35068,
                 [2] = 34178,
@@ -9812,6 +9958,7 @@ ns.Data:Register({
             set = "Balanced #3",
             url = "https://www.wowhead.com/tbc/guide/protection-warrior-tank-swp-phase-5-best-in-slot-gear-burning-crusade",
             updated = "2026-02-24",
+            author = "Beanna",
             items = {
                 [1] = 34354,
                 [2] = 34178,
@@ -9883,6 +10030,7 @@ ns.Data:Register({
             set = "Frost Resistance",
             url = "https://www.wowhead.com/tbc/guide/protection-warrior-frost-nature-resistance-best-in-slot-gear-burning-crusade",
             updated = "2026-04-20",
+            author = "Beanna",
             items = {
                 [1] = 31371,
                 [2] = 24093,
@@ -9929,6 +10077,7 @@ ns.Data:Register({
             set = "Nature Resistance",
             url = "https://www.wowhead.com/tbc/guide/protection-warrior-frost-nature-resistance-best-in-slot-gear-burning-crusade",
             updated = "2026-04-20",
+            author = "Beanna",
             items = {
                 [1] = 31368,
                 [2] = 24095,
@@ -9975,6 +10124,7 @@ ns.Data:Register({
             set = "Fire Resistance",
             url = "https://www.wowhead.com/tbc/guide/protection-warrior-frost-nature-resistance-best-in-slot-gear-burning-crusade",
             updated = "2026-04-20",
+            author = "Beanna",
             items = {
                 [1] = 32473,
                 [2] = 33923,

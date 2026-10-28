@@ -48,6 +48,7 @@ local T = {
     TOOLTIP_DELETE = "Elimina questa lista",
     ROLE_MS = "SP",
     ROLE_OS = "SS",
+    LIST_BY = "di %s",
     TOOLTIP_MS = "Specializzazione principale: avvisi di bottino e tiri usano questa lista. Clicca di nuovo per toglierla.",
     TOOLTIP_OS = "Specializzazione secondaria: avvisi di bottino e tiri usano questa lista per gli oggetti secondari. Clicca di nuovo per toglierla.",
     HINT_CHOOSE = "Clic: scegli un oggetto per questo spazio",

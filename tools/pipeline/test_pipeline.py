@@ -27,8 +27,9 @@ def code(raw):
     return base64.urlsafe_b64encode(bytes(raw)).decode().rstrip("=")
 
 
-def page(markup, title=TITLE, updated="2026/10/18"):
-    return (f"<title>{title}</title>"
+def page(markup, title=TITLE, updated="2026/10/18", author="Zephan"):
+    byline = f'<script type="application/ld+json">{{"author":{{"@type":"Person","name":"{author}"}}}}</script>' if author else ""
+    return (f"<title>{title}</title>" + byline +
             '<link rel="canonical" href="https://www.wowhead.com/tbc/guide/paladin-tank-phase-4">'
             f'Updated: <span class="date-tip" title="x">\n {updated} </span>'
             f"<script>WH.markup.printHtml({json.dumps(markup)});</script>")
@@ -91,11 +92,19 @@ class GuideTest(unittest.TestCase):
         guide = wowhead.parse(page(MARKUP), PALADIN_PROT, "4.htm")
         self.assertEqual(guide["phase"], 4)
         self.assertEqual(guide["updated"], "2026-10-18")
+        self.assertEqual(guide["author"], "Zephan")
         self.assertEqual([s["name"] for s in guide["sets"]], ["Balanced set", "Threat"])
         self.assertEqual([s["faction"] for s in guide["sets"]], [None, "Horde"])
         self.assertEqual(guide["rows"][1], [32521, 30987])
         self.assertEqual(guide["rows"][11], [30083, 32261, 29172])
         self.assertEqual(guide["rows"][12], [30083, 32261, 29172])
+
+    def test_author_from_the_page_and_none_for_the_host(self):
+        self.assertIsNone(wowhead.parse(page(MARKUP, author="Wowhead"), PALADIN_PROT, "4.htm")["author"])
+        self.assertIsNone(wowhead.parse(page(MARKUP, author=None), PALADIN_PROT, "4.htm")["author"])
+        made = build.lists_from_guide(wowhead.parse(page(MARKUP), PALADIN_PROT, "4.htm"))
+        self.assertEqual(made[0]["author"], "Zephan")
+        self.assertIn('author = "Zephan",', build.render("TBC", 4, made))
 
     def test_title_must_match_folder(self):
         with self.assertRaises(wowhead.GuideError):

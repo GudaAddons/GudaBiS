@@ -48,6 +48,7 @@ local T = {
     TOOLTIP_DELETE = "Diese Liste löschen",
     ROLE_MS = "HS",
     ROLE_OS = "NS",
+    LIST_BY = "von %s",
     TOOLTIP_MS = "Hauptspezialisierung: Beutewarnungen und Würfe nutzen diese Liste. Erneut klicken zum Entfernen.",
     TOOLTIP_OS = "Nebenspezialisierung: Beutewarnungen und Würfe nutzen diese Liste für Nebenspezialisierungs-Gegenstände. Erneut klicken zum Entfernen.",
     HINT_CHOOSE = "Klick: Gegenstand für diesen Platz wählen",

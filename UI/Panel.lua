@@ -76,9 +76,11 @@ function Panel.SlotView(list, slot)
     }
 end
 
--- "Protection · Balanced set": the client's own tree name, then the guide's tab name.
--- A custom list shows its own name. role ("ms"/"os") adds a coloured MS/OS tag.
+-- "Protection · Balanced set  by Zephan": the client's own tree name, the guide's tab
+-- name, and in grey the guide's writer when the data names one (author, 2026-10-28). A
+-- custom list shows its own name. role ("ms"/"os") adds a coloured MS/OS tag.
 local ROLE_TAGS = { ms = "|cff40ff40%s|r ", os = "|cff40c0ff%s|r " }
+local AUTHOR_TAG = "  |cff808080%s|r"
 
 function Panel.ListLabel(list, treeName, role)
     local label
@@ -88,6 +90,9 @@ function Panel.ListLabel(list, treeName, role)
         label = treeName .. " · " .. list.set
     else
         label = list.set
+    end
+    if not list.custom and list.author then
+        label = label .. string.format(AUTHOR_TAG, string.format(L.LIST_BY, list.author))
     end
     if role then
         label = string.format(ROLE_TAGS[role], role == "ms" and L.ROLE_MS or L.ROLE_OS) .. label

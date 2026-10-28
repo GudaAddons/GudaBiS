@@ -48,6 +48,7 @@ local T = {
     TOOLTIP_DELETE = "Excluir esta lista",
     ROLE_MS = "EP",
     ROLE_OS = "ES",
+    LIST_BY = "por %s",
     TOOLTIP_MS = "Especialização principal: alertas de saque e rolagens usam esta lista. Clique de novo para remover.",
     TOOLTIP_OS = "Especialização secundária: alertas de saque e rolagens usam esta lista para itens secundários. Clique de novo para remover.",
     HINT_CHOOSE = "Clique: escolha um item para este espaço",
