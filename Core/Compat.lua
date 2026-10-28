@@ -18,27 +18,38 @@ local Compat = ns:RegisterModule("Compat")
 -- GetSpellTexture: C_Spell's version also returns the original icon as a second value;
 -- the first value is the same, so callers read only that one.
 -- GetItemStats: both return a table of stat keys to amounts for an item link.
+-- In /gbis status order.
 local RELOCATED = {
-    GetItemInfo = C_Item,
-    GetItemInfoInstant = C_Item,
-    GetDetailedItemLevelInfo = C_Item,
-    IsAddOnLoaded = C_AddOns,
-    GetSpellTexture = C_Spell,
-    GetItemStats = C_Item,
-    GetCVarBool = C_CVar,
+    { "GetItemInfo", C_Item },
+    { "GetItemInfoInstant", C_Item },
+    { "GetDetailedItemLevelInfo", C_Item },
+    { "IsAddOnLoaded", C_AddOns },
+    { "GetSpellTexture", C_Spell },
+    { "GetItemStats", C_Item },
+    { "GetCVarBool", C_CVar },
 }
 
-Compat.resolvedNames = {
-    "GetItemInfo", "GetItemInfoInstant", "GetDetailedItemLevelInfo", "IsAddOnLoaded", "GetSpellTexture",
-    "GetItemStats", "GetCVarBool",
-}
+Compat.resolvedNames = {}
 Compat.resolvedSource = {}
 
-for name, namespace in pairs(RELOCATED) do
+for _, entry in ipairs(RELOCATED) do
+    local name, namespace = entry[1], entry[2]
     local global = _G[name]
     local scoped = namespace and namespace[name]
     ns[name] = global or scoped
+    Compat.resolvedNames[#Compat.resolvedNames + 1] = name
     Compat.resolvedSource[name] = global and "global" or scoped and "namespace" or "MISSING"
+end
+
+-- The player's chosen specialization index, or nil. C_SpecializationInfo's version is
+-- preferred, the global (MoP Classic) is the fallback; looked up on each call, since
+-- only clients with ns.Features.HasSpecChoice ask.
+function Compat.GetSpecialization()
+    local api = C_SpecializationInfo
+    local get = api and api.GetSpecialization or GetSpecialization
+    if not get then return nil end
+    local ok, index = pcall(get)
+    return ok and type(index) == "number" and index > 0 and index or nil
 end
 
 -- A spell's name. The global GetSpellInfo returns the name first; C_Spell.GetSpellInfo

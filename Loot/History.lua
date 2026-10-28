@@ -257,10 +257,6 @@ function History:Characters()
     return out
 end
 
-function History:InInstance()
-    return current ~= nil
-end
-
 ns.Events:Register("GBIS_INITIALIZED", function()
     ns.Events:Register("PLAYER_ENTERING_WORLD", OnEnteringWorld, "History")
     OnEnteringWorld()

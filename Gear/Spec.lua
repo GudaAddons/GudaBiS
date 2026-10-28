@@ -27,24 +27,18 @@ end
 local function TreeInfo(tree)
     local api = C_SpecializationInfo
     if not (api and api.GetSpecializationInfo) then return nil end
-    local ok, specID, name, _, icon, _, _, pointsSpent = pcall(api.GetSpecializationInfo, tree)
+    local ok, specID, name, _, _, _, _, pointsSpent = pcall(api.GetSpecializationInfo, tree)
     if not ok or not specID or specID == 0 then return nil end
-    return specID, name, icon, pointsSpent or 0
+    return specID, name, pointsSpent or 0
 end
 
 -- Where the player picks a spec (ns.Features.HasSpecChoice: Retail, MoP), that pick is the
 -- tree; elsewhere the tree with the most points.
 function Spec:ActiveTree()
-    if ns.Features.HasSpecChoice then
-        local api = C_SpecializationInfo
-        local get = api and api.GetSpecialization or GetSpecialization
-        if not get then return nil end
-        local ok, index = pcall(get)
-        return ok and type(index) == "number" and index > 0 and index or nil
-    end
+    if ns.Features.HasSpecChoice then return ns.Compat.GetSpecialization() end
     local points = {}
     for tree = 1, MAX_TREES do
-        local specID, _, _, spent = TreeInfo(tree)
+        local specID, _, spent = TreeInfo(tree)
         if not specID then break end
         points[tree] = spent
     end
@@ -55,11 +49,6 @@ end
 function Spec:TreeName(tree)
     local _, name = TreeInfo(tree)
     return name
-end
-
-function Spec:TreeIcon(tree)
-    local _, _, icon = TreeInfo(tree)
-    return icon
 end
 
 function Spec:PlayerClass()
