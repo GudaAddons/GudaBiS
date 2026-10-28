@@ -1,6 +1,8 @@
 -- The wishlist toggle other addons' item buttons get (GB-072): a small GudaBiS shield on
--- the item icon, dim and grey while the item is not on this character's wishlist, in
--- full colour while it is. A click adds or removes it; the tooltip says which.
+-- the item icon, grey while the item is not on this character's wishlist, in full
+-- colour while it is. A gold ring (the action button's own border glow) sits around it
+-- in both states, so the grey one still stands out on dark item icons (author,
+-- 2026-10-28). A click adds or removes it; the tooltip says which.
 --
 -- The integrations (AtlasLoot, ForeverDungeonJournal) reuse their item buttons, so the
 -- toggle is made once per button, the first time that button shows an item, and
@@ -18,7 +20,11 @@ local WishToggle = ns:RegisterModule("WishToggle")
 
 local SIZE = 14
 local ICON = "Interface\\AddOns\\GudaBiS\\Assets\\logo.png"
-local OFF_ALPHA = 0.45
+local OFF_ALPHA = 0.7
+local RING = "Interface\\Buttons\\UI-ActionButton-Border"
+local RING_SCALE = 1.9
+local RING_COLOR = { 1, 0.82, 0 }
+local RING_ALPHA = { on = 1, off = 0.75 }
 local TOOLTIP_COLOR = { 1, 0.6, 1 }
 
 local toggles = setmetatable({}, { __mode = "k" })
@@ -27,6 +33,7 @@ local function PaintState(toggle)
     local on = ns.Wishlist:Has(toggle.itemID)
     toggle.icon:SetDesaturated(not on)
     toggle.icon:SetAlpha(on and 1 or OFF_ALPHA)
+    toggle.ring:SetAlpha(on and RING_ALPHA.on or RING_ALPHA.off)
     toggle.on = on
 end
 
@@ -46,6 +53,12 @@ local function Create(owner)
     local toggle = CreateFrame("Button", nil, owner)
     toggle:SetSize(SIZE, SIZE)
     toggle:SetFrameLevel((owner:GetFrameLevel() or 0) + 5)
+    toggle.ring = toggle:CreateTexture(nil, "ARTWORK")
+    toggle.ring:SetTexture(RING)
+    toggle.ring:SetBlendMode("ADD")
+    toggle.ring:SetVertexColor(RING_COLOR[1], RING_COLOR[2], RING_COLOR[3])
+    toggle.ring:SetSize(SIZE * RING_SCALE, SIZE * RING_SCALE)
+    toggle.ring:SetPoint("CENTER")
     toggle.icon = toggle:CreateTexture(nil, "OVERLAY")
     toggle.icon:SetTexture(ICON)
     toggle.icon:SetAllPoints()

@@ -134,6 +134,8 @@ return function(T, H)
         local shield = button.gudaBiSWish
         T.ok(shield and shield:IsShown(), "shield shown")
         T.eq(shield.point[1], "BOTTOMLEFT", "bottom-left corner")
+        T.eq(shield.ring.texture, "Interface\\Buttons\\UI-ActionButton-Border", "gold ring")
+        T.eq(shield.ring.vertexColor[2], 0.82, "gold")
         T.eq(shield.point[2], button.icon, "on the icon")
         T.eq(shield.icon.desaturated, true, "grey while not wished")
         shield:Click()
