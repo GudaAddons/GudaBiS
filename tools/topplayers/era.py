@@ -39,6 +39,9 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 DATA_DIR = "/mnt/g/addon-data/GudaBis"
 TOP = 50
 ENCHANT_SAMPLE = 10
+# Fewer ranked players than this is no consensus (Fire mages in Phase 3-4: 7); the spec
+# then falls back to its class's first list in the addon.
+MIN_PLAYERS = 10
 
 # GudaBiS phase number, its label, the Warcraft Logs zone, boss and partition.
 PHASES = [
@@ -141,8 +144,8 @@ def build_lists(client, report_lines):
         encounter = boss_id(client, phase["zone"], phase["boss"])
         for spec in specs():
             ranked = rankings(client, encounter, spec, phase["partition"])
-            if not ranked:
-                report_lines.append(f"SKIPPED {spec['key']} {phase['label']}: no ranked players")
+            if len(ranked) < MIN_PLAYERS:
+                report_lines.append(f"SKIPPED {spec['key']} {phase['label']}: {len(ranked)} ranked players")
                 continue
             players = [gear_from_ranking(entry) for entry in ranked]
             for entry, gear in zip(ranked[:ENCHANT_SAMPLE], players):
@@ -151,6 +154,9 @@ def build_lists(client, report_lines):
                         gear[slot]["enchant"], gear[slot]["enchantName"] = enchant, name
             made = aggregate.build_list(spec, players, None, updated, set_name=f"Top {TOP} raiders",
                                         suffix=f"top:{phase['phase']}", phase=phase["phase"])
+            if not made.get("items"):
+                report_lines.append(f"SKIPPED {spec['key']} {phase['label']}: no gear")
+                continue
             lists.append(made)
             report_lines.append(f"ok {spec['key']} {phase['label']}: {len(players)} players")
     return lists
