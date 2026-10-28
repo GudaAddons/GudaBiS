@@ -59,7 +59,7 @@ HOUR = 3600
 DAY = 24 * HOUR
 
 FIELD_ORDER = ["id", "spec", "class", "specID", "tree", "anyPhase", "set", "season", "players", "updated",
-               "items", "enchantIDs", "enchantNames", "gems", "alts", "usage"]
+               "items", "enchantIDs", "enchantNames", "gems", "alts", "usage", "itemLevels"]
 
 
 def current_season(client, region, cache=True):

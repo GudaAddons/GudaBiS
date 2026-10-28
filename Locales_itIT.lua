@@ -136,6 +136,9 @@ local T = {
     ENCHANT_WRONG = "Il tuo oggetto equipaggiato qui ha un altro incantamento",
     USED_BY = "Indossato da %d dei %d migliori giocatori",
     STATUS_DATA_NO_PHASES = "Dati BiS: %s · %d liste · %d specializzazioni · senza fasi",
+    ITEM_LEVEL_VS = "Livello oggetto %d, migliori giocatori %d",
+    ITEM_LEVEL_TOP = "I migliori giocatori lo indossano al livello oggetto %d",
+    LABEL_UPGRADE = "%s migliorato %d→%d",
 }
 
 for key, value in pairs(T) do

@@ -10,7 +10,8 @@
 --   - A raid-warning roll call from the master looter or the leader (not assistants):
 --     one /roll per announcement, 1-100 for MS, 1-99 for OS. Not while RCLootCouncil
 --     shows that item: that is a council vote, never answered for the player.
--- Wishlist items (GB-072) only alert: they are never rolled for.
+-- Wishlist items (GB-072) only alert: they are never rolled for. Nor are item-level
+-- upgrades of an item the player already has (GB-065): Rule 4 never rolls on owned items.
 -- It never Passes. One chat line per action.
 --
 --   AutoRoll.Decide(match, canNeed, canGreed) -> NEED | GREED | nil
@@ -67,7 +68,7 @@ local function RollOptions(rollID)
 end
 
 function AutoRoll:GroupLoot(rollID, link, match)
-    if not self:Active() then return false end
+    if not self:Active() or match.upgrade then return false end
     local rollType = AutoRoll.Decide(match, RollOptions(rollID))
     if not rollType then return false end
     pending[rollID] = rollType
@@ -80,7 +81,7 @@ end
 -- here at the same moment, and only the first of them rolls; the others count as
 -- answered, so no popup asks for a second roll.
 function AutoRoll:RollCall(link, match, sender, message)
-    if not self:Active() or not ns.Detect.IsLootLeader(sender) then return false end
+    if not self:Active() or not ns.Detect.IsLootLeader(sender) or match.upgrade then return false end
     if not AutoRoll.RollRange(match) then return false end
     local now = GetTime()
     if lastCall.message == message and lastCall.at == now then return true end

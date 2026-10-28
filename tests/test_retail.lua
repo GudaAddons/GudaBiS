@@ -135,6 +135,80 @@ return function(T, H)
         T.ok(not E.Check(TOP_LIST, 1, Link(0)).missingEnchant, "no enchant wanted on the head")
     end)
 
+    -- Item links carry their item level as "lvlNNN" in the name here; the stub reads it.
+    local function LevelLink(itemID, level)
+        return "|cffa335ee|Hitem:" .. itemID .. "::::::::80|h[lvl" .. level .. "]|h|r"
+    end
+
+    local function WithLevels(ns)
+        ns.GetDetailedItemLevelInfo = function(link)
+            return tonumber(type(link) == "string" and link:match("lvl(%d+)"))
+        end
+    end
+
+    local function SlotButton(slot)
+        for _, frame in ipairs(H.AllFrames()) do
+            if rawget(frame, "slot") == slot and rawget(frame, "icon") and rawget(frame, "enchant") then return frame end
+        end
+    end
+
+    T.case("item levels: yellow check below the top players' level, green at it", function()
+        local ns = Retail()
+        WithLevels(ns)
+        local list = ns.Data:Get(TOP_ID)
+        local head, target = list.items[1], list.itemLevels[list.items[1]]
+        T.ok(target ~= nil, "the list knows the head's top level")
+        H.equipped[1] = head
+        H.links[1] = LevelLink(head, target - 14)
+        H.Fire("PLAYER_EQUIPMENT_CHANGED")
+        H.Slash("")
+        local button = SlotButton(1)
+        T.ok(button.check:IsShown(), "checked")
+        T.eq(button.check.vertexColor[2], 0.82, "yellow")
+        button:Enter()
+        local found
+        for _, line in ipairs(_G.GameTooltip.lines) do
+            if line == string.format("Item level %d, top players %d", target - 14, target) then found = true end
+        end
+        T.ok(found, "tooltip compares the levels")
+        H.links[1] = LevelLink(head, target)
+        ns.Panel:Refresh()
+        T.eq(button.check.vertexColor[2], 1, "white-green at the top level")
+        T.eq(ns.Owned.LevelStatus(330, 334), "lower", "pure: lower")
+        T.eq(ns.Owned.LevelStatus(334, 334), "full", "pure: full")
+        T.eq(ns.Owned.LevelStatus(nil, 334), nil, "pure: unknown")
+        T.noErrors()
+    end)
+
+    T.case("item levels: an owned item alerts again only as an upgrade; auto-roll stays out", function()
+        local ns = Retail()
+        WithLevels(ns)
+        local head = ns.Data:Get(TOP_ID).items[1]
+        H.equipped[1] = head
+        H.links[1] = LevelLink(head, 320)
+        H.Fire("PLAYER_EQUIPMENT_CHANGED")
+        T.eq(ns.Match:Item(head), nil, "no link, no alert for an owned item")
+        T.eq(ns.Match:Item(head, nil, LevelLink(head, 320)), nil, "same level: silent")
+        T.eq(ns.Match:Item(head, nil, LevelLink(head, 310)), nil, "lower: silent")
+        local match = ns.Match:Item(head, nil, LevelLink(head, 334))
+        T.ok(match and match.upgrade, "higher: an upgrade")
+        T.eq(ns.Match.Label(match), "BiS upgrade 320→334", "label")
+        H.Slash("autoroll on")
+        T.eq(ns.AutoRoll:GroupLoot(1, LevelLink(head, 334), match), false, "never auto-rolled")
+        T.noErrors()
+    end)
+
+    T.case("no ranged slot on Retail; TBC keeps it", function()
+        local ns = Retail()
+        H.Slash("")
+        T.eq(#ns.Panel.WeaponSlots(), 2, "main and off hand")
+        T.eq(SlotButton(18), nil, "no ranged slot button")
+        local tbc = H.Boot()
+        H.Slash("")
+        T.eq(#tbc.Panel.WeaponSlots(), 3, "TBC has the ranged slot")
+        T.ok(SlotButton(18) ~= nil, "and its button")
+    end)
+
     T.case("Retail refuses Wowhead gear-planner links until their format is checked", function()
         local ns = Retail()
         local result, problem = ns.GearPlanner:Read("https://www.wowhead.com/gear-planner/paladin/human/AAAA")

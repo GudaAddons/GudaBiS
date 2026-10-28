@@ -49,14 +49,16 @@ local isClassic = Expansion.IsEra or Expansion.IsTBC or Expansion.IsMists
 -- HasGems: sockets arrived in TBC. Forever has Vanilla items, so no gems.
 -- HasMasterLoot: Retail removed it in 8.0.1. Unconfirmed on Forever, off until
 --   /gbis probe proves it (GB-005).
--- HasPhases: content releases in phases (the Phase dropdown). Retail's season
---   equivalent is decided in its own milestone.
+-- HasPhases: content releases in phases (the Phase dropdown). Retail has seasons, not
+--   phases: no Phase dropdown there (author, 2026-10-28).
 -- HasSpecChoice: the player picks a specialization (MoP onwards). Elsewhere the spec
 --   is inferred from where the talent points are. Forever unconfirmed (GB-005).
 -- ChatLockdown: group chat text can be a secret value inside instances (12.0 engine).
 -- ItemLevelMatters: the same item ID drops at different item levels.
 -- HasWarbandBank: an account bank (Forever has AccountBankTab_1..9).
 -- RealmlessNames: character names are "Given Family" with no realm (Forever).
+-- HasRangedSlot: a ranged / wand / relic slot (18). MoP removed it, so Retail has none
+--   either; Forever plays Vanilla content and keeps it (author, 2026-10-28).
 local Features = {
     RealmlessNames = Expansion.IsForever,
     HasGems = Expansion.IsTBC or Expansion.IsMists or isModernRetail,
@@ -66,6 +68,7 @@ local Features = {
     ChatLockdown = Expansion.IsRetail,
     ItemLevelMatters = isModernRetail,
     HasWarbandBank = Expansion.IsRetail,
+    HasRangedSlot = not (Expansion.IsMists or isModernRetail),
 }
 Expansion.Features = Features
 ns.Features = Features
@@ -73,5 +76,5 @@ ns.Features = Features
 -- Stable order for /gbis status, so output is comparable between runs and clients.
 Expansion.FeatureNames = {
     "HasGems", "HasMasterLoot", "HasPhases", "HasSpecChoice",
-    "ChatLockdown", "ItemLevelMatters", "HasWarbandBank", "RealmlessNames",
+    "ChatLockdown", "ItemLevelMatters", "HasWarbandBank", "RealmlessNames", "HasRangedSlot",
 }

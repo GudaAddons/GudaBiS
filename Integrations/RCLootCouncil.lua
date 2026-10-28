@@ -50,7 +50,7 @@ local function OnUpdate()
         local frame = type(entry) == "table" and entry.frame
         if type(item) == "table" and frame then
             local itemID = ns.Match.ItemIDFromLink(item.link)
-            local match = itemID and ns.Match:Item(itemID)
+            local match = itemID and ns.Match:Item(itemID, nil, item.link)
             if match then
                 local icon = type(entry.icon) == "table" and entry.icon or nil
                 ns.Alerts:Badge(frame, match, icon)

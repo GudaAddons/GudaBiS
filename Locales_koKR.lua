@@ -136,6 +136,9 @@ local T = {
     ENCHANT_WRONG = "이 슬롯의 착용 아이템에 다른 마법부여가 있습니다",
     USED_BY = "%d명 착용 (상위 플레이어 %d명 중)",
     STATUS_DATA_NO_PHASES = "BiS 데이터: %s · 목록 %d개 · 전문화 %d개 · 단계 없음",
+    ITEM_LEVEL_VS = "아이템 레벨 %d, 상위 플레이어 %d",
+    ITEM_LEVEL_TOP = "상위 플레이어는 아이템 레벨 %d로 착용",
+    LABEL_UPGRADE = "%s 업그레이드 %d→%d",
 }
 
 for key, value in pairs(T) do

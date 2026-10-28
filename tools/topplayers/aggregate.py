@@ -14,6 +14,9 @@ Per slot (author, 2026-10-28):
     are the ones most players wearing the slot's #1 put in each socket.
 usage[slot] holds how many players wear the #1 and each alternative, in list order, so
 the addon can say "used by 18 of 50".
+itemLevels[itemID] is the highest item level any of them wears a listed item at: the
+level a fully upgraded copy reaches this season, which the addon compares the
+player's own copy with (GB-065).
 """
 
 import re
@@ -42,7 +45,7 @@ def enchant_name(display):
 
 
 def equipped(equipment):
-    """Blizzard's equipment response -> {INVSLOT: {item, enchant, enchantName, gems}}."""
+    """Blizzard's equipment response -> {INVSLOT: {item, level, enchant, enchantName, gems}}."""
     out = {}
     for entry in (equipment or {}).get("equipped_items") or []:
         slot = SLOTS.get((entry.get("slot") or {}).get("type"))
@@ -54,7 +57,8 @@ def equipped(equipment):
             if (e.get("enchantment_slot") or {}).get("type") == "PERMANENT":
                 enchant, name = e.get("enchantment_id"), enchant_name(e.get("display_string") or "")
         gems = [((s.get("item") or {}).get("id")) for s in entry.get("sockets") or []]
-        out[slot] = {"item": item, "enchant": enchant, "enchantName": name, "gems": gems}
+        level = (entry.get("level") or {}).get("value")
+        out[slot] = {"item": item, "level": level, "enchant": enchant, "enchantName": name, "gems": gems}
     return out
 
 
@@ -66,6 +70,7 @@ def build_list(spec, players, season, updated):
     """spec: {key, class, specID, tree, name}; players: list of equipped() results."""
     total = len(players)
     worn = defaultdict(Counter)
+    levels = {}
     for gear in players:
         seen = set()
         for slot, entry in gear.items():
@@ -75,6 +80,8 @@ def build_list(spec, players, season, updated):
                 continue
             seen.add((key, entry["item"]))
             worn[key][entry["item"]] += 1
+            if entry.get("level"):
+                levels[entry["item"]] = max(levels.get(entry["item"], 0), entry["level"])
     items, alts, usage = {}, {}, {}
     for slot in sorted(set(SLOTS.values())):
         group = PAIRS.get(slot, (slot,))
@@ -114,10 +121,12 @@ def build_list(spec, players, season, updated):
         chosen = [sorted(sockets[i].items(), key=lambda kv: (-kv[1], kv[0]))[0][0] for i in sorted(sockets)]
         if chosen:
             gems[slot] = chosen
+    listed = set(items.values()) | {item for rest in alts.values() for item in rest}
     return {
         "id": f"{spec['key']}:mplus", "spec": spec["key"], "class": spec["class"],
         "specID": spec["specID"], "tree": spec["tree"], "anyPhase": True,
         "set": "Top 50 M+", "season": season, "players": total, "updated": updated,
         "items": items, "enchantIDs": enchants, "enchantNames": names, "gems": gems,
         "alts": alts, "usage": usage,
+        "itemLevels": {item: levels[item] for item in listed if item in levels},
     }

@@ -13,7 +13,13 @@
 -- Manual marks (char.manual[itemID] = true | false) override everything: true counts
 -- the item as owned, false as not needed.
 --
--- Pure part, tested offline: Owned.SlotStatus.
+-- Where the same item drops at different item levels (ns.Features.ItemLevelMatters,
+-- Retail), Owned:BestLevel reads the item level of the player's equipped and bagged
+-- copies of one item, only when asked (a panel slot or tooltip on show, a drop): the
+-- scans above stay ID-only. Bank and other characters keep IDs only, so they have no
+-- level (GB-065).
+--
+-- Pure parts, tested offline: Owned.SlotStatus, Owned.LevelStatus.
 
 local addonName, ns = ...
 
@@ -153,6 +159,36 @@ end
 -- this character has it, "elsewhere" when only another character does, else nil.
 -- Alternatives never mark the slot. `has(itemID)` and `state(itemID)` are passed in so
 -- this stays pure.
+-- The highest item level among the player's equipped and bagged copies of itemID, or
+-- nil when there is none there (or the client cannot tell).
+function Owned:BestLevel(itemID)
+    local levelOf = ns.GetDetailedItemLevelInfo
+    if not (itemID and levelOf) then return nil end
+    local best
+    local function Consider(link)
+        local level = link and levelOf(link)
+        if level and (not best or level > best) then best = level end
+    end
+    for slot = FIRST_EQUIP_SLOT, LAST_EQUIP_SLOT do
+        if GetInventoryItemID("player", slot) == itemID then Consider(GetInventoryItemLink("player", slot)) end
+    end
+    local api = C_Container
+    for bag = 0, NUM_BAG_SLOTS or 4 do
+        for slot = 1, api.GetContainerNumSlots(bag) or 0 do
+            if api.GetContainerItemID(bag, slot) == itemID then Consider(api.GetContainerItemLink(bag, slot)) end
+        end
+    end
+    return best
+end
+
+-- "lower" when the player's best copy is under the list's target level for the item
+-- (the highest the top players wear it at), "full" when at or above it, nil when either
+-- level is unknown.
+function Owned.LevelStatus(have, target)
+    if not (have and target) then return nil end
+    return have < target and "lower" or "full"
+end
+
 function Owned.SlotStatus(list, slot, has, state)
     if not list then return nil end
     local best = list.items[slot]

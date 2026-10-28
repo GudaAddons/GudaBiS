@@ -28,6 +28,13 @@ Panel.LEFT_SLOTS = { 1, 2, 3, 15, 5, 9, 10 }
 Panel.RIGHT_SLOTS = { 6, 7, 8, 11, 12, 13, 14 }
 Panel.BOTTOM_SLOTS = { 16, 17, 18 }
 
+-- Main hand, off hand, and ranged where the client has that slot (ns.Features.HasRangedSlot:
+-- not on MoP or Retail); the weapons stay centred either way.
+function Panel.WeaponSlots()
+    if ns.Features.HasRangedSlot then return Panel.BOTTOM_SLOTS end
+    return { 16, 17 }
+end
+
 local SLOT_SIZE = 32
 local ENCHANT_SIZE = 16
 local GEM_SIZE = 14
@@ -162,14 +169,28 @@ local CHECK_TEXTURE = "Interface\\RaidFrame\\ReadyCheck-Ready"
 -- were dropped); the tooltip and the ranked list say it instead.
 local CHECK_COLORS = {
     best = { 1, 1, 1, false },
+    lower = { 1, 0.82, 0, false },
     elsewhere = { 0.7, 0.7, 0.7, true },
 }
+local FULL_LEVEL_COLOR = { 0.25, 1, 0.25 }
+
+-- Where item levels matter (Retail), a list with target levels (top-player lists)
+-- turns the green check yellow while the player's best equipped or bagged copy is
+-- below the level the top players wear it at (author, 2026-10-28; GB-065).
+local function LevelState(list, itemID)
+    if not (ns.Features.ItemLevelMatters and list and list.itemLevels and itemID) then return nil end
+    local target = list.itemLevels[itemID]
+    if not target then return nil end
+    local have = ns.Owned:BestLevel(itemID)
+    return ns.Owned.LevelStatus(have, target), have, target
+end
 
 local function HasItem(itemID) return ns.Owned:Has(itemID) end
 local function ItemState(itemID) return ns.Owned:State(itemID) end
 
 local function PaintCheck(button, list)
     local status = ns.Owned.SlotStatus(list, button.slot, HasItem, ItemState)
+    if status == "best" and LevelState(list, list.items[button.slot]) == "lower" then status = "lower" end
     local color = status and CHECK_COLORS[status]
     if not color then
         button.check:Hide()
@@ -323,6 +344,19 @@ local function AddUsageLine(list, slot, rank, tooltip)
     if text then (tooltip or GameTooltip):AddLine(text, 0.6, 0.8, 1) end
 end
 
+-- "Item level 320, top players 334", yellow while lower, green at the top level; just
+-- the top players' level when the player has no copy in equipped gear or bags.
+local function AddLevelLine(list, itemID)
+    local state, have, target = LevelState(list, itemID)
+    if not target then return end
+    if have then
+        local color = state == "lower" and CHECK_COLORS.lower or FULL_LEVEL_COLOR
+        GameTooltip:AddLine(string.format(L.ITEM_LEVEL_VS, have, target), color[1], color[2], color[3])
+    else
+        GameTooltip:AddLine(string.format(L.ITEM_LEVEL_TOP, target), 0.6, 0.6, 0.6)
+    end
+end
+
 local function ShowTooltip(button)
     if not button.item then
         if not EditingCustom() then return end
@@ -335,6 +369,7 @@ local function ShowTooltip(button)
     GameTooltip:SetItemByID(button.item)
     GameTooltip:AddLine(" ")
     AddOwnedLine(button)
+    AddLevelLine(frame.list, button.item)
     AddUsageLine(frame.list, button.slot, 1)
     if EditingCustom() then
         GameTooltip:AddLine(L.HINT_CHOOSE, 0.6, 0.6, 0.6)
@@ -603,8 +638,9 @@ local function LayoutSlots()
         button:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -slotX, -HEADER_HEIGHT - (row - 1) * ROW_HEIGHT)
     end
     local weaponTop = -HEADER_HEIGHT - #Panel.LEFT_SLOTS * ROW_HEIGHT - 4
-    local middle = (#Panel.BOTTOM_SLOTS + 1) / 2
-    for i, slot in ipairs(Panel.BOTTOM_SLOTS) do
+    local weapons = Panel.WeaponSlots()
+    local middle = (#weapons + 1) / 2
+    for i, slot in ipairs(weapons) do
         local button = CreateSlotButton(slot, "bottom")
         button:SetPoint("TOP", frame, "TOP", (i - middle) * WEAPON_SPACING, weaponTop)
     end

@@ -12,8 +12,10 @@ import build  # noqa: E402
 SPEC = {"key": "PALADIN_PROTECTION", "class": "PALADIN", "specID": 66, "tree": 2, "name": "Protection"}
 
 
-def entry(slot, item, enchant=None, gems=()):
+def entry(slot, item, enchant=None, gems=(), level=None):
     out = {"slot": {"type": slot}, "item": {"id": item}, "enchantments": None, "sockets": None}
+    if level:
+        out["level"] = {"value": level}
     if enchant:
         out["enchantments"] = [{"enchantment_id": enchant, "enchantment_slot": {"type": "PERMANENT"},
                                 "display_string": f"Enchanted: Enchant {enchant} |A:Quality-Tier2:20:20|a"}]
@@ -30,7 +32,8 @@ class EquippedTest(unittest.TestCase):
     def test_reads_blizzard_equipment(self):
         gear = player(entry("HEAD", 271483, 8017), entry("NECK", 268265, gems=(240969, 240970)),
                       {"slot": {"type": "SHIRT"}, "item": {"id": 1}})
-        self.assertEqual(gear[1], {"item": 271483, "enchant": 8017, "enchantName": "Enchant 8017", "gems": []})
+        self.assertEqual(gear[1], {"item": 271483, "level": None, "enchant": 8017, "enchantName": "Enchant 8017",
+                                   "gems": []})
         self.assertEqual(gear[2]["gems"], [240969, 240970])
         self.assertNotIn(4, gear, "shirts are not listed")
 
@@ -60,6 +63,14 @@ class BuildListTest(unittest.TestCase):
         self.assertEqual(made["players"], 10)
         self.assertEqual(made["id"], "PALADIN_PROTECTION:mplus")
         self.assertTrue(made["anyPhase"])
+
+    def test_item_levels_are_the_highest_seen_for_listed_items(self):
+        players = ([player(entry("HEAD", 100, level=334))] * 5 + [player(entry("HEAD", 100, level=320))] * 4
+                   + [player(entry("HEAD", 101, level=340))] * 2 + [player(entry("HEAD", 102, level=350))])
+        made = self.build(players)
+        self.assertEqual(made["itemLevels"][100], 334, "the #1 at its highest")
+        self.assertEqual(made["itemLevels"][101], 340, "an alternative too")
+        self.assertNotIn(102, made["itemLevels"], "not listed (under 10 %), not kept")
 
     def test_rings_share_a_count_and_never_repeat(self):
         players = ([player(entry("FINGER_1", 10), entry("FINGER_2", 20))] * 5

@@ -111,7 +111,7 @@ local function OnChat(event, message, sender)
     local warning = event == "CHAT_MSG_RAID_WARNING"
     for link in message:gmatch("|c%x+|Hitem:.-|h.-|h|r") do
         local itemID = Match.ItemIDFromLink(link)
-        local match = itemID and Match:Item(itemID)
+        local match = itemID and Match:Item(itemID, nil, link)
         if match then
             if alerts and (not lastDropped[itemID] or now - lastDropped[itemID] > DUPLICATE_WINDOW) then
                 ns.Alerts:Dropped(link, match)
@@ -144,7 +144,7 @@ local function OnStartLootRoll(_, rollID)
     if not (alerts or ns.AutoRoll:Active()) then return end
     local link = GetLootRollItemLink(rollID)
     local itemID = Match.ItemIDFromLink(link)
-    local match = itemID and Match:Item(itemID)
+    local match = itemID and Match:Item(itemID, nil, link)
     if not match then return end
     ns.AutoRoll:GroupLoot(rollID, link, match)
     if not alerts then return end

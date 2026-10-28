@@ -47,7 +47,7 @@ local function OnRollOffStarted()
     local current = rollOff and rollOff.CurrentRollOff
     if type(current) ~= "table" then return end
     local itemID = current.itemID
-    local match = itemID and ns.Match:Item(itemID)
+    local match = itemID and ns.Match:Item(itemID, nil, current.itemLink)
     if not match then return end
     local link = current.itemLink
     C_Timer.After(0, function()

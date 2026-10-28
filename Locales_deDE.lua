@@ -136,6 +136,9 @@ local T = {
     ENCHANT_WRONG = "Dein angelegter Gegenstand hat hier eine andere Verzauberung",
     USED_BY = "Getragen von %d der besten %d Spieler",
     STATUS_DATA_NO_PHASES = "BiS-Daten: %s · %d Listen · %d Spezialisierungen · keine Phasen",
+    ITEM_LEVEL_VS = "Gegenstandsstufe %d, beste Spieler %d",
+    ITEM_LEVEL_TOP = "Die besten Spieler tragen es auf Gegenstandsstufe %d",
+    LABEL_UPGRADE = "%s-Verbesserung %d→%d",
 }
 
 for key, value in pairs(T) do
