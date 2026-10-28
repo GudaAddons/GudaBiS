@@ -135,6 +135,7 @@ local T = {
     HELP_WISHLIST = "|cffffff00/gbis wishlist|r: Deine Wunschliste zeigen",
     ENCHANT_WRONG = "Dein angelegter Gegenstand hat hier eine andere Verzauberung",
     USED_BY = "Getragen von %d der besten %d Spieler",
+    REFORGE = "Umschmieden: %s → %s",
     STATUS_DATA_NO_PHASES = "BiS-Daten: %s · %d Listen · %d Spezialisierungen · keine Phasen",
     ITEM_LEVEL_VS = "Gegenstandsstufe %d, beste Spieler %d",
     ITEM_LEVEL_TOP = "Die besten Spieler tragen es auf Gegenstandsstufe %d",

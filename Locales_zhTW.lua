@@ -135,6 +135,7 @@ local T = {
     HELP_WISHLIST = "|cffffff00/gbis wishlist|r: 顯示你的願望清單",
     ENCHANT_WRONG = "你在此部位裝備的物品附魔不同",
     USED_BY = "%d 名使用（前 %d 名玩家中）",
+    REFORGE = "重鑄：%s → %s",
     STATUS_DATA_NO_PHASES = "BiS 資料：%s · %d 個清單 · %d 個專精 · 無階段",
     ITEM_LEVEL_VS = "物品等級 %d，頂尖玩家 %d",
     ITEM_LEVEL_TOP = "頂尖玩家穿戴的物品等級為 %d",

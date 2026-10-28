@@ -41,14 +41,14 @@ end
 
 local methods = {}
 
--- Retail (ns.Features.HasRetailFrameArt) has its own dropdown widget and menu system
--- (WowStyle1DropdownTemplate on a DropdownButton): there the button and the open menu
--- are Blizzard's (author, 2026-10-28: ours looked out of place). Options become radio
+-- Retail and MoP Classic (ns.Features.HasNativeDropdowns) have their own dropdown widget
+-- and menu system (WowStyle1DropdownTemplate on a DropdownButton): there the button and
+-- the open menu are Blizzard's (author, 2026-10-28: ours looked out of place). Options become radio
 -- entries, action rows plain buttons after a divider. It sits inside the same holder
 -- frame, so every anchor and width stays the same. Nil where the client has no such
 -- widget: the drawn dropdown below is used instead.
 local function NativeDropdown(dd, holder)
-    if not ns.Features.HasRetailFrameArt then return nil end
+    if not ns.Features.HasNativeDropdowns then return nil end
     local ok, native = pcall(CreateFrame, "DropdownButton", nil, holder, "WowStyle1DropdownTemplate")
     if not ok or not native or type(native.SetupMenu) ~= "function" then return nil end
     local margin = ns.Theme.DROPDOWN_MARGIN

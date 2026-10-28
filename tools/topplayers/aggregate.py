@@ -11,7 +11,8 @@ Per slot (author, 2026-10-28):
   - an off hand is listed only if at least half the players carry one (two-handers
     leave it empty);
   - the enchant is the one most players have on that slot, whatever the item; the gems
-    are the ones most players wearing the slot's #1 put in each socket.
+    are the ones most players wearing the slot's #1 put in each socket, for the sockets
+    at least half of them have filled.
 usage[slot] holds how many players wear the #1 and each alternative, in list order, so
 the addon can say "used by 18 of 50".
 itemLevels[itemID] is the highest item level any of them wears a listed item at: the
@@ -110,6 +111,7 @@ def build_list(spec, players, season, updated, set_name="Top 50 M+", suffix="mpl
     for slot, best in items.items():
         counts, labels = Counter(), {}
         sockets = defaultdict(Counter)
+        wearers = 0
         for gear in players:
             entry = gear.get(slot)
             if not entry:
@@ -118,13 +120,21 @@ def build_list(spec, players, season, updated, set_name="Top 50 M+", suffix="mpl
                 counts[entry["enchant"]] += 1
                 labels[entry["enchant"]] = entry["enchantName"]
             if entry["item"] == best:
+                wearers += 1
                 for i, gem in enumerate(entry["gems"]):
                     if gem:
                         sockets[i][gem] += 1
         if counts:
             enchant = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
             enchants[slot], names[slot] = enchant, labels[enchant]
-        chosen = [sorted(sockets[i].items(), key=lambda kv: (-kv[1], kv[0]))[0][0] for i in sorted(sockets)]
+        # A socket only some wearers have (MoP blacksmith wrist and hand sockets) is left
+        # out, or everyone without it would be told to fill it; the sockets kept are the
+        # leading ones, so gem positions still match the item link's.
+        chosen = []
+        for i in sorted(sockets):
+            if i != len(chosen) or sum(sockets[i].values()) * 2 < wearers:
+                break
+            chosen.append(sorted(sockets[i].items(), key=lambda kv: (-kv[1], kv[0]))[0][0])
         if chosen:
             gems[slot] = chosen
     listed = set(items.values()) | {item for rest in alts.values() for item in rest}

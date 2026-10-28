@@ -103,6 +103,11 @@ class BuildListTest(unittest.TestCase):
         made = self.build(players)
         self.assertEqual(made["gems"][2], [7, 8])
 
+    def test_a_socket_few_wearers_have_is_left_out(self):
+        players = [player(entry("WRIST", 1, gems=(7, 9)))] + [player(entry("WRIST", 1, gems=(7,)))] * 3
+        made = self.build(players)
+        self.assertEqual(made["gems"][9], [7], "the blacksmith socket of one player is not listed")
+
     def test_render_is_lua(self):
         made = self.build([player(entry("HEAD", 100, 8017))])
         text = build.render([made], "Midnight Season 2", "2026-10-28")
@@ -164,3 +169,89 @@ class EraTest(unittest.TestCase):
         self.assertIn("defaultPhase = 6,", text)
         self.assertIn('[2] = "Phase 1-2"', text)
         self.assertIn("phase = 6,", text)
+
+
+class MistsTest(unittest.TestCase):
+    def setUp(self):
+        import mists
+        self.mists = mists
+
+    def test_specs_use_the_specialization_order(self):
+        made = {s["key"]: s for s in self.mists.specs()}
+        self.assertEqual(len(made), 34)
+        self.assertEqual(made["DRUID_RESTORATION"]["tree"], 4)
+        self.assertEqual(made["MONK_WINDWALKER"]["tree"], 2)
+        self.assertEqual(made["DEATHKNIGHT_BLOOD"]["wclClass"], "DeathKnight")
+
+    def test_ranking_gear_carries_level_enchant_and_gems(self):
+        gear = self.mists.gear_from_ranking({"gear": [
+            {"id": 99379, "itemLevel": "574", "gems": [{"id": "95346"}, {"id": "76671"}]},
+            {"id": 0, "itemLevel": "0"},
+            {"id": 99373, "itemLevel": "580", "permanentEnchant": "4803"},
+        ]})
+        self.assertEqual(gear[1], {"item": 99379, "level": 574, "bonus": [], "enchant": None,
+                                   "enchantName": None, "gems": [95346, 76671]})
+        self.assertNotIn(2, gear)
+        self.assertEqual(gear[3]["enchant"], 4803)
+        self.assertEqual(gear[3]["level"], 580)
+
+    def test_render_has_gems_and_item_levels(self):
+        players = [{1: {"item": 99379, "level": 574, "bonus": [], "enchant": 4803, "enchantName": None,
+                        "gems": [95346]}}] * 3
+        spec = {"key": "PALADIN_RETRIBUTION", "class": "PALADIN", "tree": 3}
+        made = aggregate.build_list(spec, players, None, "2026-10-29", set_name="Top 50 raiders",
+                                    suffix="top:5", phase=5)
+        text = self.mists.render([made], "2026-10-29")
+        self.assertIn('flavor = "Mists",', text)
+        self.assertIn("defaultPhase = 5,", text)
+        self.assertIn('[3] = "Phase 3"', text)
+        self.assertIn("itemLevels = {", text)
+        self.assertIn("gems = {", text)
+
+
+class WowSimsTest(unittest.TestCase):
+    def setUp(self):
+        import mists
+        import wowsims
+        self.wowsims = wowsims
+        self.trees = {spec["key"]: spec for spec in mists.specs()}
+        self.db = {"phase": {1: 1, 2: 5, 3: 3}, "reforge": {167: ("MASTERY_RATING", "HASTE_RATING")},
+                   "enchant": {4803: "Greater Tiger Fang Inscription"}}
+
+    def gear(self, newest):
+        items = [{"id": newest, "enchant": 4803, "gems": [76671], "reforging": 167}]
+        return {"items": items + [{"id": 1}] * 14 + [{}]}
+
+    def make(self, path, newest=2):
+        return self.wowsims.list_from_set(path, self.gear(newest), self.db, self.trees, "2026-10-29")
+
+    def test_names(self):
+        self.assertEqual(self.wowsims.set_name("p5_offensive.gear.json"), ("BiS Offensive", False, True))
+        self.assertEqual(self.wowsims.set_name("preraid_fury_tg.gear.json"), ("Pre-Raid Titan's Grip", True, True))
+        self.assertEqual(self.wowsims.set_name("p1-prebis.gear.json"), ("Pre-Raid", True, False))
+        self.assertEqual(self.wowsims.set_name("p2_bis_dw.gear.json"), ("BiS Dual Wield", False, True))
+
+    def test_phase_from_the_name_and_slots_in_order(self):
+        made = self.make("ui/specs/paladin/retribution/gear_sets/p5.gear.json")
+        self.assertEqual(made["phase"], 5)
+        self.assertEqual(made["id"], "PALADIN_RETRIBUTION:sim:5:04:p5")
+        self.assertEqual(made["author"], "WoWSims")
+        self.assertEqual(made["items"][1], 2, "head")
+        self.assertEqual(made["items"][15], 1, "the fourth WoWSims slot is the back")
+        self.assertNotIn(17, made["items"], "empty off hand")
+        self.assertEqual(made["reforges"][1], ["MASTERY_RATING", "HASTE_RATING"])
+        self.assertEqual(made["enchantNames"][1], "Greater Tiger Fang Inscription")
+
+    def test_pre_raid_phase_1_and_phase_2_named(self):
+        self.assertEqual(self.make("ui/specs/paladin/retribution/gear_sets/preraid.gear.json", 1)["phase"], 1)
+        made = self.make("ui/specs/paladin/protection/gear_sets/p2_balanced.gear.json", 1)
+        self.assertEqual((made["phase"], made["set"]), (2, "BiS Balanced Phase 2"))
+        self.assertEqual(self.make("ui/specs/druid/balance/gear_sets/t14.gear.json", 1)["set"], "BiS")
+
+    def test_stale_and_partial_sets_are_left_out(self):
+        self.assertIsNone(self.make("ui/specs/priest/holy/gear_sets/p4.gear.json", 1), "Phase 1 gear named p4")
+        self.assertIsNone(self.make("ui/specs/druid/feral/gear_sets/p1_item_swap.gear.json"))
+        partial = {"items": [{"id": 2}] * 3}
+        self.assertIsNone(self.wowsims.list_from_set("ui/specs/paladin/holy/gear_sets/p1.gear.json",
+                                                     partial, self.db, self.trees, "2026-10-29"))
+        self.assertIsNone(self.make("ui/specs/demon_hunter/havoc/gear_sets/p1.gear.json"), "no such spec in MoP")

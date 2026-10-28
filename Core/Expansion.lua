@@ -54,13 +54,17 @@ local isClassic = Expansion.IsEra or Expansion.IsTBC or Expansion.IsMists
 -- HasSpecChoice: the player picks a specialization (MoP onwards). Elsewhere the spec
 --   is inferred from where the talent points are. Forever unconfirmed (GB-005).
 -- ChatLockdown: group chat text can be a secret value inside instances (12.0 engine).
--- ItemLevelMatters: the same item ID drops at different item levels.
+-- ItemLevelMatters: the same item ID can be worn at different item levels (Retail
+--   tracks; MoP Thunderforged, Warforged and valor upgrades).
 -- HasWarbandBank: an account bank (Forever has AccountBankTab_1..9).
 -- RealmlessNames: character names are "Given Family" with no realm (Forever).
 -- HasRetailFrameArt: the client draws Retail's frame art (metal frames, modern
 --   dropdowns). Retail, but not Forever: modern API, Vanilla art (as in GudaBags).
 -- HasRangedSlot: a ranged / wand / relic slot (18). MoP removed it, so Retail has none
 --   either; Forever plays Vanilla content and keeps it (author, 2026-10-28).
+-- HasNativeDropdowns: use Blizzard's own dropdown (WowStyle1DropdownTemplate) with the
+--   Classic frame art where the client has it: MoP Classic, besides Retail (GB-140).
+--   UI/Dropdown.lua still falls back to the drawn one when the widget is missing.
 local Features = {
     RealmlessNames = Expansion.IsForever,
     HasGems = Expansion.IsTBC or Expansion.IsMists or isModernRetail,
@@ -68,10 +72,11 @@ local Features = {
     HasPhases = isClassic,
     HasSpecChoice = Expansion.IsMists or isModernRetail,
     ChatLockdown = Expansion.IsRetail,
-    ItemLevelMatters = isModernRetail,
+    ItemLevelMatters = Expansion.IsMists or isModernRetail,
     HasWarbandBank = Expansion.IsRetail,
     HasRangedSlot = not (Expansion.IsMists or isModernRetail),
     HasRetailFrameArt = isModernRetail,
+    HasNativeDropdowns = Expansion.IsMists or isModernRetail,
 }
 Expansion.Features = Features
 ns.Features = Features
@@ -80,5 +85,5 @@ ns.Features = Features
 Expansion.FeatureNames = {
     "HasGems", "HasMasterLoot", "HasPhases", "HasSpecChoice",
     "ChatLockdown", "ItemLevelMatters", "HasWarbandBank", "RealmlessNames", "HasRangedSlot",
-    "HasRetailFrameArt",
+    "HasRetailFrameArt", "HasNativeDropdowns",
 }

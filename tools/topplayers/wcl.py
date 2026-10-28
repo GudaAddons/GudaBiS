@@ -27,6 +27,8 @@ import api
 TOKEN_URL = "https://www.warcraftlogs.com/oauth/token"
 RESERVE = 60
 RETRIES = 4
+DATABASE_WAIT = 300
+DATABASE_WAITS = 12
 
 
 def read_key(path):
@@ -75,28 +77,39 @@ class Client:
 
     def _post(self, query):
         body = json.dumps({"query": query}).encode()
+        busy = 0
         for attempt in range(RETRIES):
-            request = urllib.request.Request(
-                f"https://{self._host}/api/v2/client", data=body,
-                headers={"Authorization": "Bearer " + self._token_value(), "Content-Type": "application/json"},
-            )
-            try:
-                with self._open(request, timeout=90) as response:
-                    answer = json.loads(response.read().decode())
-                if answer.get("errors"):
-                    raise api.ApiError("Warcraft Logs: " + json.dumps(answer["errors"])[:300])
-                return answer["data"]
-            except urllib.error.HTTPError as error:
-                if error.code == 429 or error.code >= 500:
-                    if attempt < RETRIES - 1:
+            while True:
+                request = urllib.request.Request(
+                    f"https://{self._host}/api/v2/client", data=body,
+                    headers={"Authorization": "Bearer " + self._token_value(), "Content-Type": "application/json"},
+                )
+                try:
+                    with self._open(request, timeout=90) as response:
+                        answer = json.loads(response.read().decode())
+                except urllib.error.HTTPError as error:
+                    if (error.code == 429 or error.code >= 500) and attempt < RETRIES - 1:
                         self._sleep(10 * (attempt + 1))
-                        continue
-                raise api.ApiError(f"Warcraft Logs HTTP {error.code}") from None
-            except (urllib.error.URLError, OSError, ValueError) as error:
-                if attempt < RETRIES - 1:
-                    self._sleep(5 * (attempt + 1))
+                        break
+                    raise api.ApiError(f"Warcraft Logs HTTP {error.code}") from None
+                except (urllib.error.URLError, OSError, ValueError) as error:
+                    if attempt < RETRIES - 1:
+                        self._sleep(5 * (attempt + 1))
+                        break
+                    raise api.ApiError(f"Warcraft Logs {type(error).__name__}") from None
+                if not answer.get("errors"):
+                    return answer["data"]
+                text = json.dumps(answer["errors"])
+                # A limit on the rankings database apart from the hourly points
+                # (MoP, 2026-10-29): plain ranking queries fail with it while points
+                # are left. It is waited out, up to DATABASE_WAITS times.
+                if "no database points remaining" in text and busy < DATABASE_WAITS:
+                    busy += 1
+                    print(f"Warcraft Logs: rankings database limit, waiting {DATABASE_WAIT // 60} min "
+                          f"({busy} of {DATABASE_WAITS})", file=sys.stderr, flush=True)
+                    self._sleep(DATABASE_WAIT)
                     continue
-                raise api.ApiError(f"Warcraft Logs {type(error).__name__}") from None
+                raise api.ApiError("Warcraft Logs: " + text[:300])
         raise api.ApiError("Warcraft Logs: no answer")
 
     def _wait_for_points(self):

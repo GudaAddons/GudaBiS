@@ -135,6 +135,7 @@ local T = {
     HELP_WISHLIST = "|cffffff00/gbis wishlist|r: Mostra sua lista de desejos",
     ENCHANT_WRONG = "Seu item equipado aqui tem outro encantamento",
     USED_BY = "Usado por %d dos %d melhores jogadores",
+    REFORGE = "Reforjar: %s → %s",
     STATUS_DATA_NO_PHASES = "Dados BiS: %s · %d listas · %d especializações · sem fases",
     ITEM_LEVEL_VS = "Nível de item %d, melhores jogadores %d",
     ITEM_LEVEL_TOP = "Os melhores jogadores usam com nível de item %d",

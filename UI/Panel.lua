@@ -348,6 +348,24 @@ local function AddUsageLine(list, slot, rank, tooltip)
     if text then (tooltip or GameTooltip):AddLine(text, 0.6, 0.8, 1) end
 end
 
+-- "Reforge: Spirit → Hit" for a list that reforges the slot's item (WoWSims lists on MoP,
+-- GB-141). The data names the stats as Blizzard's ITEM_MOD_<stat>_SHORT strings, so they
+-- read in the client's language; the raw name stands in where the client has no string.
+local function StatName(stat)
+    return _G["ITEM_MOD_" .. stat .. "_SHORT"] or stat
+end
+
+function Panel.ReforgeText(list, slot)
+    local reforge = list and list.reforges and list.reforges[slot]
+    if not reforge then return nil end
+    return string.format(L.REFORGE, StatName(reforge[1]), StatName(reforge[2]))
+end
+
+local function AddReforgeLine(list, slot)
+    local text = Panel.ReforgeText(list, slot)
+    if text then GameTooltip:AddLine(text, 0.6, 0.8, 1) end
+end
+
 -- "Item level 320, top players 334", yellow while lower, green at the top level; just
 -- the top players' level when the player has no copy in equipped gear or bags.
 local function AddLevelLine(list, itemID)
@@ -375,6 +393,7 @@ local function ShowTooltip(button)
     AddOwnedLine(button)
     AddLevelLine(frame.list, button.item)
     AddUsageLine(frame.list, button.slot, 1)
+    AddReforgeLine(frame.list, button.slot)
     if EditingCustom() then
         GameTooltip:AddLine(L.HINT_CHOOSE, 0.6, 0.6, 0.6)
     elseif #button.alts > 0 then
