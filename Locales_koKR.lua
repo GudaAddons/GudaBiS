@@ -133,6 +133,8 @@ local T = {
     WISHLIST_SEARCH = "검색, 또는 추가할 아이템 ID나 링크",
     WISHLIST_EMPTY = "위시리스트가 비어 있습니다. AtlasLoot나 Dungeon Journal의 아이템에 있는 GudaBiS 방패를 클릭하거나, 아이템을 Shift-클릭하거나 여기로 끌어오거나, 위에 아이템 ID를 입력하세요.",
     HELP_WISHLIST = "|cffffff00/gbis wishlist|r: 위시리스트 표시",
+    ENCHANT_WRONG = "이 슬롯의 착용 아이템에 다른 마법부여가 있습니다",
+    USED_BY = "%d명 착용 (상위 플레이어 %d명 중)",
 }
 
 for key, value in pairs(T) do

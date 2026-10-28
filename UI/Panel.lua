@@ -72,12 +72,14 @@ function Panel.SlotView(list, slot)
         item = list and list.items[slot] or nil,
         alts = list and list.alts and list.alts[slot] or NO_ALTS,
         enchant = list and list.enchants and list.enchants[slot] or nil,
+        enchantName = list and list.enchantNames and list.enchantNames[slot] or nil,
         gems = list and list.gems and list.gems[slot] or NO_ALTS,
     }
 end
 
 -- "Protection · Balanced set  by Zephan": the client's own tree name, the guide's tab
--- name, and in grey the guide's writer when the data names one (author, 2026-10-28). A
+-- name, and in grey the guide's writer when the data names one (author, 2026-10-28). Top-player
+-- lists (Retail) show their season there instead: "Protection · Top 50 M+  Midnight Season 2". A
 -- custom list shows its own name. role ("ms"/"os") adds a coloured MS/OS tag.
 local ROLE_TAGS = { ms = "|cff40ff40%s|r ", os = "|cff40c0ff%s|r " }
 local AUTHOR_TAG = "  |cff808080%s|r"
@@ -93,6 +95,8 @@ function Panel.ListLabel(list, treeName, role)
     end
     if not list.custom and list.author then
         label = label .. string.format(AUTHOR_TAG, string.format(L.LIST_BY, list.author))
+    elseif not list.custom and list.season then
+        label = label .. string.format(AUTHOR_TAG, list.season)
     end
     if role then
         label = string.format(ROLE_TAGS[role], role == "ms" and L.ROLE_MS or L.ROLE_OS) .. label
@@ -177,17 +181,25 @@ local function PaintCheck(button, list)
 end
 
 local EMPTY_ENCHANT = "Interface\\PaperDoll\\UI-Backpack-EmptySlot"
+local NAMED_ENCHANT_ICON = "Interface\\Icons\\Trade_Engraving"
 local EMPTY_SOCKET = "Interface\\ItemSocketingFrame\\UI-EmptySocket-"
 local SOCKET_TEXTURE_NAMES = { META = "Meta", RED = "Red", YELLOW = "Yellow", BLUE = "Blue" }
 
 -- editable: a custom list with an item in the slot; then an empty enchant shows a
 -- placeholder to click.
-local function PaintEnchant(button, spellID, editable)
+-- spellID: guide lists (TBC); name: top-player lists, which know the enchant by its
+-- SpellItemEnchantment ID and name only (GB-131), shown with a generic enchanting icon.
+local function PaintEnchant(button, spellID, editable, name)
     local enchant = button.enchant
     enchant.spell = spellID
+    enchant.name = not spellID and name or nil
     enchant.editable = editable
     if spellID then
         enchant.icon:SetTexture(ns.GetSpellTexture and ns.GetSpellTexture(spellID) or UNKNOWN_ICON)
+        enchant.icon:SetDesaturated(false)
+        enchant:Show()
+    elseif name then
+        enchant.icon:SetTexture(NAMED_ENCHANT_ICON)
         enchant.icon:SetDesaturated(false)
         enchant:Show()
     elseif editable then
@@ -239,7 +251,8 @@ end
 local function PaintFinish(button, list)
     local state = button.item and ns.Enchants:ForSlot(list, button.slot) or nil
     button.enchant.missing = state ~= nil and state.missingEnchant
-    Warn(button.enchant, button.enchant.missing)
+    button.enchant.wrong = state ~= nil and state.wrongEnchant
+    Warn(button.enchant, button.enchant.missing or button.enchant.wrong)
     for i, gem in ipairs(button.gems) do
         gem.state = state and state.gems[i] or nil
         Warn(gem, gem.state == "empty" or gem.state == "wrong")
@@ -251,7 +264,7 @@ local function PaintSlot(button, view, list)
     button.alts = view.alts
     local editable = view.item ~= nil and ns.Lists.IsCustom(list)
     PaintCheck(button, list)
-    PaintEnchant(button, view.item and view.enchant, editable)
+    PaintEnchant(button, view.item and view.enchant, editable, view.item and view.enchantName)
     PaintGems(button, view.item and view.gems or NO_ALTS, editable)
     PaintFinish(button, list)
     if not view.item then
@@ -296,6 +309,20 @@ local function EditingCustom()
     return frame ~= nil and ns.Lists.IsCustom(frame.list)
 end
 
+-- "Worn by 38 of the top 50 players" for a top-player list (GB-131); rank 1 is the slot's
+-- item, rank n+1 its n-th alternative.
+function Panel.UsageText(list, slot, rank)
+    local counts = list and list.usage and list.usage[slot]
+    local count = counts and counts[rank]
+    if not (count and list.players) then return nil end
+    return string.format(L.USED_BY, count, list.players)
+end
+
+local function AddUsageLine(list, slot, rank, tooltip)
+    local text = Panel.UsageText(list, slot, rank)
+    if text then (tooltip or GameTooltip):AddLine(text, 0.6, 0.8, 1) end
+end
+
 local function ShowTooltip(button)
     if not button.item then
         if not EditingCustom() then return end
@@ -308,6 +335,7 @@ local function ShowTooltip(button)
     GameTooltip:SetItemByID(button.item)
     GameTooltip:AddLine(" ")
     AddOwnedLine(button)
+    AddUsageLine(frame.list, button.slot, 1)
     if EditingCustom() then
         GameTooltip:AddLine(L.HINT_CHOOSE, 0.6, 0.6, 0.6)
     elseif #button.alts > 0 then
@@ -414,7 +442,8 @@ local function OnSlotClick(button, mouseButton)
     if EditingCustom() then
         OpenPicker(button)
     elseif button.item then
-        ns.RankFlyout:Toggle(button, Panel.RankedItems(frame.list, button.slot))
+        ns.RankFlyout:Toggle(button, Panel.RankedItems(frame.list, button.slot), nil,
+            { list = frame.list, slot = button.slot })
     end
 end
 
@@ -427,12 +456,15 @@ local function ShowEnchantTooltip(self)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
     if self.spell then
         GameTooltip:SetSpellByID(self.spell)
+    elseif self.name then
+        GameTooltip:SetText(self.name, 1, 1, 1)
     else
         GameTooltip:SetText(L.ENCHANT_NONE)
     end
-    if self.missing then
+    if self.missing or self.wrong then
         GameTooltip:AddLine(" ")
-        GameTooltip:AddLine(L.ENCHANT_MISSING, WARN_COLOR[1], WARN_COLOR[2], WARN_COLOR[3])
+        GameTooltip:AddLine(self.missing and L.ENCHANT_MISSING or L.ENCHANT_WRONG,
+            WARN_COLOR[1], WARN_COLOR[2], WARN_COLOR[3])
     end
     if self.editable and EditingCustom() then
         GameTooltip:AddLine(L.HINT_EDIT_ENCHANT, 0.6, 0.6, 0.6)

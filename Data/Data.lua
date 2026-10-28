@@ -63,10 +63,15 @@ end
 -- The guide lists for a spec and phase that a character of `faction` may use, in
 -- the guide's tab order, then the spec's resistance lists. A list without a faction
 -- is for both. Nothing for a phase the data does not have.
+-- A flavor whose lists have no phases (Retail: anyPhase only) offers them for any phase.
+local function PhaseOffered(phase)
+    return next(phaseSet) == nil or phaseSet[phase] == true
+end
+
 function Data:ForSpec(spec, phase, faction)
     local out = {}
     local phases = bySpec[spec]
-    if not phases or not phaseSet[phase] then return out end
+    if not phases or not PhaseOffered(phase) then return out end
     for _, key in ipairs({ phase, ANY }) do
         for _, list in ipairs(phases[key] or {}) do
             if Allowed(list, faction) then out[#out + 1] = list end
@@ -79,7 +84,7 @@ end
 -- tree, then the phase's lists in tab order before the resistance lists.
 function Data:ForClass(class, phase, faction)
     local out = {}
-    if not phaseSet[phase] then return out end
+    if not PhaseOffered(phase) then return out end
     for _, list in ipairs(lists) do
         if list.class == class and (list.phase == phase or list.anyPhase) and Allowed(list, faction) then
             out[#out + 1] = list

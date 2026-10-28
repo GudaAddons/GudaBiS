@@ -133,6 +133,8 @@ local T = {
     WISHLIST_SEARCH = "搜索，或输入要加入的物品 ID 或链接",
     WISHLIST_EMPTY = "愿望单是空的。点击 AtlasLoot 或 Dungeon Journal 中物品上的 GudaBiS 盾牌，Shift+点击或拖动任意物品到这里，或在上方输入物品 ID。",
     HELP_WISHLIST = "|cffffff00/gbis wishlist|r: 显示你的愿望单",
+    ENCHANT_WRONG = "你在此部位装备的物品附魔不同",
+    USED_BY = "%d 名使用（前 %d 名玩家中）",
 }
 
 for key, value in pairs(T) do

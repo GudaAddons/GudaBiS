@@ -21,7 +21,9 @@
 -- One flyout for the whole panel, rows reused. It closes when its slot is clicked again,
 -- when another slot opens it, when the panel changes list or phase, and with the panel.
 --
---   RankFlyout:Toggle(anchor, ids, picker)
+--   RankFlyout:Toggle(anchor, ids, picker[, ranked])
+--       ranked = { list, slot }: the ranked view of a list, whose rows can say how many
+--       top players wear each item (top-player lists, GB-131)
 --       picker = { kind = "item"|"enchant"|"gem", slot, socket = colour, onPick(id|nil) }
 --   RankFlyout:Close(), RankFlyout:Refresh()
 --   RankFlyout.Filter(ids, query, nameOf) -> the ids whose name contains query
@@ -55,6 +57,7 @@ local owner
 local ids
 local picker
 local linkingOwnRow = false
+local ranked
 local offset = 0
 local shown = {}
 
@@ -154,6 +157,8 @@ local function ShowRowTooltip(row)
     if picker then
         GameTooltip:AddLine(L.HINT_PICK, 0.6, 0.6, 0.6)
     else
+        local usage = ranked and ns.Panel.UsageText(ranked.list, ranked.slot, row.index)
+        if usage then GameTooltip:AddLine(usage, 0.6, 0.8, 1) end
         GameTooltip:AddLine(L.HINT_MARK, 0.6, 0.6, 0.6)
     end
     GameTooltip:Show()
@@ -353,6 +358,7 @@ local function Create()
         Mark(owner, false)
         owner = nil
         picker = nil
+        ranked = nil
         GameTooltip:Hide()
     end)
 end
@@ -369,6 +375,7 @@ local function RefreshRanked()
         local row = Row(i, RANKED_TOP)
         row.clear = nil
         row.id = id
+        row.index = i
         row.rank:SetText(i .. ".")
         PaintRow(row)
     end
@@ -423,7 +430,7 @@ function RankFlyout:IsOpenFor(anchor)
     return flyout ~= nil and flyout:IsShown() and owner == anchor
 end
 
-function RankFlyout:Toggle(anchor, choices, pickerOptions)
+function RankFlyout:Toggle(anchor, choices, pickerOptions, rankedOptions)
     if self:IsOpenFor(anchor) then
         self:Close()
         return
@@ -433,6 +440,7 @@ function RankFlyout:Toggle(anchor, choices, pickerOptions)
     owner = anchor
     ids = choices
     picker = pickerOptions
+    ranked = rankedOptions
     offset = 0
     flyout.search.edit:SetText("")
     Mark(anchor, picker ~= nil)

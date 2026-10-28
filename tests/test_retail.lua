@@ -74,6 +74,45 @@ return function(T, H)
         T.noErrors()
     end)
 
+    -- A top-player list the way tools/topplayers writes it.
+    local TOP_LIST = {
+        id = "PALADIN_PROTECTION:mplus", spec = "PALADIN_PROTECTION", class = "PALADIN", specID = 66, tree = 2,
+        anyPhase = true, set = "Top 50 M+", season = "Midnight Season 2", players = 50,
+        items = { [1] = 271483, [5] = 271480 }, alts = { [1] = { 271500, 271501 } },
+        usage = { [1] = { 38, 7, 5 }, [5] = { 41 } },
+        enchantIDs = { [5] = 8017 }, enchantNames = { [5] = "Enchant Chest - Crystalline Radiance" },
+    }
+
+    T.case("top-player lists: no phases, the picked spec's list, season label, usage", function()
+        local ns = Retail()
+        _G.C_SpecializationInfo.GetSpecialization = function() return 2 end
+        ns.Data:Register({ flavor = "Retail", lists = { TOP_LIST } })
+        T.eq(ns.Spec:ActiveTree(), 2, "the picked spec, not the most points")
+        local list = ns.Lists:Current()
+        T.eq(list and list.id, TOP_LIST.id, "shown with no phase")
+        T.eq(ns.Panel.ListLabel(list, "Protection"), "Protection · Top 50 M+  |cff808080Midnight Season 2|r", "label")
+        T.eq(ns.Panel.UsageText(list, 1, 1), "Worn by 38 of the top 50 players", "#1")
+        T.eq(ns.Panel.UsageText(list, 1, 3), "Worn by 5 of the top 50 players", "second alternative")
+        T.eq(ns.Panel.UsageText(list, 2, 1), nil, "nothing for an empty slot")
+        T.eq(ns.Match:Item(271501).rank, 3, "alternatives match")
+        H.Slash("")
+        T.ok(not ns.Panel.phaseDropdown.button:IsShown(), "still no phase dropdown")
+        T.noErrors()
+    end)
+
+    T.case("top-player lists: enchants by ID, missing and wrong told apart", function()
+        local ns = Retail()
+        local E = ns.Enchants
+        local function Link(enchant) return "|cffa335ee|Hitem:271480:" .. enchant .. ":::::::80|h[x]|h|r" end
+        local state = E.Check(TOP_LIST, 5, Link(8017))
+        T.ok(not state.missingEnchant and not state.wrongEnchant, "the right enchant")
+        state = E.Check(TOP_LIST, 5, Link(0))
+        T.ok(state.missingEnchant and not state.wrongEnchant, "missing")
+        state = E.Check(TOP_LIST, 5, Link(7999))
+        T.ok(state.wrongEnchant and not state.missingEnchant, "a different enchant")
+        T.ok(not E.Check(TOP_LIST, 1, Link(0)).missingEnchant, "no enchant wanted on the head")
+    end)
+
     T.case("Retail refuses Wowhead gear-planner links until their format is checked", function()
         local ns = Retail()
         local result, problem = ns.GearPlanner:Read("https://www.wowhead.com/gear-planner/paladin/human/AAAA")

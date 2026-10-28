@@ -23,6 +23,13 @@ else
     failures=$((failures + 1))
 fi
 
+if topplayers=$(python3 -B -m unittest discover -s "$ROOT/tools/topplayers" -q 2>&1); then
+    echo "topplayers: $(echo "$topplayers" | grep -o 'Ran [0-9]* tests*') OK"
+else
+    echo "$topplayers"
+    failures=$((failures + 1))
+fi
+
 if [ "$failures" -ne 0 ]; then
     echo "FAILED"
     exit 1

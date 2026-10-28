@@ -133,6 +133,8 @@ local T = {
     WISHLIST_SEARCH = "Cerca, oppure ID o link di un oggetto da aggiungere",
     WISHLIST_EMPTY = "La tua lista dei desideri è vuota. Clicca lo scudo di GudaBiS sugli oggetti in AtlasLoot o nel Dungeon Journal, fai Maiusc-clic o trascina qui un oggetto, oppure scrivi un ID qui sopra.",
     HELP_WISHLIST = "|cffffff00/gbis wishlist|r: Mostra la tua lista dei desideri",
+    ENCHANT_WRONG = "Il tuo oggetto equipaggiato qui ha un altro incantamento",
+    USED_BY = "Indossato da %d dei %d migliori giocatori",
 }
 
 for key, value in pairs(T) do

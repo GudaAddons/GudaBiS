@@ -4,8 +4,8 @@
 -- C_SpecializationInfo.GetSpecialization() returning 1 (Holy) for a 0/40/21
 -- Protection paladin on TBC, so it is never used there (architecture.md section 10).
 -- Points spent are the 7th return of C_SpecializationInfo.GetSpecializationInfo.
--- Clients where the player picks a spec (ns.Features.HasSpecChoice) get their own
--- branch in their flavor milestone.
+-- Clients where the player picks a spec (ns.Features.HasSpecChoice: Retail, MoP) read
+-- that pick (GB-131).
 
 local addonName, ns = ...
 
@@ -32,7 +32,16 @@ local function TreeInfo(tree)
     return specID, name, icon, pointsSpent or 0
 end
 
+-- Where the player picks a spec (ns.Features.HasSpecChoice: Retail, MoP), that pick is the
+-- tree; elsewhere the tree with the most points.
 function Spec:ActiveTree()
+    if ns.Features.HasSpecChoice then
+        local api = C_SpecializationInfo
+        local get = api and api.GetSpecialization or GetSpecialization
+        if not get then return nil end
+        local ok, index = pcall(get)
+        return ok and type(index) == "number" and index > 0 and index or nil
+    end
     local points = {}
     for tree = 1, MAX_TREES do
         local specID, _, _, spent = TreeInfo(tree)
