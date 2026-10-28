@@ -125,6 +125,14 @@ local T = {
     IMPORT_DAMAGED = "링크가 손상되었거나 GudaBiS가 모르는 형식입니다.",
     IMPORT_OTHER_CLASS = "이 세트는 %s 직업용이지만 그대로 가져왔습니다.",
     IMPORT_DONE = "아이템 %d개를 %s에 가져왔습니다.",
+    TAB_WISHLIST = "위시리스트",
+    LABEL_WISH = "위시리스트 아이템",
+    WISH_ADD = "GudaBiS 위시리스트에 추가",
+    WISH_REMOVE = "GudaBiS 위시리스트에서 제거",
+    WISHLIST_TOOLTIP = "GudaBiS 위시리스트에 있음",
+    WISHLIST_SEARCH = "검색, 또는 추가할 아이템 ID나 링크",
+    WISHLIST_EMPTY = "위시리스트가 비어 있습니다. AtlasLoot나 Dungeon Journal의 아이템에 있는 GudaBiS 방패를 클릭하거나, 아이템을 Shift-클릭하거나 여기로 끌어오거나, 위에 아이템 ID를 입력하세요.",
+    HELP_WISHLIST = "|cffffff00/gbis wishlist|r: 위시리스트 표시",
 }
 
 for key, value in pairs(T) do

@@ -27,7 +27,7 @@ local CHAR_WIDTH = 150
 local WINNER_WIDTH = 90
 local TAG_WIDTH = 60
 local DATE_FORMAT = "%Y-%m-%d %H:%M"
-local TAG_COLORS = { ms = "|cff40ff40%s|r", os = "|cff40c0ff%s|r" }
+local TAG_COLORS = { ms = "|cff40ff40%s|r", os = "|cff40c0ff%s|r", wish = "|cffff80ff%s|r" }
 
 local view, charDropdown, sessionDropdown
 local rows = {}

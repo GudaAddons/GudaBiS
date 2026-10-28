@@ -34,8 +34,8 @@ local GetItemInfoInstant = ns.GetItemInfoInstant
 
 local TOAST_SECONDS = 15
 local DEFAULT_ROLL_SECONDS = 30
-local BADGE_COLORS = { ms = { 1, 1, 1 }, os = { 0.55, 0.85, 1 } }
-local TITLE_COLORS = { ms = { 1, 0.82, 0 }, os = { 0.55, 0.85, 1 } }
+local BADGE_COLORS = { ms = { 1, 1, 1 }, os = { 0.55, 0.85, 1 }, wish = { 1, 0.6, 1 } }
+local TITLE_COLORS = { ms = { 1, 0.82, 0 }, os = { 0.55, 0.85, 1 }, wish = { 1, 0.6, 1 } }
 local BADGE_PADDING = 18
 local RAID_WARNING_SOUND = 8959
 

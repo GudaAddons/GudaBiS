@@ -125,6 +125,14 @@ local T = {
     IMPORT_DAMAGED = "这个链接已损坏，或格式 GudaBiS 无法识别。",
     IMPORT_OTHER_CLASS = "这套装备属于%s职业，仍已导入。",
     IMPORT_DONE = "已导入 %d 件物品到 %s。",
+    TAB_WISHLIST = "愿望单",
+    LABEL_WISH = "愿望单物品",
+    WISH_ADD = "加入 GudaBiS 愿望单",
+    WISH_REMOVE = "从 GudaBiS 愿望单移除",
+    WISHLIST_TOOLTIP = "在你的 GudaBiS 愿望单中",
+    WISHLIST_SEARCH = "搜索，或输入要加入的物品 ID 或链接",
+    WISHLIST_EMPTY = "愿望单是空的。点击 AtlasLoot 或 Dungeon Journal 中物品上的 GudaBiS 盾牌，Shift+点击或拖动任意物品到这里，或在上方输入物品 ID。",
+    HELP_WISHLIST = "|cffffff00/gbis wishlist|r: 显示你的愿望单",
 }
 
 for key, value in pairs(T) do

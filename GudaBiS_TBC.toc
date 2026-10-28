@@ -14,7 +14,7 @@
 ## Author: Vati
 ## Version: @project-version@
 ## SavedVariables: GudaBiS_DB
-## OptionalDeps: GudaBags, Gargul, RCLootCouncil, RCLootCouncil_Classic
+## OptionalDeps: GudaBags, Gargul, RCLootCouncil, RCLootCouncil_Classic, AtlasLoot, ForeverDungeonJournal
 ## IconTexture: Interface\AddOns\GudaBiS\Assets\logo.png
 ## X-Wago-ID: kGr98MKy
 
@@ -53,6 +53,7 @@ Gear\Owned.lua
 Gear\Enchants.lua
 Gear\Match.lua
 Gear\GearPlanner.lua
+Gear\Wishlist.lua
 
 # Loot
 Loot\Detect.lua
@@ -62,6 +63,8 @@ Loot\History.lua
 # Integrations (optional addons)
 Integrations\Gargul.lua
 Integrations\RCLootCouncil.lua
+Integrations\AtlasLoot.lua
+Integrations\ForeverDungeonJournal.lua
 
 # UI
 UI\Theme.lua
@@ -72,6 +75,8 @@ UI\TestAlerts.lua
 UI\Dropdown.lua
 UI\NameDialog.lua
 UI\RankFlyout.lua
+UI\WishToggle.lua
+UI\WishlistTab.lua
 UI\HistoryTab.lua
 UI\Panel.lua
 UI\SettingsPanel.lua

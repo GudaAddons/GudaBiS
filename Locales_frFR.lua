@@ -125,6 +125,14 @@ local T = {
     IMPORT_DAMAGED = "Ce lien est endommagé ou dans un format que GudaBiS ne connaît pas.",
     IMPORT_OTHER_CLASS = "Cet ensemble est pour la classe %s ; il a quand même été importé.",
     IMPORT_DONE = "%d objets importés dans %s.",
+    TAB_WISHLIST = "Souhaits",
+    LABEL_WISH = "objet de votre liste de souhaits",
+    WISH_ADD = "Ajouter à la liste de souhaits GudaBiS",
+    WISH_REMOVE = "Retirer de la liste de souhaits GudaBiS",
+    WISHLIST_TOOLTIP = "Dans votre liste de souhaits GudaBiS",
+    WISHLIST_SEARCH = "Recherche, ou ID ou lien d'objet à ajouter",
+    WISHLIST_EMPTY = "Votre liste de souhaits est vide. Cliquez sur l'écu GudaBiS des objets dans AtlasLoot ou le Dungeon Journal, faites Maj-clic ou glissez un objet ici, ou saisissez une ID ci-dessus.",
+    HELP_WISHLIST = "|cffffff00/gbis wishlist|r : Affiche votre liste de souhaits",
 }
 
 for key, value in pairs(T) do

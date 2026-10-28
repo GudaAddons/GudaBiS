@@ -686,13 +686,17 @@ function Panel.ListActions(current)
     return actions
 end
 
--- Gear and History tabs under the panel, the same as the Character frame's own tabs on
+-- Gear, Wishlist and History tabs under the panel, the same as the Character frame's own tabs on
 -- this client (GB-071; author, 2026-10-28: generic tabs looked foreign next to them).
 -- Classic flavors draw those with CharacterFrameTabButtonTemplate, Retail with
 -- PanelTabButtonTemplate; the first one the client has is used, a plain button last.
 -- The Character tab template's own click and tooltip scripts belong to the Character
 -- frame, so they are replaced.
-local TABS = { { key = "gear", text = "TAB_GEAR" }, { key = "history", text = "TAB_HISTORY" } }
+local TABS = {
+    { key = "gear", text = "TAB_GEAR" },
+    { key = "wishlist", text = "TAB_WISHLIST" },
+    { key = "history", text = "TAB_HISTORY" },
+}
 local TAB_TEMPLATES = { "CharacterFrameTabButtonTemplate", "PanelTabButtonTemplate" }
 local TAB_OVERLAP = -14
 
@@ -875,7 +879,7 @@ function Panel:Close()
     PlaceTab()
 end
 
--- "gear" or "history"; opens the panel first when it is closed.
+-- "gear", "wishlist" or "history"; opens the panel first when it is closed.
 function Panel:ShowTab(key)
     if not self:IsShown() then self:Open() end
     frame.activeTab = key
@@ -883,6 +887,7 @@ function Panel:ShowTab(key)
         if info.key == key and PanelTemplates_SetTab then PanelTemplates_SetTab(frame, i) end
     end
     ns.RankFlyout:Close()
+    ns.WishlistTab:SetShown(frame, key == "wishlist")
     ns.HistoryTab:SetShown(frame, key == "history")
 end
 
@@ -947,6 +952,10 @@ end, "Panel")
 ns.SlashCommands:Register("show", function()
     if Panel:IsShown() then Panel:Close() else Panel:Open() end
 end, L.HELP_SHOW)
+
+ns.SlashCommands:Register("wishlist", function()
+    Panel:ShowTab("wishlist")
+end, L.HELP_WISHLIST)
 
 ns.SlashCommands:Register("history", function()
     Panel:ShowTab("history")

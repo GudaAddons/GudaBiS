@@ -65,6 +65,7 @@ local function NewFrame(name)
     function frame:GetHeight() return rawget(self, "height") or 0 end
     function frame:SetSize(w, h) self.width, self.height = w, h end
     function frame:SetHeight(h) self.height = h end
+    function frame:SetDesaturated(on) self.desaturated = on and true or false end
     function frame:SetWidth(w) self.width = w end
     function frame:SetPoint(...) self.point = { ... } end
     function frame:ClearAllPoints() self.point = nil end
@@ -272,6 +273,8 @@ function H.Install(opts)
     _G.Settings = nil
     _G.Minimap = nil
     _G.Gargul = nil
+    _G.AtlasLoot = nil
+    _G.ForeverDungeonJournal_NS = nil
 
     -- Inventory: H.equipped[slot] = itemID, H.containers[bag] = { itemID or false, ... }
     H.equipped = opts.equipped or {}

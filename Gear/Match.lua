@@ -8,9 +8,12 @@
 -- Drops are rare events, so this walks the two lists on each call instead of keeping
 -- an index that would need rebuilding on every list, phase or talent change.
 --
---   Match:Item(itemID[, includeOwned]) -> nil | { role = "ms"|"os", rank = n, slot = INVSLOT }
+-- After the lists, the character's wishlist (GB-072): role "wish", no slot. A list
+-- match wins over the wishlist, so an item on both keeps its BiS / alt / OS label.
+--
+--   Match:Item(itemID[, includeOwned]) -> nil | { role = "ms"|"os"|"wish", rank = n, slot = INVSLOT }
 --     includeOwned: History labels an item the player just won, already in the bags
---   Match.Label(match) -> "BiS", "Alt #2", "OS", "OS alt #3"
+--   Match.Label(match) -> "BiS", "Alt #2", "OS", "OS alt #3", "wishlist item"
 
 local addonName, ns = ...
 local L = ns.L
@@ -41,10 +44,12 @@ function Match:Item(itemID, includeOwned)
             return { role = role, rank = rank, slot = slot }
         end
     end
+    if ns.Wishlist:Has(itemID) then return { role = "wish", rank = 1 } end
     return nil
 end
 
 function Match.Label(match)
+    if match.role == "wish" then return L.LABEL_WISH end
     if match.role == "ms" then
         if match.rank == 1 then return L.LABEL_BIS end
         return string.format(L.LABEL_ALT, match.rank - 1)

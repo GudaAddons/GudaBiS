@@ -10,6 +10,7 @@
 --   - A raid-warning roll call from the master looter or the leader (not assistants):
 --     one /roll per announcement, 1-100 for MS, 1-99 for OS. Not while RCLootCouncil
 --     shows that item: that is a council vote, never answered for the player.
+-- Wishlist items (GB-072) only alert: they are never rolled for.
 -- It never Passes. One chat line per action.
 --
 --   AutoRoll.Decide(match, canNeed, canGreed) -> NEED | GREED | nil
@@ -32,11 +33,14 @@ local lastCall = { message = nil, at = nil }
 function AutoRoll.Decide(match, canNeed, canGreed)
     if not match then return nil end
     if match.role == "ms" then return canNeed and ROLL_NEED or nil end
-    return canGreed and ROLL_GREED or nil
+    if match.role == "os" then return canGreed and ROLL_GREED or nil end
+    return nil
 end
 
 function AutoRoll.RollRange(match)
-    return match.role == "ms" and 100 or 99
+    if match.role == "ms" then return 100 end
+    if match.role == "os" then return 99 end
+    return nil
 end
 
 function AutoRoll:GargulLoaded()
@@ -77,6 +81,7 @@ end
 -- answered, so no popup asks for a second roll.
 function AutoRoll:RollCall(link, match, sender, message)
     if not self:Active() or not ns.Detect.IsLootLeader(sender) then return false end
+    if not AutoRoll.RollRange(match) then return false end
     local now = GetTime()
     if lastCall.message == message and lastCall.at == now then return true end
     lastCall.message, lastCall.at = message, now
