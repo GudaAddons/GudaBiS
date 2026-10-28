@@ -54,12 +54,12 @@ local T = {
     HINT_CHOOSE = "클릭: 이 칸의 아이템 선택",
     HINT_PICK = "클릭: 이 아이템을 칸에 넣기",
     PICK_CLEAR = "이 칸 비우기",
-    PICK_ID = "아이템 ID 또는 Wowhead 링크",
-    PICK_HINT = "또는 아이템을 Shift-클릭하거나 여기로 끌어 오세요.",
+    PICK_ID = "검색, 아이템 ID 또는 Wowhead 링크",
+    PICK_HINT = "가방, 대화 링크, 전리품 애드온의 아이템을 Shift-클릭하거나 끌어다 놓으면 여기에 넣습니다.",
     PICK_WRONG_SLOT = "아이템 %d은(는) 이 칸에 맞지 않습니다.",
     PICK_NOT_GEM = "아이템 %d은(는) 보석이 아닙니다.",
-    PICK_GEM_ID = "보석 ID 또는 Wowhead 링크",
-    PICK_ENCHANT_ID = "마법부여 주문 ID 또는 Wowhead 링크",
+    PICK_GEM_ID = "검색, 보석 ID 또는 Wowhead 링크",
+    PICK_ENCHANT_ID = "검색, 마법부여 주문 ID 또는 Wowhead 링크",
     GEM_COLOR_MISMATCH = "보석 홈 색상과 맞지 않습니다 (보너스 없음)",
     SPELL_UNKNOWN = "주문 %d",
     ENCHANT_NONE = "선택한 마법부여 없음",
@@ -119,6 +119,7 @@ local T = {
     SET_PANEL_OPEN_TIP = "매번 캐릭터 옆에 창이 열립니다. 옆 탭으로도 바꿀 수 있습니다.",
     SET_MINIMAP = "미니맵 버튼 표시",
     SET_MINIMAP_TIP = "왼쪽 클릭은 창을 표시하고, 오른쪽 클릭은 이 설정을 엽니다.",
+    PICK_NO_MATCH = "일치하는 항목이 없습니다.",
 }
 
 for key, value in pairs(T) do

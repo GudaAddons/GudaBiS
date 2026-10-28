@@ -54,12 +54,12 @@ local T = {
     HINT_CHOOSE = "Klick: Gegenstand für diesen Platz wählen",
     HINT_PICK = "Klick: diesen Gegenstand in den Platz legen",
     PICK_CLEAR = "Diesen Platz leeren",
-    PICK_ID = "Gegenstands-ID oder Wowhead-Link",
-    PICK_HINT = "Oder einen Gegenstand mit Umschalt-Klick oder Ziehen hierher bringen.",
+    PICK_ID = "Suche, Gegenstands-ID oder Wowhead-Link",
+    PICK_HINT = "Shift-Klick oder Ziehen auf einen Gegenstand (Taschen, Chat-Links, Beute-Addons) setzt ihn hier ein.",
     PICK_WRONG_SLOT = "Gegenstand %d passt nicht in diesen Platz.",
     PICK_NOT_GEM = "Gegenstand %d ist kein Edelstein.",
-    PICK_GEM_ID = "Edelstein-ID oder Wowhead-Link",
-    PICK_ENCHANT_ID = "Zauber-ID der Verzauberung oder Wowhead-Link",
+    PICK_GEM_ID = "Suche, Edelstein-ID oder Wowhead-Link",
+    PICK_ENCHANT_ID = "Suche, Verzauberungs-Zauber-ID oder Wowhead-Link",
     GEM_COLOR_MISMATCH = "Passt nicht zur Sockelfarbe (kein Sockelbonus)",
     SPELL_UNKNOWN = "Zauber %d",
     ENCHANT_NONE = "Keine Verzauberung gewählt",
@@ -119,6 +119,7 @@ local T = {
     SET_PANEL_OPEN_TIP = "Das Fenster öffnet sich jedes Mal neben deinem Charakter. Der Seitenreiter ändert das auch.",
     SET_MINIMAP = "Minikartenknopf zeigen",
     SET_MINIMAP_TIP = "Linksklick zeigt das Fenster, Rechtsklick öffnet diese Einstellungen.",
+    PICK_NO_MATCH = "Keine Treffer.",
 }
 
 for key, value in pairs(T) do

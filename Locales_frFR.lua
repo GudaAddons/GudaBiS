@@ -54,12 +54,12 @@ local T = {
     HINT_CHOOSE = "Clic : choisir un objet pour cet emplacement",
     HINT_PICK = "Clic : mettre cet objet dans l'emplacement",
     PICK_CLEAR = "Vider cet emplacement",
-    PICK_ID = "ID d'objet ou lien Wowhead",
-    PICK_HINT = "Ou Maj-clic ou glissez n'importe quel objet ici.",
+    PICK_ID = "Recherche, ID d'objet ou lien Wowhead",
+    PICK_HINT = "Maj-clic ou glissez n'importe quel objet (sacs, liens du chat, addons de butin) pour le placer ici.",
     PICK_WRONG_SLOT = "L'objet %d ne va pas dans cet emplacement.",
     PICK_NOT_GEM = "L'objet %d n'est pas une gemme.",
-    PICK_GEM_ID = "ID de gemme ou lien Wowhead",
-    PICK_ENCHANT_ID = "ID du sort d'enchantement ou lien Wowhead",
+    PICK_GEM_ID = "Recherche, ID de gemme ou lien Wowhead",
+    PICK_ENCHANT_ID = "Recherche, ID du sort d'enchantement ou lien Wowhead",
     GEM_COLOR_MISMATCH = "Ne correspond pas à la couleur de la châsse (pas de bonus)",
     SPELL_UNKNOWN = "Sort %d",
     ENCHANT_NONE = "Aucun enchantement choisi",
@@ -119,6 +119,7 @@ local T = {
     SET_PANEL_OPEN_TIP = "Le panneau s'ouvre à côté de votre personnage à chaque fois. L'onglet latéral le change aussi.",
     SET_MINIMAP = "Afficher le bouton de la minicarte",
     SET_MINIMAP_TIP = "Clic gauche affiche le panneau, clic droit ouvre ces paramètres.",
+    PICK_NO_MATCH = "Aucun résultat.",
 }
 
 for key, value in pairs(T) do

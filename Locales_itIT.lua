@@ -54,12 +54,12 @@ local T = {
     HINT_CHOOSE = "Clic: scegli un oggetto per questo spazio",
     HINT_PICK = "Clic: metti questo oggetto nello spazio",
     PICK_CLEAR = "Svuota questo spazio",
-    PICK_ID = "ID oggetto o link Wowhead",
-    PICK_HINT = "Oppure Maiusc-clic o trascina qui un oggetto.",
+    PICK_ID = "Cerca, ID oggetto o link di Wowhead",
+    PICK_HINT = "Maiusc-clic o trascina qualsiasi oggetto (borse, link della chat, addon del bottino) per metterlo qui.",
     PICK_WRONG_SLOT = "L'oggetto %d non va in questo spazio.",
     PICK_NOT_GEM = "L'oggetto %d non è una gemma.",
-    PICK_GEM_ID = "ID gemma o link Wowhead",
-    PICK_ENCHANT_ID = "ID dell'incantesimo o link Wowhead",
+    PICK_GEM_ID = "Cerca, ID gemma o link di Wowhead",
+    PICK_ENCHANT_ID = "Cerca, ID dell'incantamento o link di Wowhead",
     GEM_COLOR_MISMATCH = "Non corrisponde al colore dell'incavo (nessun bonus)",
     SPELL_UNKNOWN = "Incantesimo %d",
     ENCHANT_NONE = "Nessun incantamento scelto",
@@ -119,6 +119,7 @@ local T = {
     SET_PANEL_OPEN_TIP = "Il pannello si apre accanto al tuo personaggio ogni volta. Anche la scheda laterale lo cambia.",
     SET_MINIMAP = "Mostra il pulsante della minimappa",
     SET_MINIMAP_TIP = "Clic sinistro mostra il pannello, clic destro apre queste impostazioni.",
+    PICK_NO_MATCH = "Nessun risultato.",
 }
 
 for key, value in pairs(T) do

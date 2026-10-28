@@ -54,12 +54,12 @@ local T = {
     HINT_CHOOSE = "点击：为此栏位选择装备",
     HINT_PICK = "点击：把此装备放入栏位",
     PICK_CLEAR = "清空此栏位",
-    PICK_ID = "物品 ID 或 Wowhead 链接",
-    PICK_HINT = "或按住 Shift 点击或拖动任意物品到这里。",
+    PICK_ID = "搜索、物品 ID 或 Wowhead 链接",
+    PICK_HINT = "Shift+点击或拖动任意物品（背包、聊天链接、拾取插件）即可放到这里。",
     PICK_WRONG_SLOT = "物品 %d 不适合此栏位。",
     PICK_NOT_GEM = "物品 %d 不是宝石。",
-    PICK_GEM_ID = "宝石 ID 或 Wowhead 链接",
-    PICK_ENCHANT_ID = "附魔法术 ID 或 Wowhead 链接",
+    PICK_GEM_ID = "搜索、宝石 ID 或 Wowhead 链接",
+    PICK_ENCHANT_ID = "搜索、附魔法术 ID 或 Wowhead 链接",
     GEM_COLOR_MISMATCH = "与插槽颜色不符（无插槽奖励）",
     SPELL_UNKNOWN = "法术 %d",
     ENCHANT_NONE = "未选择附魔",
@@ -119,6 +119,7 @@ local T = {
     SET_PANEL_OPEN_TIP = "面板每次都会在角色旁打开。侧边标签也可更改。",
     SET_MINIMAP = "显示小地图按钮",
     SET_MINIMAP_TIP = "左键显示面板，右键打开这些设置。",
+    PICK_NO_MATCH = "没有匹配项。",
 }
 
 for key, value in pairs(T) do

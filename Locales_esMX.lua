@@ -54,12 +54,12 @@ local T = {
     HINT_CHOOSE = "Clic: elige un objeto para esta ranura",
     HINT_PICK = "Clic: pon este objeto en la ranura",
     PICK_CLEAR = "Vaciar esta ranura",
-    PICK_ID = "ID de objeto o enlace de Wowhead",
-    PICK_HINT = "O haz Mayús-clic o arrastra cualquier objeto aquí.",
+    PICK_ID = "Buscar, ID de objeto o enlace de Wowhead",
+    PICK_HINT = "Mayús-clic o arrastra cualquier objeto (bolsas, enlaces del chat, addons de botín) para ponerlo aquí.",
     PICK_WRONG_SLOT = "El objeto %d no cabe en esta ranura.",
     PICK_NOT_GEM = "El objeto %d no es una gema.",
-    PICK_GEM_ID = "ID de gema o enlace de Wowhead",
-    PICK_ENCHANT_ID = "ID del hechizo de encantamiento o enlace de Wowhead",
+    PICK_GEM_ID = "Buscar, ID de gema o enlace de Wowhead",
+    PICK_ENCHANT_ID = "Buscar, ID del hechizo de encantamiento o enlace de Wowhead",
     GEM_COLOR_MISMATCH = "No coincide con el color de la ranura (sin bonificación)",
     SPELL_UNKNOWN = "Hechizo %d",
     ENCHANT_NONE = "Ningún encantamiento elegido",
@@ -119,6 +119,7 @@ local T = {
     SET_PANEL_OPEN_TIP = "El panel se abre junto a tu personaje cada vez. La pestaña lateral también lo cambia.",
     SET_MINIMAP = "Mostrar el botón del minimapa",
     SET_MINIMAP_TIP = "Clic izquierdo muestra el panel, clic derecho abre esta configuración.",
+    PICK_NO_MATCH = "Sin resultados.",
 }
 
 for key, value in pairs(T) do

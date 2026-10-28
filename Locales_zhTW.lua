@@ -54,12 +54,12 @@ local T = {
     HINT_CHOOSE = "點擊：為此欄位選擇裝備",
     HINT_PICK = "點擊：把此裝備放入欄位",
     PICK_CLEAR = "清空此欄位",
-    PICK_ID = "物品 ID 或 Wowhead 連結",
-    PICK_HINT = "或按住 Shift 點擊或拖曳任意物品到這裡。",
+    PICK_ID = "搜尋、物品 ID 或 Wowhead 連結",
+    PICK_HINT = "Shift+點擊或拖曳任意物品（背包、聊天連結、拾取插件）即可放到這裡。",
     PICK_WRONG_SLOT = "物品 %d 不適合此欄位。",
     PICK_NOT_GEM = "物品 %d 不是寶石。",
-    PICK_GEM_ID = "寶石 ID 或 Wowhead 連結",
-    PICK_ENCHANT_ID = "附魔法術 ID 或 Wowhead 連結",
+    PICK_GEM_ID = "搜尋、寶石 ID 或 Wowhead 連結",
+    PICK_ENCHANT_ID = "搜尋、附魔法術 ID 或 Wowhead 連結",
     GEM_COLOR_MISMATCH = "與插槽顏色不符（無插槽獎勵）",
     SPELL_UNKNOWN = "法術 %d",
     ENCHANT_NONE = "未選擇附魔",
@@ -119,6 +119,7 @@ local T = {
     SET_PANEL_OPEN_TIP = "面板每次都會在角色旁開啟。側邊標籤也可變更。",
     SET_MINIMAP = "顯示小地圖按鈕",
     SET_MINIMAP_TIP = "左鍵顯示面板，右鍵開啟這些設定。",
+    PICK_NO_MATCH = "沒有符合的項目。",
 }
 
 for key, value in pairs(T) do

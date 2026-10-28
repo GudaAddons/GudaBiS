@@ -9,8 +9,14 @@
 --   gem     one socket's gem: every gem the class's guides use; must be a gem; a note
 --           when its colour misses the socket (allowed: socket bonuses are sometimes
 --           skipped on purpose)
--- A click picks a row, "Clear" empties, the box takes an ID or a Wowhead/item link, and
--- while an item or gem picker is open, shift-clicking any item anywhere picks it.
+-- A click picks a row, "Clear" empties, and while an item or gem picker is open,
+-- shift-clicking any item anywhere picks it; a note at the top of the picker says so.
+--
+-- The picker shows VISIBLE_ROWS choices at a time, scrolled with the mouse wheel (author,
+-- 2026-10-28: a slot can have dozens of guide items). Its box searches the choices by
+-- name as you type, or takes an ID or a Wowhead/item link; Enter picks the ID, or the
+-- first match. The slot (or enchant/gem icon) being filled stays highlighted while the
+-- picker is open. The ranked list (a guide list, no picker) shows every row.
 --
 -- One flyout for the whole panel, rows reused. It closes when its slot is clicked again,
 -- when another slot opens it, when the panel changes list or phase, and with the panel.
@@ -18,6 +24,7 @@
 --   RankFlyout:Toggle(anchor, ids, picker)
 --       picker = { kind = "item"|"enchant"|"gem", slot, socket = colour, onPick(id|nil) }
 --   RankFlyout:Close(), RankFlyout:Refresh()
+--   RankFlyout.Filter(ids, query, nameOf) -> the ids whose name contains query
 
 local addonName, ns = ...
 local L = ns.L
@@ -31,7 +38,11 @@ local QualityColor = ns.Items.QualityColor
 local WIDTH = 230
 local ROW_HEIGHT = 22
 local ICON_SIZE = 18
-local PICKER_FOOTER = 52
+local VISIBLE_ROWS = 4
+local PICKER_HEADER = 58
+local RANKED_TOP = 6
+local PICKING_TEXTURE = "Interface\\Buttons\\CheckButtonHilight"
+local RANGE_FORMAT = "%d-%d / %d"
 local CHECK_TEXTURE = "Interface\\RaidFrame\\ReadyCheck-Ready"
 local CLEAR_ICON = "Interface\\Buttons\\UI-GroupLoot-Pass-Up"
 local UNKNOWN_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
@@ -44,9 +55,54 @@ local owner
 local ids
 local picker
 local linkingOwnRow = false
+local offset = 0
+local shown = {}
 
 local function Kind()
     return picker and picker.kind or "item"
+end
+
+local function ParseID(text)
+    if Kind() == "enchant" then return ns.Lists.ParseSpellID(text) end
+    return ns.Lists.ParseItemID(text)
+end
+
+function RankFlyout.Filter(choices, query, nameOf)
+    if not query then return choices end
+    local out = {}
+    for _, id in ipairs(choices) do
+        local name = nameOf(id)
+        if name and name:lower():find(query, 1, true) then out[#out + 1] = id end
+    end
+    return out
+end
+
+-- An item whose name is not cached yet asks for it; the picker repaints when it arrives.
+local function NameOf(id)
+    if Kind() == "enchant" then return ns.Compat.SpellName(id) end
+    local name = GetItemInfo(id)
+    if not name then ns.Items.WhenLoaded(id, function() RankFlyout:Refresh() end) end
+    return name
+end
+
+-- The search text, lowercased, or nil when the box is empty or holds an ID or a link.
+local function Query()
+    local text = strtrim(flyout.search.edit:GetText() or "")
+    if text == "" or ParseID(text) then return nil end
+    return text:lower()
+end
+
+local function Mark(anchor, on)
+    if not anchor then return end
+    local mark = anchor.gudaBiSPicking
+    if not mark and on then
+        mark = anchor:CreateTexture(nil, "OVERLAY", nil, 3)
+        mark:SetTexture(PICKING_TEXTURE)
+        mark:SetBlendMode("ADD")
+        mark:SetAllPoints()
+        anchor.gudaBiSPicking = mark
+    end
+    if mark then mark:SetShown(on) end
 end
 
 -- An error text when id may not go where the picker puts it, else nil.
@@ -129,15 +185,16 @@ local function OnRowClick(row, mouseButton)
     if picker then Pick(row.id) end
 end
 
-local function RowTop(index)
-    return -6 - (index - 1) * ROW_HEIGHT
+local function PlaceRow(row, index, top)
+    local y = -top - (index - 1) * ROW_HEIGHT
+    row:ClearAllPoints()
+    row:SetPoint("TOPLEFT", 6, y)
+    row:SetPoint("TOPRIGHT", -6, y)
 end
 
 local function CreateRow(index)
     local row = CreateFrame("Button", nil, flyout)
     row:SetHeight(ROW_HEIGHT)
-    row:SetPoint("TOPLEFT", 6, RowTop(index))
-    row:SetPoint("TOPRIGHT", -6, RowTop(index))
     row.rank = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     row.rank:SetPoint("LEFT", 0, 0)
     row.rank:SetWidth(18)
@@ -228,43 +285,57 @@ local function PaintClearRow(row)
     row.check:Hide()
 end
 
-local function OnIdEntered(edit)
-    local text = edit:GetText()
-    local id
-    if Kind() == "enchant" then
-        id = ns.Lists.ParseSpellID(text)
-    else
-        id = ns.Lists.ParseItemID(text)
-    end
+local function OnEnterPressed(edit)
+    local text = edit:GetText() or ""
+    local id = ParseID(text)
+    if not id and Query() then id = shown[1] end
     edit:SetText("")
     edit:ClearFocus()
     if id then Pick(id) end
 end
 
-local function CreateFooter()
-    local footer = CreateFrame("Frame", nil, flyout)
-    footer:SetHeight(PICKER_FOOTER)
-    footer:SetPoint("BOTTOMLEFT", 6, 6)
-    footer:SetPoint("BOTTOMRIGHT", -6, 6)
-    local edit = CreateFrame("EditBox", nil, footer, "InputBoxTemplate")
+local function CreatePickerHeader()
+    local header = CreateFrame("Frame", nil, flyout)
+    header:SetHeight(PICKER_HEADER)
+    header:SetPoint("TOPLEFT", 6, -6)
+    header:SetPoint("TOPRIGHT", -6, -6)
+    local note = header:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    note:SetPoint("TOPLEFT", 4, -2)
+    note:SetPoint("RIGHT", -4, 0)
+    note:SetJustifyH("LEFT")
+    note:SetText(L.PICK_HINT)
+    header.note = note
+    local edit = CreateFrame("EditBox", nil, header, "InputBoxTemplate")
     edit:SetHeight(20)
-    edit:SetPoint("TOPLEFT", 6, -2)
-    edit:SetPoint("TOPRIGHT", 0, -2)
+    edit:SetPoint("BOTTOMLEFT", 6, 4)
+    edit:SetPoint("BOTTOMRIGHT", 0, 4)
     edit:SetAutoFocus(false)
-    edit:SetScript("OnEnterPressed", OnIdEntered)
+    edit:SetScript("OnEnterPressed", OnEnterPressed)
     edit:SetScript("OnEscapePressed", edit.ClearFocus)
-    footer.edit = edit
+    header.edit = edit
     local placeholder = edit:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     placeholder:SetPoint("LEFT", 2, 0)
-    edit:SetScript("OnTextChanged", function(self) placeholder:SetShown(self:GetText() == "") end)
-    footer.placeholder = placeholder
-    local hint = footer:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
-    hint:SetPoint("TOPLEFT", edit, "BOTTOMLEFT", -4, -6)
-    hint:SetPoint("RIGHT", 0, 0)
-    hint:SetJustifyH("LEFT")
-    hint:SetText(L.PICK_HINT)
-    footer.hint = hint
-    flyout.footer = footer
+    edit:SetScript("OnTextChanged", function(self)
+        placeholder:SetShown(self:GetText() == "")
+        offset = 0
+        RankFlyout:Refresh()
+    end)
+    header.placeholder = placeholder
+    flyout.search = header
+
+    local empty = flyout:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+    empty:SetPoint("TOPLEFT", 12, -PICKER_HEADER - 10)
+    empty:SetText(L.PICK_NO_MATCH)
+    flyout.empty = empty
+    local range = flyout:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+    range:SetPoint("BOTTOMRIGHT", -12, 10)
+    flyout.range = range
+end
+
+local function OnWheel(_, delta)
+    if not picker then return end
+    offset = offset - delta
+    RankFlyout:Refresh()
 end
 
 local function Create()
@@ -273,43 +344,79 @@ local function Create()
     flyout:SetFrameStrata("DIALOG")
     flyout:SetClampedToScreen(true)
     flyout:EnableMouse(true)
+    flyout:EnableMouseWheel(true)
+    flyout:SetScript("OnMouseWheel", OnWheel)
     flyout:Hide()
     tinsert(UISpecialFrames, "GudaBiSRankFlyout")
-    CreateFooter()
+    CreatePickerHeader()
     flyout:SetScript("OnHide", function()
+        Mark(owner, false)
         owner = nil
         picker = nil
         GameTooltip:Hide()
     end)
 end
 
-function RankFlyout:Refresh()
-    if not (flyout and flyout:IsShown()) then return end
-    local count = 0
-    for _, id in ipairs(ids) do
-        count = count + 1
-        local row = rows[count] or CreateRow(count)
+local function Row(index, top)
+    local row = rows[index] or CreateRow(index)
+    PlaceRow(row, index, top)
+    row:Show()
+    return row
+end
+
+local function RefreshRanked()
+    for i, id in ipairs(ids) do
+        local row = Row(i, RANKED_TOP)
         row.clear = nil
         row.id = id
-        row.rank:SetText(picker and "" or (count .. "."))
+        row.rank:SetText(i .. ".")
         PaintRow(row)
-        row:Show()
     end
+    return #ids, RANKED_TOP
+end
+
+-- VISIBLE_ROWS of the matching choices from offset, then Clear; "a-b / n" when there
+-- are more than fit.
+local function RefreshPicker()
+    local matches = RankFlyout.Filter(ids, Query(), NameOf)
+    wipe(shown)
+    for i, id in ipairs(matches) do shown[i] = id end
+    offset = math.max(0, math.min(offset, #shown - VISIBLE_ROWS))
+    local count = math.min(VISIBLE_ROWS, #shown)
+    for i = 1, count do
+        local row = Row(i, PICKER_HEADER)
+        row.clear = nil
+        row.id = shown[offset + i]
+        row.rank:SetText("")
+        PaintRow(row)
+    end
+    flyout.empty:SetShown(#shown == 0)
+    local slots = math.max(count, 1)
+    if count == 0 then Row(1, PICKER_HEADER):Hide() end
+    local clear = Row(slots + 1, PICKER_HEADER)
+    clear.clear = true
+    PaintClearRow(clear)
+    local range = flyout.range
+    range:SetShown(#shown > VISIBLE_ROWS)
+    range:SetText(string.format(RANGE_FORMAT, offset + 1, offset + count, #shown))
+    flyout.search.placeholder:SetText(L[ID_PLACEHOLDER[picker.kind]])
+    flyout.search.note:SetShown(picker.kind ~= "enchant")
+    return slots + 1, PICKER_HEADER
+end
+
+function RankFlyout:Refresh()
+    if not (flyout and flyout:IsShown()) then return end
+    flyout.search:SetShown(picker ~= nil)
+    flyout.empty:Hide()
+    flyout.range:Hide()
+    local count, top
     if picker then
-        count = count + 1
-        local row = rows[count] or CreateRow(count)
-        row.clear = true
-        PaintClearRow(row)
-        row:Show()
+        count, top = RefreshPicker()
+    else
+        count, top = RefreshRanked()
     end
     for i = count + 1, #rows do rows[i]:Hide() end
-    local footer = flyout.footer
-    footer:SetShown(picker ~= nil)
-    if picker then
-        footer.placeholder:SetText(L[ID_PLACEHOLDER[picker.kind]])
-        footer.hint:SetShown(picker.kind ~= "enchant")
-    end
-    flyout:SetHeight(12 + count * ROW_HEIGHT + (picker and PICKER_FOOTER or 0))
+    flyout:SetHeight(top + count * ROW_HEIGHT + 8)
 end
 
 function RankFlyout:IsOpenFor(anchor)
@@ -326,6 +433,9 @@ function RankFlyout:Toggle(anchor, choices, pickerOptions)
     owner = anchor
     ids = choices
     picker = pickerOptions
+    offset = 0
+    flyout.search.edit:SetText("")
+    Mark(anchor, picker ~= nil)
     flyout:ClearAllPoints()
     flyout:SetPoint("TOPLEFT", anchor, "TOPRIGHT", 4, 0)
     flyout:Show()
