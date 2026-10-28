@@ -118,9 +118,6 @@ local T = {
     SET_PANEL_OPEN_TIP = "面板每次都会在角色旁打开。侧边标签也可更改。",
     SET_MINIMAP = "显示小地图按钮",
     SET_MINIMAP_TIP = "左键显示面板，右键打开这些设置。",
-    SET_SECTION_ABOUT = "关于",
-    SET_ABOUT_AUTHOR = "作者：%s",
-    SET_ABOUT_WOWHEAD = "BiS 列表来自 Wowhead 职业指南（wowhead.com）。感谢 Wowhead！",
 }
 
 for key, value in pairs(T) do

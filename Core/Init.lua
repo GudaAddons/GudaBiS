@@ -7,7 +7,6 @@ ns.addonName = addonName
 
 local GetAddOnMetadata = C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata
 ns.version = (GetAddOnMetadata and GetAddOnMetadata(addonName, "Version")) or "0.0.0"
-ns.author = (GetAddOnMetadata and GetAddOnMetadata(addonName, "Author")) or ""
 
 ns.Modules = {}
 ns.debugMode = false

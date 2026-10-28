@@ -118,9 +118,6 @@ local T = {
     SET_PANEL_OPEN_TIP = "Окно каждый раз открывается рядом с персонажем. Боковая вкладка тоже это меняет.",
     SET_MINIMAP = "Показывать кнопку у мини-карты",
     SET_MINIMAP_TIP = "ЛКМ показывает окно, ПКМ открывает эти настройки.",
-    SET_SECTION_ABOUT = "О модификации",
-    SET_ABOUT_AUTHOR = "Автор: %s",
-    SET_ABOUT_WOWHEAD = "Списки BiS взяты из классовых руководств Wowhead (wowhead.com). Спасибо, Wowhead!",
 }
 
 for key, value in pairs(T) do

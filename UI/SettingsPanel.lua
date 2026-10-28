@@ -9,7 +9,7 @@
 -- Database:SetSetting, so the minimap button and the slash commands follow at once.
 --
 -- Sections: loot alerts, auto-roll (unavailable while Gargul is loaded), panel and
--- minimap button, and About with the Wowhead credit (RULES.md Rule 7).
+-- minimap button. No About section (author, 2026-10-28).
 --
 -- Pure parts, tested offline: SettingsPanel.OPTIONS, Get, Set, Available.
 
@@ -97,16 +97,6 @@ local function AddToggle(option, y)
     return y - ROW_GAP
 end
 
-local function AddAbout(y)
-    local header = Label(panel, L.SET_SECTION_ABOUT, "GameFontNormal")
-    header:SetPoint("TOPLEFT", LEFT, y - SECTION_GAP)
-    local author = Label(panel, string.format(L.SET_ABOUT_AUTHOR, ns.author))
-    author:SetPoint("TOPLEFT", header, "BOTTOMLEFT", 4, -8)
-    local credit = Label(panel, L.SET_ABOUT_WOWHEAD, "GameFontHighlightSmall")
-    credit:SetPoint("TOPLEFT", author, "BOTTOMLEFT", 0, -6)
-    credit:SetPoint("RIGHT", panel, "RIGHT", -LEFT, 0)
-end
-
 local function Build()
     built = true
     local title = Label(panel, addonName, "GameFontNormalLarge")
@@ -123,7 +113,6 @@ local function Build()
             y = AddToggle(option, y)
         end
     end
-    AddAbout(y)
 end
 
 function SettingsPanel:Refresh()

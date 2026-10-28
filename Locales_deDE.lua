@@ -118,9 +118,6 @@ local T = {
     SET_PANEL_OPEN_TIP = "Das Fenster öffnet sich jedes Mal neben deinem Charakter. Der Seitenreiter ändert das auch.",
     SET_MINIMAP = "Minikartenknopf zeigen",
     SET_MINIMAP_TIP = "Linksklick zeigt das Fenster, Rechtsklick öffnet diese Einstellungen.",
-    SET_SECTION_ABOUT = "Über",
-    SET_ABOUT_AUTHOR = "Autor: %s",
-    SET_ABOUT_WOWHEAD = "Die Best-in-Slot-Listen stammen aus den Klassenguides von Wowhead (wowhead.com). Danke, Wowhead!",
 }
 
 for key, value in pairs(T) do

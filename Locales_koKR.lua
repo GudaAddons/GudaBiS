@@ -118,9 +118,6 @@ local T = {
     SET_PANEL_OPEN_TIP = "매번 캐릭터 옆에 창이 열립니다. 옆 탭으로도 바꿀 수 있습니다.",
     SET_MINIMAP = "미니맵 버튼 표시",
     SET_MINIMAP_TIP = "왼쪽 클릭은 창을 표시하고, 오른쪽 클릭은 이 설정을 엽니다.",
-    SET_SECTION_ABOUT = "정보",
-    SET_ABOUT_AUTHOR = "제작자: %s",
-    SET_ABOUT_WOWHEAD = "BiS 목록은 Wowhead 직업 가이드(wowhead.com)에서 가져왔습니다. 고마워요, Wowhead!",
 }
 
 for key, value in pairs(T) do

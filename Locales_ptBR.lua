@@ -118,9 +118,6 @@ local T = {
     SET_PANEL_OPEN_TIP = "O painel abre ao lado do seu personagem toda vez. A aba lateral também muda isso.",
     SET_MINIMAP = "Mostrar o botão do minimapa",
     SET_MINIMAP_TIP = "Clique esquerdo mostra o painel, clique direito abre estas configurações.",
-    SET_SECTION_ABOUT = "Sobre",
-    SET_ABOUT_AUTHOR = "Autor: %s",
-    SET_ABOUT_WOWHEAD = "As listas BiS vêm dos guias de classe do Wowhead (wowhead.com). Obrigado, Wowhead!",
 }
 
 for key, value in pairs(T) do

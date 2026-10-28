@@ -118,9 +118,6 @@ local T = {
     SET_PANEL_OPEN_TIP = "Le panneau s'ouvre à côté de votre personnage à chaque fois. L'onglet latéral le change aussi.",
     SET_MINIMAP = "Afficher le bouton de la minicarte",
     SET_MINIMAP_TIP = "Clic gauche affiche le panneau, clic droit ouvre ces paramètres.",
-    SET_SECTION_ABOUT = "À propos",
-    SET_ABOUT_AUTHOR = "Auteur : %s",
-    SET_ABOUT_WOWHEAD = "Les listes BiS viennent des guides de classe de Wowhead (wowhead.com). Merci, Wowhead !",
 }
 
 for key, value in pairs(T) do
