@@ -316,9 +316,13 @@ local function ClosePopup()
     popup:Dismiss()
 end
 
--- A test card (/gbis test) closes without rolling.
+-- A test card (/gbis test) closes without rolling. popup.onRoll tells Detect the player
+-- rolled for the item, so a later announcement of it opens no second card.
 local function Roll(low, high)
-    if not popup.test then RandomRoll(low, high) end
+    if not popup.test then
+        RandomRoll(low, high)
+        if popup.onRoll then popup.onRoll() end
+    end
     ClosePopup()
 end
 
@@ -343,10 +347,11 @@ local function CreatePopup()
     popup:HookScript("OnHide", StopCountdown)
 end
 
-function Alerts:Rolling(link, match, seconds, test)
+function Alerts:Rolling(link, match, seconds, test, onRoll)
     if not popup then CreatePopup() end
     StopCountdown()
     popup.test = test and true or false
+    popup.onRoll = onRoll
     Fill(popup, link, match, "ALERT_ROLLING")
     local remaining = seconds or DEFAULT_ROLL_SECONDS
     popup.countdown:SetText(string.format(L.ROLL_SECONDS, remaining))
@@ -360,8 +365,4 @@ function Alerts:Rolling(link, match, seconds, test)
     end, remaining)
     popup:Present(remaining)
     self:Sound()
-end
-
-function Alerts:CloseRolling()
-    if popup then ClosePopup() end
 end

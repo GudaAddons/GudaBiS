@@ -14,10 +14,12 @@
 --                                              for that item (checked a second later)
 -- One item is announced several times while it is handed out: at loot, at the roll call
 -- and with the winner (author, 2026-10-29: three "dropped" toasts for one wishlist item).
--- So an item toasts once per ITEM_WINDOW, and a raid warning with it counts as its roll
--- call once per ITEM_WINDOW too, which also keeps auto-roll from rolling again when the
--- winner is announced in raid warning. A second copy of the same item within that time
--- gets no second alert.
+-- So an item toasts once per ITEM_WINDOW. A raid warning with it opens "Rolling now"
+-- until the player has rolled for it (a popup button, or auto-roll); after that its
+-- raid warnings stay quiet for ITEM_WINDOW, so the winner announced in raid warning
+-- opens no second card and auto-roll does not roll again. A raid warning that only
+-- listed the loot does not use up the real roll call. A second copy of the same item
+-- within that time gets no second alert.
 --
 -- Every matched drop also goes to AutoRoll (GB-070), whether or not alerts are on; a
 -- raid-warning item it rolled for gets no "Rolling now" popup.
@@ -41,7 +43,7 @@ local CHAT_EVENTS = {
 }
 
 local lastDropped = {}
-local lastRollCall = {}
+local rolledFor = {}
 
 local function Recent(seen, itemID, now)
     return seen[itemID] ~= nil and now - seen[itemID] <= ITEM_WINDOW
@@ -127,13 +129,16 @@ local function OnChat(event, message, sender)
                 lastDropped[itemID] = now
             end
             ns.History:Seen(link)
-            if warning and not Recent(lastRollCall, itemID, now) then
-                lastRollCall[itemID] = now
+            if warning and not Recent(rolledFor, itemID, now) then
                 local seconds = Detect.RollSeconds(message)
+                local function Rolled() rolledFor[itemID] = GetTime() end
                 C_Timer.After(OTHER_WINDOW_DELAY, function()
                     if OtherAddonRolls(itemID) then return end
-                    if ns.AutoRoll:RollCall(link, match, sender, message) then return end
-                    if ns.Alerts:Enabled() then ns.Alerts:Rolling(link, match, seconds) end
+                    if ns.AutoRoll:RollCall(link, match, sender, message) then
+                        Rolled()
+                        return
+                    end
+                    if ns.Alerts:Enabled() then ns.Alerts:Rolling(link, match, seconds, nil, Rolled) end
                 end)
             end
         end
