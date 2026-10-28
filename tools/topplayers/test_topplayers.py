@@ -12,10 +12,12 @@ import build  # noqa: E402
 SPEC = {"key": "PALADIN_PROTECTION", "class": "PALADIN", "specID": 66, "tree": 2, "name": "Protection"}
 
 
-def entry(slot, item, enchant=None, gems=(), level=None):
+def entry(slot, item, enchant=None, gems=(), level=None, bonus=None):
     out = {"slot": {"type": slot}, "item": {"id": item}, "enchantments": None, "sockets": None}
     if level:
         out["level"] = {"value": level}
+    if bonus:
+        out["bonus_list"] = bonus
     if enchant:
         out["enchantments"] = [{"enchantment_id": enchant, "enchantment_slot": {"type": "PERMANENT"},
                                 "display_string": f"Enchanted: Enchant {enchant} |A:Quality-Tier2:20:20|a"}]
@@ -32,8 +34,8 @@ class EquippedTest(unittest.TestCase):
     def test_reads_blizzard_equipment(self):
         gear = player(entry("HEAD", 271483, 8017), entry("NECK", 268265, gems=(240969, 240970)),
                       {"slot": {"type": "SHIRT"}, "item": {"id": 1}})
-        self.assertEqual(gear[1], {"item": 271483, "level": None, "enchant": 8017, "enchantName": "Enchant 8017",
-                                   "gems": []})
+        self.assertEqual(gear[1], {"item": 271483, "level": None, "bonus": [], "enchant": 8017,
+                                   "enchantName": "Enchant 8017", "gems": []})
         self.assertEqual(gear[2]["gems"], [240969, 240970])
         self.assertNotIn(4, gear, "shirts are not listed")
 
@@ -71,6 +73,12 @@ class BuildListTest(unittest.TestCase):
         self.assertEqual(made["itemLevels"][100], 334, "the #1 at its highest")
         self.assertEqual(made["itemLevels"][101], 340, "an alternative too")
         self.assertNotIn(102, made["itemLevels"], "not listed (under 10 %), not kept")
+
+    def test_bonus_ids_of_the_highest_level_copy(self):
+        players = ([player(entry("HEAD", 100, level=320, bonus=[1, 2]))] * 3
+                   + [player(entry("HEAD", 100, level=334, bonus=[1, 9, 12]))] * 2)
+        made = self.build(players)
+        self.assertEqual(made["itemBonuses"][100], [1, 9, 12])
 
     def test_rings_share_a_count_and_never_repeat(self):
         players = ([player(entry("FINGER_1", 10), entry("FINGER_2", 20))] * 5

@@ -142,7 +142,7 @@ local function ShowRowTooltip(row)
     if kind == "enchant" then
         GameTooltip:SetSpellByID(row.id)
     else
-        GameTooltip:SetItemByID(row.id)
+        ns.Items.SetTooltipItem(GameTooltip, ranked and ranked.list, row.id)
     end
     if kind == "item" then
         local text, r, g, b = ns.Owned:Describe(row.id)

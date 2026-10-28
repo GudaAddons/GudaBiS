@@ -404,6 +404,7 @@ function H.Install(opts)
     if opts.normalizedRealm == false then _G.GetNormalizedRealmName = nil end
     _G.GetRealmName = function() return "Thunder Fury" end
     _G.IsInGroup = function() return H.inGroup end
+    _G.UnitLevel = function() return 70 end
 
     for i = 1, 4 do _G["GroupLootFrame" .. i] = nil end
 

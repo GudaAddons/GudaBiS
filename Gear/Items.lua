@@ -63,6 +63,29 @@ function Items.GemMatches(gemID, color)
     return GEM_FITS[subclassID][color] == true
 end
 
+-- A full item link for an item of a list that knows its bonus IDs (Retail top-player
+-- lists, GB-131): on Retail an item ID alone is the item's low base version, the bonus
+-- IDs make it the copy the top players wear (track, upgrade rank, level). Nil when the
+-- list has none for the item: callers use the item ID as before.
+--   item:ID:enchant:gem1:gem2:gem3:gem4:suffix:unique:linkLevel:spec:modifiers:context:numBonus:bonus...
+function Items.ListLink(list, itemID)
+    local bonuses = list and list.itemBonuses and list.itemBonuses[itemID]
+    if not bonuses or #bonuses == 0 then return nil end
+    local fields = { "item", itemID, "", "", "", "", "", "", "", UnitLevel("player") or "", "", "", "", #bonuses }
+    for _, bonus in ipairs(bonuses) do fields[#fields + 1] = bonus end
+    return table.concat(fields, ":")
+end
+
+-- The tooltip shows the list's own copy when it has one, else the item by ID.
+function Items.SetTooltipItem(tooltip, list, itemID)
+    local link = Items.ListLink(list, itemID)
+    if link then
+        tooltip:SetHyperlink(link)
+    else
+        tooltip:SetItemByID(itemID)
+    end
+end
+
 function Items.QualityColor(quality)
     local color = quality and ITEM_QUALITY_COLORS and ITEM_QUALITY_COLORS[quality]
     if color then return color.r, color.g, color.b end

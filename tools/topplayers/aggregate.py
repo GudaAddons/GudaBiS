@@ -16,7 +16,9 @@ usage[slot] holds how many players wear the #1 and each alternative, in list ord
 the addon can say "used by 18 of 50".
 itemLevels[itemID] is the highest item level any of them wears a listed item at: the
 level a fully upgraded copy reaches this season, which the addon compares the
-player's own copy with (GB-065).
+player's own copy with (GB-065). itemBonuses[itemID] are that copy's bonus IDs: on
+Retail an item ID alone is the item's low base version, so the addon builds a full item
+link from them to show the item as the top players wear it.
 """
 
 import re
@@ -45,7 +47,7 @@ def enchant_name(display):
 
 
 def equipped(equipment):
-    """Blizzard's equipment response -> {INVSLOT: {item, level, enchant, enchantName, gems}}."""
+    """Blizzard's equipment response -> {INVSLOT: {item, level, bonus, enchant, enchantName, gems}}."""
     out = {}
     for entry in (equipment or {}).get("equipped_items") or []:
         slot = SLOTS.get((entry.get("slot") or {}).get("type"))
@@ -58,7 +60,8 @@ def equipped(equipment):
                 enchant, name = e.get("enchantment_id"), enchant_name(e.get("display_string") or "")
         gems = [((s.get("item") or {}).get("id")) for s in entry.get("sockets") or []]
         level = (entry.get("level") or {}).get("value")
-        out[slot] = {"item": item, "level": level, "enchant": enchant, "enchantName": name, "gems": gems}
+        bonus = [b for b in entry.get("bonus_list") or [] if isinstance(b, int)]
+        out[slot] = {"item": item, "level": level, "bonus": bonus, "enchant": enchant, "enchantName": name, "gems": gems}
     return out
 
 
@@ -70,7 +73,7 @@ def build_list(spec, players, season, updated):
     """spec: {key, class, specID, tree, name}; players: list of equipped() results."""
     total = len(players)
     worn = defaultdict(Counter)
-    levels = {}
+    levels, bonuses = {}, {}
     for gear in players:
         seen = set()
         for slot, entry in gear.items():
@@ -80,8 +83,9 @@ def build_list(spec, players, season, updated):
                 continue
             seen.add((key, entry["item"]))
             worn[key][entry["item"]] += 1
-            if entry.get("level"):
-                levels[entry["item"]] = max(levels.get(entry["item"], 0), entry["level"])
+            if entry.get("level") and entry["level"] > levels.get(entry["item"], 0):
+                levels[entry["item"]] = entry["level"]
+                bonuses[entry["item"]] = entry.get("bonus") or []
     items, alts, usage = {}, {}, {}
     for slot in sorted(set(SLOTS.values())):
         group = PAIRS.get(slot, (slot,))
@@ -129,4 +133,5 @@ def build_list(spec, players, season, updated):
         "items": items, "enchantIDs": enchants, "enchantNames": names, "gems": gems,
         "alts": alts, "usage": usage,
         "itemLevels": {item: levels[item] for item in listed if item in levels},
+        "itemBonuses": {item: bonuses[item] for item in listed if bonuses.get(item)},
     }

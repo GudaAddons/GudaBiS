@@ -147,7 +147,7 @@ local RepaintSlot
 
 local function PaintName(button)
     local itemID = button.item
-    local name, _, quality = GetItemInfo(itemID)
+    local name, _, quality = GetItemInfo(ns.Items.ListLink(frame.list, itemID) or itemID)
     if name then
         button.name:SetText(name)
         button.name:SetTextColor(QualityColor(quality))
@@ -367,7 +367,7 @@ local function ShowTooltip(button)
         return
     end
     GameTooltip:SetOwner(button, "ANCHOR_RIGHT")
-    GameTooltip:SetItemByID(button.item)
+    ns.Items.SetTooltipItem(GameTooltip, frame.list, button.item)
     GameTooltip:AddLine(" ")
     AddOwnedLine(button)
     AddLevelLine(frame.list, button.item)

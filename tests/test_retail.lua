@@ -299,6 +299,26 @@ return function(T, H)
         T.noErrors()
     end)
 
+    T.case("items show as the top players wear them: links built from bonus IDs", function()
+        local ns = Retail()
+        _G.UnitLevel = function() return 90 end
+        local list = { itemBonuses = { [100] = { 13440, 6652 } } }
+        T.eq(ns.Items.ListLink(list, 100), "item:100::::::::90::::2:13440:6652", "item string with bonus IDs")
+        T.eq(ns.Items.ListLink(list, 101), nil, "no bonus IDs, no link")
+        T.eq(ns.Items.ListLink(nil, 100), nil, "no list")
+        local real = ns.Data:Get(TOP_ID)
+        local head = real.items[1]
+        T.ok(real.itemBonuses[head] and #real.itemBonuses[head] > 0, "generated data carries bonus IDs")
+        local shown
+        function _G.GameTooltip:SetHyperlink(link) shown = link end
+        H.Slash("")
+        for _, frame in ipairs(H.AllFrames()) do
+            if rawget(frame, "slot") == 1 and rawget(frame, "enchant") then frame:Enter() end
+        end
+        T.eq(shown, ns.Items.ListLink(real, head), "the slot tooltip shows the top players' copy")
+        T.noErrors()
+    end)
+
     T.case("Retail refuses Wowhead gear-planner links until their format is checked", function()
         local ns = Retail()
         local result, problem = ns.GearPlanner:Read("https://www.wowhead.com/gear-planner/paladin/human/AAAA")
