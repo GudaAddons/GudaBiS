@@ -139,6 +139,8 @@ local T = {
     ITEM_LEVEL_VS = "아이템 레벨 %d, 상위 플레이어 %d",
     ITEM_LEVEL_TOP = "상위 플레이어는 아이템 레벨 %d로 착용",
     LABEL_UPGRADE = "%s 업그레이드 %d→%d",
+    HELP_TEST_WISH = "|cffffff00/gbis test wish [drop|roll|group]|r: 가장 최근 위시리스트 아이템으로 같은 알림 표시",
+    TEST_NO_WISH = "위시리스트가 비어 있습니다: 먼저 아이템을 추가하세요.",
 }
 
 for key, value in pairs(T) do

@@ -139,6 +139,8 @@ local T = {
     ITEM_LEVEL_VS = "物品等级 %d，顶尖玩家 %d",
     ITEM_LEVEL_TOP = "顶尖玩家穿戴的物品等级为 %d",
     LABEL_UPGRADE = "%s提升 %d→%d",
+    HELP_TEST_WISH = "|cffffff00/gbis test wish [drop|roll|group]|r: 用愿望单中最新的物品显示同样的提醒",
+    TEST_NO_WISH = "你的愿望单是空的：请先加入一件物品。",
 }
 
 for key, value in pairs(T) do

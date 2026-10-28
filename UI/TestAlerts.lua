@@ -1,5 +1,7 @@
 -- /gbis test [drop|roll|group]: the loot alerts, solo, with a real item from the MS
--- list, so their look can be checked without a raid. No word shows all three. Nothing
+-- list, so their look can be checked without a raid. No word shows all three.
+-- /gbis test wish [drop|roll|group]: the same with the newest wishlist item, labelled
+-- "wishlist item" as a wished drop is (GB-072; author, 2026-10-28). Nothing
 -- rolls: the test roll popup's buttons only close it, and the dummy roll frame is ours,
 -- not Blizzard's.
 --
@@ -107,23 +109,44 @@ local KINDS = {
 local ORDER = { "drop", "roll", "group" }
 
 -- kind: "drop", "roll", "group", or nil for all three.
-function TestAlerts:Run(kind)
+-- The newest wishlist item; nil when the wishlist is empty.
+local function WishItem()
+    local newest = ns.Wishlist:Items()[1]
+    return newest and newest.itemID
+end
+
+function TestAlerts:Run(kind, wish)
     if kind and not KINDS[kind] then
         ns:Print(L.HELP_TEST)
         return
     end
-    local itemID, slot = SampleItem()
-    if not itemID then
-        ns:Print(L.TEST_NO_LIST)
-        return
+    local itemID, slot, match
+    if wish then
+        itemID = WishItem()
+        if not itemID then
+            ns:Print(L.TEST_NO_WISH)
+            return
+        end
+        match = { role = "wish", rank = 1 }
+    else
+        itemID, slot = SampleItem()
+        if not itemID then
+            ns:Print(L.TEST_NO_LIST)
+            return
+        end
+        match = { role = "ms", rank = 1, slot = slot }
     end
     local link = SampleLink(itemID)
-    local match = { role = "ms", rank = 1, slot = slot }
     for _, name in ipairs(ORDER) do
         if not kind or kind == name then KINDS[name](itemID, link, match) end
     end
 end
 
 ns.SlashCommands:Register("test", function(args)
-    TestAlerts:Run(args[1] and args[1]:lower())
-end, L.HELP_TEST)
+    local first = args[1] and args[1]:lower()
+    if first == "wish" then
+        TestAlerts:Run(args[2] and args[2]:lower(), true)
+    else
+        TestAlerts:Run(first)
+    end
+end, L.HELP_TEST .. "\n" .. L.HELP_TEST_WISH)

@@ -139,6 +139,8 @@ local T = {
     ITEM_LEVEL_VS = "Nível de item %d, melhores jogadores %d",
     ITEM_LEVEL_TOP = "Os melhores jogadores usam com nível de item %d",
     LABEL_UPGRADE = "%s melhorado %d→%d",
+    HELP_TEST_WISH = "|cffffff00/gbis test wish [drop|roll|group]|r: Os mesmos alertas com o item mais recente da sua lista de desejos",
+    TEST_NO_WISH = "Sua lista de desejos está vazia: adicione um item primeiro.",
 }
 
 for key, value in pairs(T) do

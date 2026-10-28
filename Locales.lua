@@ -15,6 +15,8 @@ L.HELP_LOG = "|cffffff00/gbis log [clear]|r: Show the debug log window"
 L.HELP_TEST = "|cffffff00/gbis test [drop|roll|group]|r: Show the loot alerts with an item from your MS list: the drop toast, the roll popup, the group-loot glow, or all three (nothing rolls)"
 L.TEST_FRAME = "GudaBiS test roll"
 L.TEST_NO_LIST = "No item on your main-spec list to test with."
+L.TEST_NO_WISH = "Your wishlist is empty: add an item first."
+L.HELP_TEST_WISH = "|cffffff00/gbis test wish [drop|roll|group]|r: The same alerts with your newest wishlist item"
 L.HELP_PROBE ="|cffffff00/gbis probe|r: Report which WoW APIs this client offers (written to the debug log)"
 L.PROBE_DONE = "Probe written to the debug log (/gbis log)."
 
