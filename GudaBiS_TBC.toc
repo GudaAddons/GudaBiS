@@ -56,6 +56,7 @@ Gear\Match.lua
 # Loot
 Loot\Detect.lua
 Loot\AutoRoll.lua
+Loot\History.lua
 
 # Integrations (optional addons)
 Integrations\Gargul.lua
@@ -70,6 +71,7 @@ UI\TestAlerts.lua
 UI\Dropdown.lua
 UI\NameDialog.lua
 UI\RankFlyout.lua
+UI\HistoryTab.lua
 UI\Panel.lua
 
 # Bootstrap (load last)

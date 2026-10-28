@@ -244,6 +244,26 @@ function H.Install(opts)
     _G.RollOnLoot = function(rollID, rollType) H.lootActions[#H.lootActions + 1] = "roll:" .. rollID .. ":" .. rollType end
     _G.ConfirmLootRoll = function(rollID, rollType) H.lootActions[#H.lootActions + 1] = "confirm:" .. rollID .. ":" .. rollType end
     _G.StaticPopup_Hide = function() end
+    -- Instances: H.instance = { name, type ("raid"|"party"|"none"), difficultyName, id };
+    -- H.saved = { { name, reset seconds } } raid lockouts. time() follows H.clock.
+    H.instance = { "", "none", "", 0 }
+    H.saved = {}
+    _G.time = function() return 1800000000 + H.clock end
+    _G.GetInstanceInfo = function()
+        local i = H.instance
+        return i[1], i[2], 1, i[3], 10, 0, false, i[4]
+    end
+    _G.GetNumSavedInstances = function() return #H.saved end
+    _G.GetSavedInstanceInfo = function(index)
+        local s = H.saved[index]
+        return s[1], 1, s[2], 3, true, false, 0, true
+    end
+    _G.RequestRaidInfo = function() end
+    _G.LOOT_ITEM = "%s receives loot: %s."
+    _G.LOOT_ITEM_MULTIPLE = "%s receives loot: %sx%d."
+    _G.LOOT_ITEM_SELF = "You receive loot: %s."
+    _G.LOOT_ITEM_SELF_MULTIPLE = "You receive loot: %sx%d."
+    _G.INSTANCE_RESET_SUCCESS = "%s has been reset."
     _G.GetTime = function() return H.clock end
     _G.NUM_GROUP_LOOT_FRAMES = 4
     _G.LibStub = nil

@@ -87,6 +87,12 @@ local T = {
     AUTOROLL_OFF = "Tirada automática desactivada.",
     AUTOROLL_GARGUL = "Tirada automática activada, pero en pausa mientras Gargul esté cargado: usa el AutoRoll de Gargul.",
     AUTOROLL_DONE = "Tirada automática: %s en %s (%s)",
+    HELP_HISTORY = "|cffffff00/gbis history|r: Muestra el botín de tus últimas 5 bandas y 5 mazmorras",
+    TAB_GEAR = "Equipo",
+    TAB_HISTORY = "Historial",
+    HISTORY_SESSION = "%s · %s · %d objetos",
+    HISTORY_SEEN = "visto",
+    HISTORY_EMPTY = "Aún no hay botín registrado. El botín épico de bandas y el raro de mazmorras aparece aquí mientras estés en un grupo.",
 }
 
 for key, value in pairs(T) do

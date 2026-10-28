@@ -87,6 +87,12 @@ local T = {
     AUTOROLL_OFF = "Rolagem automática desligada.",
     AUTOROLL_GARGUL = "Rolagem automática ligada, mas pausada enquanto o Gargul estiver carregado: use o AutoRoll do Gargul.",
     AUTOROLL_DONE = "Rolagem automática: %s em %s (%s)",
+    HELP_HISTORY = "|cffffff00/gbis history|r: Mostra o saque das suas últimas 5 raides e 5 masmorras",
+    TAB_GEAR = "Equipamento",
+    TAB_HISTORY = "Histórico",
+    HISTORY_SESSION = "%s · %s · %d itens",
+    HISTORY_SEEN = "visto",
+    HISTORY_EMPTY = "Nenhum saque registrado ainda. Saques épicos de raides e raros de masmorras aparecem aqui enquanto você estiver em um grupo.",
 }
 
 for key, value in pairs(T) do

@@ -697,6 +697,36 @@ local function PaintListButtons(current)
     end
 end
 
+-- Gear and History tabs under the panel, like the Character frame's own (GB-071). The
+-- tab template is the client's; a plain button stands in on a client without it.
+local TABS = { { key = "gear", text = "TAB_GEAR" }, { key = "history", text = "TAB_HISTORY" } }
+local TAB_OVERLAP = -14
+
+local function CreateTabs()
+    local previous
+    for i, info in ipairs(TABS) do
+        local name = "GudaBiSPanelTab" .. i
+        local ok, tabButton = pcall(CreateFrame, "Button", name, frame, "PanelTabButtonTemplate")
+        if not ok or not tabButton then
+            tabButton = CreateFrame("Button", name, frame, "UIPanelButtonTemplate")
+            tabButton:SetSize(90, 22)
+        end
+        tabButton:SetID(i)
+        tabButton:SetText(L[info.text])
+        if PanelTemplates_TabResize then PanelTemplates_TabResize(tabButton, 0) end
+        if previous then
+            tabButton:SetPoint("LEFT", previous, "RIGHT", TAB_OVERLAP, 0)
+        else
+            tabButton:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 10, 2)
+        end
+        tabButton:SetScript("OnClick", function() Panel:ShowTab(info.key) end)
+        previous = tabButton
+    end
+    if PanelTemplates_SetNumTabs then PanelTemplates_SetNumTabs(frame, #TABS) end
+    frame.activeTab = "gear"
+    if PanelTemplates_SetTab then PanelTemplates_SetTab(frame, 1) end
+end
+
 local function Create()
     local title, close
     frame, title, close = ns.Theme.Panel("GudaBiSPanel", UIParent)
@@ -735,6 +765,7 @@ local function Create()
     frame.emptyNote:SetText(L.NO_LIST)
 
     LayoutSlots()
+    CreateTabs()
 
     frame:SetScript("OnHide", function()
         GameTooltip:Hide()
@@ -838,6 +869,21 @@ function Panel:Close()
     PlaceTab()
 end
 
+-- "gear" or "history"; opens the panel first when it is closed.
+function Panel:ShowTab(key)
+    if not self:IsShown() then self:Open() end
+    frame.activeTab = key
+    for i, info in ipairs(TABS) do
+        if info.key == key and PanelTemplates_SetTab then PanelTemplates_SetTab(frame, i) end
+    end
+    ns.RankFlyout:Close()
+    ns.HistoryTab:SetShown(frame, key == "history")
+end
+
+function Panel:ActiveTab()
+    return frame and frame.activeTab or "gear"
+end
+
 -- The player's choice from the side tab is remembered, so the panel comes back with
 -- the Character frame.
 function Panel:Toggle()
@@ -895,3 +941,7 @@ end, "Panel")
 ns.SlashCommands:Register("show", function()
     if Panel:IsShown() then Panel:Close() else Panel:Open() end
 end, L.HELP_SHOW)
+
+ns.SlashCommands:Register("history", function()
+    Panel:ShowTab("history")
+end, L.HELP_HISTORY)

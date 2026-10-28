@@ -91,6 +91,13 @@ L.AUTOROLL_ON = "Auto-roll on: Need or /roll 1-100 for MS items, Greed or /roll 
 L.AUTOROLL_OFF = "Auto-roll off."
 L.AUTOROLL_GARGUL = "Auto-roll on, but paused while Gargul is loaded: use Gargul's AutoRoll."
 L.AUTOROLL_DONE = "Auto-roll: %s on %s (%s)"
+
+L.HELP_HISTORY = "|cffffff00/gbis history|r: Show the loot of your last 5 raids and 5 dungeons"
+L.TAB_GEAR = "Gear"
+L.TAB_HISTORY = "History"
+L.HISTORY_SESSION = "%s · %s · %d drops"
+L.HISTORY_SEEN = "seen"
+L.HISTORY_EMPTY = "No loot recorded yet. Epic drops in raids and rare drops in dungeons appear here while you are in a group."
 L.TOOLTIP_TOGGLE ="GudaBiS: show or hide best-in-slot gear"
 
 L.UNKNOWN_COMMAND ="Unknown command '%s'. Type /gbis help."

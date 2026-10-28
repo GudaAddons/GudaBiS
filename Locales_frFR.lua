@@ -87,6 +87,12 @@ local T = {
     AUTOROLL_OFF = "Jet automatique désactivé.",
     AUTOROLL_GARGUL = "Jet automatique activé, mais en pause tant que Gargul est chargé : utilisez l'AutoRoll de Gargul.",
     AUTOROLL_DONE = "Jet automatique : %s sur %s (%s)",
+    HELP_HISTORY = "|cffffff00/gbis history|r : Affiche le butin de vos 5 derniers raids et 5 derniers donjons",
+    TAB_GEAR = "Équipement",
+    TAB_HISTORY = "Historique",
+    HISTORY_SESSION = "%s · %s · %d objets",
+    HISTORY_SEEN = "vu",
+    HISTORY_EMPTY = "Aucun butin enregistré. Le butin épique des raids et le butin rare des donjons apparaît ici tant que vous êtes en groupe.",
 }
 
 for key, value in pairs(T) do

@@ -87,6 +87,12 @@ local T = {
     AUTOROLL_OFF = "Автоброски выключены.",
     AUTOROLL_GARGUL = "Автоброски включены, но приостановлены, пока загружен Gargul: используйте AutoRoll от Gargul.",
     AUTOROLL_DONE = "Автобросок: %s на %s (%s)",
+    HELP_HISTORY = "|cffffff00/gbis history|r: Показать добычу последних 5 рейдов и 5 подземелий",
+    TAB_GEAR = "Экипировка",
+    TAB_HISTORY = "История",
+    HISTORY_SESSION = "%s · %s · предметов: %d",
+    HISTORY_SEEN = "замечено",
+    HISTORY_EMPTY = "Добыча ещё не записана. Эпическая добыча в рейдах и редкая в подземельях появляется здесь, пока вы в группе.",
 }
 
 for key, value in pairs(T) do

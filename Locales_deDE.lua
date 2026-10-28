@@ -87,6 +87,12 @@ local T = {
     AUTOROLL_OFF = "Auto-Würfeln aus.",
     AUTOROLL_GARGUL = "Auto-Würfeln an, aber pausiert solange Gargul geladen ist: nutze das AutoRoll von Gargul.",
     AUTOROLL_DONE = "Auto-Würfeln: %s auf %s (%s)",
+    HELP_HISTORY = "|cffffff00/gbis history|r: Die Beute deiner letzten 5 Schlachtzüge und 5 Dungeons zeigen",
+    TAB_GEAR = "Ausrüstung",
+    TAB_HISTORY = "Verlauf",
+    HISTORY_SESSION = "%s · %s · %d Beutestücke",
+    HISTORY_SEEN = "gesehen",
+    HISTORY_EMPTY = "Noch keine Beute aufgezeichnet. Epische Beute in Schlachtzügen und seltene Beute in Dungeons erscheint hier, solange du in einer Gruppe bist.",
 }
 
 for key, value in pairs(T) do

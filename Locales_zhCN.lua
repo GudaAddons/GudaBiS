@@ -87,6 +87,12 @@ local T = {
     AUTOROLL_OFF = "自动掷骰已关闭。",
     AUTOROLL_GARGUL = "自动掷骰已开启，但加载 Gargul 时暂停：请使用 Gargul 的 AutoRoll。",
     AUTOROLL_DONE = "自动掷骰：%s %s（%s）",
+    HELP_HISTORY = "|cffffff00/gbis history|r: 显示你最近 5 次团队副本和 5 次地下城的拾取",
+    TAB_GEAR = "装备",
+    TAB_HISTORY = "历史",
+    HISTORY_SESSION = "%s · %s · %d 件",
+    HISTORY_SEEN = "已见",
+    HISTORY_EMPTY = "尚无拾取记录。组队时，团队副本中的史诗掉落和地下城中的精良掉落会显示在这里。",
 }
 
 for key, value in pairs(T) do

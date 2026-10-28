@@ -43,6 +43,7 @@ local function ShortName(name)
     if Ambiguate then return Ambiguate(name, "none") end
     return (name:match("^([^%-]+)")) or name
 end
+Detect.ShortName = ShortName
 
 local function MasterLooterName()
     local api = C_PartyInfo
@@ -116,6 +117,7 @@ local function OnChat(event, message, sender)
                 ns.Alerts:Dropped(link, match)
             end
             lastDropped[itemID] = now
+            ns.History:Seen(link)
             if warning then
                 local seconds = Detect.RollSeconds(message)
                 C_Timer.After(OTHER_WINDOW_DELAY, function()

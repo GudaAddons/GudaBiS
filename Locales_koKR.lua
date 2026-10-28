@@ -87,6 +87,12 @@ local T = {
     AUTOROLL_OFF = "자동 주사위 꺼짐.",
     AUTOROLL_GARGUL = "자동 주사위가 켜져 있지만 Gargul이 로드된 동안 일시 중지됩니다: Gargul의 AutoRoll을 사용하세요.",
     AUTOROLL_DONE = "자동 주사위: %s - %s (%s)",
+    HELP_HISTORY = "|cffffff00/gbis history|r: 최근 공격대 5개와 던전 5개의 전리품을 표시합니다",
+    TAB_GEAR = "장비",
+    TAB_HISTORY = "기록",
+    HISTORY_SESSION = "%s · %s · 아이템 %d개",
+    HISTORY_SEEN = "확인됨",
+    HISTORY_EMPTY = "아직 기록된 전리품이 없습니다. 파티에 있는 동안 공격대의 영웅 아이템과 던전의 희귀 아이템이 여기에 표시됩니다.",
 }
 
 for key, value in pairs(T) do

@@ -27,6 +27,10 @@ local DEFAULTS = {
         },
     },
     chars = {},
+    history = {
+        raids = {},
+        dungeons = {},
+    },
 }
 
 -- MIGRATIONS[n] upgrades a database from schema n-1 to n.

@@ -8,7 +8,8 @@
 -- Drops are rare events, so this walks the two lists on each call instead of keeping
 -- an index that would need rebuilding on every list, phase or talent change.
 --
---   Match:Item(itemID) -> nil | { role = "ms"|"os", rank = n, slot = INVSLOT }
+--   Match:Item(itemID[, includeOwned]) -> nil | { role = "ms"|"os", rank = n, slot = INVSLOT }
+--     includeOwned: History labels an item the player just won, already in the bags
 --   Match.Label(match) -> "BiS", "Alt #2", "OS", "OS alt #3"
 
 local addonName, ns = ...
@@ -29,8 +30,8 @@ local function RankIn(list, itemID)
     return nil
 end
 
-function Match:Item(itemID)
-    if not itemID or ns.Owned:Has(itemID) then return nil end
+function Match:Item(itemID, includeOwned)
+    if not itemID or (not includeOwned and ns.Owned:Has(itemID)) then return nil end
     local settings = ns.db and ns.db.settings.alerts
     local allowAlts = not settings or settings.alts ~= false
     for _, role in ipairs({ "ms", "os" }) do
