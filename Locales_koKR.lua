@@ -82,6 +82,11 @@ local T = {
     UNKNOWN_COMMAND = "알 수 없는 명령어 '%s'. /gbis help 를 입력하세요.",
     DEBUG_ON = "디버그 모드 켜짐.",
     DEBUG_OFF = "디버그 모드 꺼짐.",
+    HELP_AUTOROLL = "|cffffff00/gbis autoroll [on|off]|r: 목록에 있는 전리품에 자동으로 주사위를 굴립니다: 주 특성 아이템은 입찰 또는 /roll 1-100, 보조 특성 아이템은 차비 또는 /roll 1-99 (기본값 꺼짐, Gargul이 로드된 동안 일시 중지)",
+    AUTOROLL_ON = "자동 주사위 켜짐: 주 특성 아이템은 입찰 또는 /roll 1-100, 보조 특성 아이템은 차비 또는 /roll 1-99.",
+    AUTOROLL_OFF = "자동 주사위 꺼짐.",
+    AUTOROLL_GARGUL = "자동 주사위가 켜져 있지만 Gargul이 로드된 동안 일시 중지됩니다: Gargul의 AutoRoll을 사용하세요.",
+    AUTOROLL_DONE = "자동 주사위: %s - %s (%s)",
 }
 
 for key, value in pairs(T) do

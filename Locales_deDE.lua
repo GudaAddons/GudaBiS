@@ -82,6 +82,11 @@ local T = {
     UNKNOWN_COMMAND = "Unbekannter Befehl '%s'. Gib /gbis help ein.",
     DEBUG_ON = "Debug-Modus an.",
     DEBUG_OFF = "Debug-Modus aus.",
+    HELP_AUTOROLL = "|cffffff00/gbis autoroll [on|off]|r: Würfelt für dich auf Beute deiner Listen: Bedarf oder /roll 1-100 für HS-Gegenstände, Gier oder /roll 1-99 für NS-Gegenstände (standardmäßig aus, pausiert solange Gargul geladen ist)",
+    AUTOROLL_ON = "Auto-Würfeln an: Bedarf oder /roll 1-100 für HS-Gegenstände, Gier oder /roll 1-99 für NS-Gegenstände.",
+    AUTOROLL_OFF = "Auto-Würfeln aus.",
+    AUTOROLL_GARGUL = "Auto-Würfeln an, aber pausiert solange Gargul geladen ist: nutze das AutoRoll von Gargul.",
+    AUTOROLL_DONE = "Auto-Würfeln: %s auf %s (%s)",
 }
 
 for key, value in pairs(T) do

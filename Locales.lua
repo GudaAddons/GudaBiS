@@ -85,6 +85,12 @@ L.ALERT_ROLLING = "Rolling now for your %s"
 L.ROLL_MS = "MS (1-100)"
 L.ROLL_OS = "OS (1-99)"
 L.ROLL_SECONDS = "%d s"
+
+L.HELP_AUTOROLL = "|cffffff00/gbis autoroll [on|off]|r: Roll for you on drops from your lists: Need or /roll 1-100 for MS items, Greed or /roll 1-99 for OS items (off by default, paused while Gargul is loaded)"
+L.AUTOROLL_ON = "Auto-roll on: Need or /roll 1-100 for MS items, Greed or /roll 1-99 for OS items."
+L.AUTOROLL_OFF = "Auto-roll off."
+L.AUTOROLL_GARGUL = "Auto-roll on, but paused while Gargul is loaded: use Gargul's AutoRoll."
+L.AUTOROLL_DONE = "Auto-roll: %s on %s (%s)"
 L.TOOLTIP_TOGGLE ="GudaBiS: show or hide best-in-slot gear"
 
 L.UNKNOWN_COMMAND ="Unknown command '%s'. Type /gbis help."

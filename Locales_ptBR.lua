@@ -82,6 +82,11 @@ local T = {
     UNKNOWN_COMMAND = "Comando desconhecido '%s'. Digite /gbis help.",
     DEBUG_ON = "Modo de depuração ativado.",
     DEBUG_OFF = "Modo de depuração desativado.",
+    HELP_AUTOROLL = "|cffffff00/gbis autoroll [on|off]|r: Rola os dados por você no saque das suas listas: Necessidade ou /roll 1-100 para itens EP, Ganância ou /roll 1-99 para itens ES (desligado por padrão, pausado enquanto o Gargul estiver carregado)",
+    AUTOROLL_ON = "Rolagem automática ligada: Necessidade ou /roll 1-100 para itens EP, Ganância ou /roll 1-99 para itens ES.",
+    AUTOROLL_OFF = "Rolagem automática desligada.",
+    AUTOROLL_GARGUL = "Rolagem automática ligada, mas pausada enquanto o Gargul estiver carregado: use o AutoRoll do Gargul.",
+    AUTOROLL_DONE = "Rolagem automática: %s em %s (%s)",
 }
 
 for key, value in pairs(T) do

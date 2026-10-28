@@ -82,6 +82,11 @@ local T = {
     UNKNOWN_COMMAND = "未知指令「%s」。請輸入 /gbis help。",
     DEBUG_ON = "除錯模式已開啟。",
     DEBUG_OFF = "除錯模式已關閉。",
+    HELP_AUTOROLL = "|cffffff00/gbis autoroll [on|off]|r: 為你清單中的掉落自動擲骰：主天賦物品選需求或 /roll 1-100，副天賦物品選貪婪或 /roll 1-99（預設關閉，載入 Gargul 時暫停）",
+    AUTOROLL_ON = "自動擲骰已開啟：主天賦物品選需求或 /roll 1-100，副天賦物品選貪婪或 /roll 1-99。",
+    AUTOROLL_OFF = "自動擲骰已關閉。",
+    AUTOROLL_GARGUL = "自動擲骰已開啟，但載入 Gargul 時暫停：請使用 Gargul 的 AutoRoll。",
+    AUTOROLL_DONE = "自動擲骰：%s %s（%s）",
 }
 
 for key, value in pairs(T) do

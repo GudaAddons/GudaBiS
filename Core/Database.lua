@@ -19,6 +19,7 @@ local DEFAULTS = {
     settings = {
         debug = false,
         panelOpen = false,
+        autoRoll = false,
         alerts = {
             enabled = true,
             sound = true,

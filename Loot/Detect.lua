@@ -15,6 +15,9 @@
 -- The same item announced on two channels at once alerts once. Two copies announced in
 -- two messages alert twice.
 --
+-- Every matched drop also goes to AutoRoll (GB-070), whether or not alerts are on; a
+-- raid-warning item it rolled for gets no "Rolling now" popup.
+--
 -- On clients where group chat can be a secret value (ns.Features.ChatLockdown), chat is
 -- skipped while C_ChatInfo.InChatMessagingLockdown() is true.
 
@@ -54,12 +57,23 @@ local function MasterLooterName()
     return nil
 end
 
+local function IsMasterLooter(name)
+    local ml = ShortName(MasterLooterName())
+    return ml ~= nil and ml == name
+end
+
 function Detect.IsLootAuthority(sender)
     local name = ShortName(sender)
     if not name then return false end
     if UnitIsGroupLeader(name) or UnitIsGroupAssistant(name) then return true end
-    local ml = ShortName(MasterLooterName())
-    return ml ~= nil and ml == name
+    return IsMasterLooter(name)
+end
+
+-- Who may call a roll that auto-roll answers: the leader or the master looter only.
+function Detect.IsLootLeader(sender)
+    local name = ShortName(sender)
+    if not name then return false end
+    return UnitIsGroupLeader(name) or IsMasterLooter(name)
 end
 
 -- The roll time read from a raid-warning text: the first number from 5 to 120 outside
@@ -88,7 +102,8 @@ local function OtherAddonRolls(itemID)
 end
 
 local function OnChat(event, message, sender)
-    if not ns.Alerts:Enabled() or type(message) ~= "string" then return end
+    local alerts = ns.Alerts:Enabled()
+    if not (alerts or ns.AutoRoll:Active()) or type(message) ~= "string" then return end
     if not message:find("|Hitem:", 1, true) or ChatLocked() then return end
     if not Detect.IsLootAuthority(sender) then return end
     local now = GetTime()
@@ -97,14 +112,16 @@ local function OnChat(event, message, sender)
         local itemID = Match.ItemIDFromLink(link)
         local match = itemID and Match:Item(itemID)
         if match then
-            if not lastDropped[itemID] or now - lastDropped[itemID] > DUPLICATE_WINDOW then
+            if alerts and (not lastDropped[itemID] or now - lastDropped[itemID] > DUPLICATE_WINDOW) then
                 ns.Alerts:Dropped(link, match)
             end
             lastDropped[itemID] = now
             if warning then
                 local seconds = Detect.RollSeconds(message)
                 C_Timer.After(OTHER_WINDOW_DELAY, function()
-                    if not OtherAddonRolls(itemID) then ns.Alerts:Rolling(link, match, seconds) end
+                    if OtherAddonRolls(itemID) then return end
+                    if ns.AutoRoll:RollCall(link, match, sender, message) then return end
+                    if ns.Alerts:Enabled() then ns.Alerts:Rolling(link, match, seconds) end
                 end)
             end
         end
@@ -121,16 +138,19 @@ local function FindRollFrame(rollID)
 end
 
 local function OnStartLootRoll(_, rollID)
-    if not ns.Alerts:Enabled() then return end
-    local itemID = Match.ItemIDFromLink(GetLootRollItemLink(rollID))
+    local alerts = ns.Alerts:Enabled()
+    if not (alerts or ns.AutoRoll:Active()) then return end
+    local link = GetLootRollItemLink(rollID)
+    local itemID = Match.ItemIDFromLink(link)
     local match = itemID and Match:Item(itemID)
     if not match then return end
+    ns.AutoRoll:GroupLoot(rollID, link, match)
+    if not alerts then return end
     C_Timer.After(0, function()
         local frame, index = FindRollFrame(rollID)
         if not frame then return end
         ns.Alerts:Badge(frame, match, ns.Compat.GetGroupLootIcon(index))
         ns.Alerts:Sound()
-        ns.Events:Fire("GBIS_BIS_ROLL", rollID, itemID, match)
     end)
 end
 

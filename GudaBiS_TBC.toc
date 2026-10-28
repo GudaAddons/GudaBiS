@@ -55,6 +55,7 @@ Gear\Match.lua
 
 # Loot
 Loot\Detect.lua
+Loot\AutoRoll.lua
 
 # Integrations (optional addons)
 Integrations\Gargul.lua

@@ -82,6 +82,11 @@ local T = {
     UNKNOWN_COMMAND = "Comando sconosciuto '%s'. Digita /gbis help.",
     DEBUG_ON = "Modalità debug attivata.",
     DEBUG_OFF = "Modalità debug disattivata.",
+    HELP_AUTOROLL = "|cffffff00/gbis autoroll [on|off]|r: Tira i dadi per te sul bottino delle tue liste: Necessità o /roll 1-100 per gli oggetti SP, Avidità o /roll 1-99 per gli oggetti SS (disattivato di default, in pausa finché Gargul è caricato)",
+    AUTOROLL_ON = "Tiro automatico attivo: Necessità o /roll 1-100 per gli oggetti SP, Avidità o /roll 1-99 per gli oggetti SS.",
+    AUTOROLL_OFF = "Tiro automatico disattivato.",
+    AUTOROLL_GARGUL = "Tiro automatico attivo, ma in pausa finché Gargul è caricato: usa l'AutoRoll di Gargul.",
+    AUTOROLL_DONE = "Tiro automatico: %s su %s (%s)",
 }
 
 for key, value in pairs(T) do

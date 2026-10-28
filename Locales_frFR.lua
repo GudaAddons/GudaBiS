@@ -82,6 +82,11 @@ local T = {
     UNKNOWN_COMMAND = "Commande inconnue « %s ». Tapez /gbis help.",
     DEBUG_ON = "Mode débogage activé.",
     DEBUG_OFF = "Mode débogage désactivé.",
+    HELP_AUTOROLL = "|cffffff00/gbis autoroll [on|off]|r: Lance les dés pour vous sur le butin de vos listes : Besoin ou /roll 1-100 pour les objets SP, Cupidité ou /roll 1-99 pour les objets SS (désactivé par défaut, en pause tant que Gargul est chargé)",
+    AUTOROLL_ON = "Jet automatique activé : Besoin ou /roll 1-100 pour les objets SP, Cupidité ou /roll 1-99 pour les objets SS.",
+    AUTOROLL_OFF = "Jet automatique désactivé.",
+    AUTOROLL_GARGUL = "Jet automatique activé, mais en pause tant que Gargul est chargé : utilisez l'AutoRoll de Gargul.",
+    AUTOROLL_DONE = "Jet automatique : %s sur %s (%s)",
 }
 
 for key, value in pairs(T) do

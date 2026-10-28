@@ -232,6 +232,18 @@ function H.Install(opts)
         return 3
     end }
     _G.GetLootRollItemLink = function(rollID) return H.lootRolls[rollID] end
+    -- H.rollOptions[rollID] = { canNeed, canGreed } (default both); H.lootActions records
+    -- RollOnLoot and ConfirmLootRoll as "roll:<id>:<type>" and "confirm:<id>:<type>".
+    H.rollOptions = {}
+    H.lootActions = {}
+    _G.NEED, _G.GREED = "Need", "Greed"
+    _G.GetLootRollItemInfo = function(rollID)
+        local o = H.rollOptions[rollID] or { true, true }
+        return "icon", "Item", 1, 4, true, o[1], o[2], false
+    end
+    _G.RollOnLoot = function(rollID, rollType) H.lootActions[#H.lootActions + 1] = "roll:" .. rollID .. ":" .. rollType end
+    _G.ConfirmLootRoll = function(rollID, rollType) H.lootActions[#H.lootActions + 1] = "confirm:" .. rollID .. ":" .. rollType end
+    _G.StaticPopup_Hide = function() end
     _G.GetTime = function() return H.clock end
     _G.NUM_GROUP_LOOT_FRAMES = 4
     _G.LibStub = nil
@@ -304,7 +316,9 @@ function H.Install(opts)
         end,
     }
     _G.C_Item = itemFns
-    _G.C_AddOns = { IsAddOnLoaded = function() return false end, GetAddOnMetadata = function() return "0.0.0-test" end }
+    H.addons = opts.addons or {}
+    local function AddOnLoaded(name) return H.addons[name] == true end
+    _G.C_AddOns = { IsAddOnLoaded = AddOnLoaded, GetAddOnMetadata = function() return "0.0.0-test" end }
     local function SpellTexture(spellID) return "spellicon" .. spellID end
     _G.C_Spell = { GetSpellTexture = SpellTexture }
     _G.GetSpellTexture = (not modern) and SpellTexture or nil
@@ -313,7 +327,7 @@ function H.Install(opts)
     _G.GetItemInfo = (not modern) and itemFns.GetItemInfo or nil
     _G.GetItemInfoInstant = (not modern) and itemFns.GetItemInfoInstant or nil
     _G.GetDetailedItemLevelInfo = nil
-    _G.IsAddOnLoaded = (not modern) and function() return false end or nil
+    _G.IsAddOnLoaded = (not modern) and AddOnLoaded or nil
     _G.GetAddOnMetadata = nil
 
     _G.CreateFrame = function(_, name) return NewFrame(name) end
