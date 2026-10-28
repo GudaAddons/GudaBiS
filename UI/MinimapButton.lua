@@ -77,10 +77,19 @@ local function Create()
     button:RegisterForDrag("LeftButton")
     button:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
 
-    local icon = button:CreateTexture(nil, "BACKGROUND")
+    -- The tracking border's ring sits in the top-left of its 53 px texture, so the dark
+    -- disc and the icon go where that ring's hole is, as LibDBIcon places them (author,
+    -- 2026-10-28: the icon was off-centre, with nothing behind it).
+    local background = button:CreateTexture(nil, "BACKGROUND")
+    background:SetTexture("Interface\\Minimap\\UI-Minimap-Background")
+    background:SetSize(20, 20)
+    background:SetPoint("TOPLEFT", button, "TOPLEFT", 7, -5)
+    button.background = background
+    local icon = button:CreateTexture(nil, "ARTWORK")
     icon:SetTexture(MinimapButton.ICON)
-    icon:SetSize(20, 20)
-    icon:SetPoint("CENTER", button, "CENTER", 0, 1)
+    icon:SetSize(17, 17)
+    icon:SetPoint("TOPLEFT", button, "TOPLEFT", 7, -6)
+    button.icon = icon
     local border = button:CreateTexture(nil, "OVERLAY")
     border:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
     border:SetSize(53, 53)
