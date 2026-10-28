@@ -65,6 +65,7 @@ Integrations\Gargul.lua
 Integrations\RCLootCouncil.lua
 Integrations\AtlasLoot.lua
 Integrations\ForeverDungeonJournal.lua
+Integrations\AdventureGuide.lua
 
 # UI
 UI\Theme.lua

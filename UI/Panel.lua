@@ -758,6 +758,7 @@ local function Create()
     phaseDropdown.button:SetPoint("TOPLEFT", PADDING - margin, -DROPDOWN_TOP)
 
     local listWidth = WIDTH - PADDING * 2 - PHASE_DROPDOWN_WIDTH - ROLE_DROPDOWN_WIDTH - 12 + margin * 2
+    frame.listWidths = { withPhase = listWidth, alone = listWidth + PHASE_DROPDOWN_WIDTH + 6 }
     listDropdown = ns.Dropdown.Create(frame, listWidth, function(id)
         ns.Lists:Select(id)
         Panel:Refresh()
@@ -766,7 +767,7 @@ local function Create()
 
     roleDropdown = ns.Dropdown.Create(frame, ROLE_DROPDOWN_WIDTH + margin * 2, SetRole, L.TOOLTIP_ROLE)
     roleDropdown.button:SetPoint("LEFT", listDropdown.button, "RIGHT", 6 - margin * 2, 0)
-    Panel.listDropdown, Panel.roleDropdown = listDropdown, roleDropdown
+    Panel.phaseDropdown, Panel.listDropdown, Panel.roleDropdown = phaseDropdown, listDropdown, roleDropdown
 
     frame.emptyNote = frame:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     frame.emptyNote:SetPoint("TOP", 0, -HEADER_HEIGHT + 14)
@@ -814,6 +815,22 @@ PlaceTab = function()
     tab:SetChecked(open)
 end
 
+-- Without phases (Retail, or a client with no guide data yet) the phase dropdown hides
+-- and the list dropdown takes its place and width.
+local function LayoutDropdowns(withPhases)
+    local margin = ns.Theme.DROPDOWN_MARGIN
+    phaseDropdown.button:SetShown(withPhases)
+    local button = listDropdown.button
+    button:ClearAllPoints()
+    if withPhases then
+        button:SetWidth(frame.listWidths.withPhase)
+        button:SetPoint("LEFT", phaseDropdown.button, "RIGHT", 6 - margin * 2, 0)
+    else
+        button:SetWidth(frame.listWidths.alone)
+        button:SetPoint("TOPLEFT", PADDING - margin, -DROPDOWN_TOP)
+    end
+end
+
 function Panel:Refresh()
     if not frame then return end
     local Lists = ns.Lists
@@ -822,6 +839,7 @@ function Panel:Refresh()
         phaseOptions[i] = { value = phase, text = Panel.PhaseLabel(phase) }
     end
     phaseDropdown:SetOptions(phaseOptions, Lists:Phase())
+    LayoutDropdowns(#phaseOptions > 0 and ns.Features.HasPhases)
 
     local current = Lists:Current()
     local listOptions = {}
