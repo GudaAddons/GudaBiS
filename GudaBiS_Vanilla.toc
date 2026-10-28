@@ -1,0 +1,86 @@
+## Interface: 11509
+## Title: GudaBiS
+## Notes: Best-in-slot gear by phase next to your character, with loot alerts
+## Notes-deDE: Best-in-Slot-Ausrüstung nach Phase neben deinem Charakter, mit Beutewarnungen
+## Notes-esES: Equipo BiS por fase junto a tu personaje, con avisos de botín
+## Notes-esMX: Equipo BiS por fase junto a tu personaje, con avisos de botín
+## Notes-frFR: Équipement BiS par phase à côté de votre personnage, avec alertes de butin
+## Notes-itIT: Equipaggiamento BiS per fase accanto al tuo personaggio, con avvisi sul bottino
+## Notes-koKR: 캐릭터 옆에 단계별 최고 장비(BiS)를 표시하고 전리품 알림을 제공합니다
+## Notes-ptBR: Equipamento BiS por fase ao lado do seu personagem, com alertas de saque
+## Notes-ruRU: Лучшая экипировка (BiS) по фазам рядом с персонажем и оповещения о добыче
+## Notes-zhCN: 在角色旁按阶段显示最佳装备（BiS），并提供拾取提醒
+## Notes-zhTW: 在角色旁依階段顯示最佳裝備（BiS），並提供拾取提醒
+## Author: Vati
+## Version: @project-version@
+## SavedVariables: GudaBiS_DB
+## OptionalDeps: GudaBags, Gargul, RCLootCouncil, RCLootCouncil_Classic, AtlasLoot, AtlasLootClassic, ForeverDungeonJournal
+## IconTexture: Interface\AddOns\GudaBiS\Assets\logo.png
+## X-Wago-ID: kGr98MKy
+
+# Localization (load first)
+Locales.lua
+Locales_deDE.lua
+Locales_esES.lua
+Locales_esMX.lua
+Locales_frFR.lua
+Locales_itIT.lua
+Locales_koKR.lua
+Locales_ptBR.lua
+Locales_ruRU.lua
+Locales_zhCN.lua
+Locales_zhTW.lua
+
+# Core
+Core\Init.lua
+Core\Expansion.lua
+Core\Compat.lua
+Core\Events.lua
+Core\SlashCommands.lua
+Core\Log.lua
+Core\Database.lua
+Core\Probe.lua
+
+# Data (this flavor only)
+Data\Data.lua
+
+# Gear
+Gear\Spec.lua
+Gear\Lists.lua
+Gear\Items.lua
+Gear\Owned.lua
+Gear\Enchants.lua
+Gear\Match.lua
+Gear\GearPlanner.lua
+Gear\Wishlist.lua
+
+# Loot
+Loot\Detect.lua
+Loot\AutoRoll.lua
+Loot\History.lua
+
+# Integrations (optional addons)
+Integrations\Gargul.lua
+Integrations\RCLootCouncil.lua
+Integrations\AtlasLoot.lua
+Integrations\ForeverDungeonJournal.lua
+Integrations\AdventureGuide.lua
+
+# UI
+UI\Theme.lua
+UI\ItemTooltip.lua
+UI\Glow.lua
+UI\Alerts.lua
+UI\TestAlerts.lua
+UI\Dropdown.lua
+UI\NameDialog.lua
+UI\RankFlyout.lua
+UI\WishToggle.lua
+UI\WishlistTab.lua
+UI\HistoryTab.lua
+UI\Panel.lua
+UI\SettingsPanel.lua
+UI\MinimapButton.lua
+
+# Bootstrap (load last)
+Core\Main.lua

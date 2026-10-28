@@ -14,7 +14,7 @@
 ## Author: Vati
 ## Version: @project-version@
 ## SavedVariables: GudaBiS_DB
-## OptionalDeps: GudaBags, Gargul, RCLootCouncil, RCLootCouncil_Classic, AtlasLoot, ForeverDungeonJournal
+## OptionalDeps: GudaBags, Gargul, RCLootCouncil, RCLootCouncil_Classic, AtlasLoot, AtlasLootClassic, ForeverDungeonJournal
 ## IconTexture: Interface\AddOns\GudaBiS\Assets\logo.png
 ## X-Wago-ID: kGr98MKy
 
