@@ -1,14 +1,14 @@
--- AtlasLoot (GB-072): the wishlist shield on every item AtlasLoot shows, on the item
--- icon's bottom-left corner (its own favourite star sits top-left, the "completed"
--- check and count bottom-right).
+-- AtlasLoot (GB-072): the wishlist shield at the right end of every item row AtlasLoot
+-- shows, left of the row's faction icon or second item icon when it has one (author,
+-- 2026-10-28: beside the item, not on its icon).
 --
 -- Read from AtlasLootClassic Continued 12455 (Button/Item_type.lua, Button/Button.lua).
 -- Item buttons are reused for every page and boss: the "Item" button type's Refresh
 -- fills one (button.ItemID is set first, and Refresh runs again when item info
 -- arrives), OnClear empties one before it may become a header or a set. Both are looked
--- up on the shared type table, so post-hooks on it see every button, including the
--- small second icon on the right of a row (button.secButton). The set/token popup's
--- buttons (IsExtraItemFrameButton) are left alone (author, 2026-10-28).
+-- up on the shared type table, so post-hooks on it see every button. The small second
+-- icon on a row (button.secButton, type "secButton") gets no shield of its own, so a row
+-- never shows two, and the set/token popup (IsExtraItemFrameButton) is left alone.
 --
 -- Nothing here is a documented API: every access is guarded, and a failure only means
 -- no shields (RULES.md Rule 5).
@@ -19,14 +19,33 @@ local AtlasLootBridge = ns:RegisterModule("AtlasLootBridge")
 
 local hooked = false
 
+local GAP = 4
+
+local function Shown(frame)
+    return type(frame) == "table" and type(frame.IsShown) == "function" and frame:IsShown()
+end
+
+-- The shield's place at the row's right end: left of the faction icon or the second
+-- item icon when the row shows one, else against the row's right edge.
+local function Neighbour(button)
+    if Shown(button.factionIcon) then return button.factionIcon end
+    if Shown(button.secButton) then return button.secButton end
+    return nil
+end
+
 local function OnRefresh(button)
-    if type(button) ~= "table" or button.IsExtraItemFrameButton then return end
+    if type(button) ~= "table" or button.IsExtraItemFrameButton or button.type == "secButton" then return end
     local itemID = tonumber(button.ItemID)
     if not itemID or itemID <= 0 then
         ns.WishToggle.Hide(button)
         return
     end
-    ns.WishToggle.Paint(button, button.icon, "BOTTOMLEFT", -2, -2, itemID)
+    local neighbour = Neighbour(button)
+    if neighbour then
+        ns.WishToggle.Paint(button, "RIGHT", neighbour, "LEFT", -GAP, 0, itemID)
+    else
+        ns.WishToggle.Paint(button, "RIGHT", button, "RIGHT", -GAP, 0, itemID)
+    end
 end
 
 local function OnClear(button)

@@ -1,16 +1,16 @@
--- The wishlist toggle other addons' item buttons get (GB-072): a small GudaBiS shield on
--- the item icon, grey while the item is not on this character's wishlist, in full
--- colour while it is. A gold ring (the action button's own border glow) sits around it
--- in both states, so the grey one still stands out on dark item icons (author,
--- 2026-10-28). A click adds or removes it; the tooltip says which.
+-- The wishlist toggle other addons' item rows get (GB-072): the GudaBiS shield at the
+-- right end of the row (author, 2026-10-28: on the icon it was too small, and the gold
+-- glow drew a square), grey while the item is not on this character's wishlist, in full
+-- colour while it is; hovering lights it up. A click adds or removes it; the tooltip
+-- says which.
 --
--- The integrations (AtlasLoot, ForeverDungeonJournal) reuse their item buttons, so the
--- toggle is made once per button, the first time that button shows an item, and
--- repainted on every fill. Shown toggles repaint when the wishlist changes anywhere.
+-- The integrations (AtlasLoot, ForeverDungeonJournal) reuse their rows, so the toggle is
+-- made once per row, the first time that row shows an item, and placed and repainted on
+-- every fill. Shown toggles repaint when the wishlist changes anywhere.
 --
 -- Also here: "On your GudaBiS wishlist" on any item tooltip for a wished item.
 --
---   WishToggle.Paint(owner, anchor, point, x, y, itemID[, source])
+--   WishToggle.Paint(owner, point, relativeTo, relativePoint, x, y, itemID[, source])
 --   WishToggle.Hide(owner)
 
 local addonName, ns = ...
@@ -18,13 +18,9 @@ local L = ns.L
 
 local WishToggle = ns:RegisterModule("WishToggle")
 
-local SIZE = 14
+WishToggle.SIZE = 18
 local ICON = "Interface\\AddOns\\GudaBiS\\Assets\\logo.png"
-local OFF_ALPHA = 0.7
-local RING = "Interface\\Buttons\\UI-ActionButton-Border"
-local RING_SCALE = 1.9
-local RING_COLOR = { 1, 0.82, 0 }
-local RING_ALPHA = { on = 1, off = 0.75 }
+local OFF_ALPHA = 0.6
 local TOOLTIP_COLOR = { 1, 0.6, 1 }
 
 local toggles = setmetatable({}, { __mode = "k" })
@@ -32,15 +28,22 @@ local toggles = setmetatable({}, { __mode = "k" })
 local function PaintState(toggle)
     local on = ns.Wishlist:Has(toggle.itemID)
     toggle.icon:SetDesaturated(not on)
-    toggle.icon:SetAlpha(on and 1 or OFF_ALPHA)
-    toggle.ring:SetAlpha(on and RING_ALPHA.on or RING_ALPHA.off)
+    toggle.icon:SetAlpha((on or toggle.hovered) and 1 or OFF_ALPHA)
     toggle.on = on
 end
 
 local function ShowTooltip(toggle)
+    toggle.hovered = true
+    PaintState(toggle)
     GameTooltip:SetOwner(toggle, "ANCHOR_RIGHT")
     GameTooltip:SetText(toggle.on and L.WISH_REMOVE or L.WISH_ADD)
     GameTooltip:Show()
+end
+
+local function HideTooltip(toggle)
+    toggle.hovered = false
+    PaintState(toggle)
+    GameTooltip:Hide()
 end
 
 local function OnClick(toggle)
@@ -51,30 +54,23 @@ end
 
 local function Create(owner)
     local toggle = CreateFrame("Button", nil, owner)
-    toggle:SetSize(SIZE, SIZE)
+    toggle:SetSize(WishToggle.SIZE, WishToggle.SIZE)
     toggle:SetFrameLevel((owner:GetFrameLevel() or 0) + 5)
-    toggle.ring = toggle:CreateTexture(nil, "ARTWORK")
-    toggle.ring:SetTexture(RING)
-    toggle.ring:SetBlendMode("ADD")
-    toggle.ring:SetVertexColor(RING_COLOR[1], RING_COLOR[2], RING_COLOR[3])
-    toggle.ring:SetSize(SIZE * RING_SCALE, SIZE * RING_SCALE)
-    toggle.ring:SetPoint("CENTER")
     toggle.icon = toggle:CreateTexture(nil, "OVERLAY")
     toggle.icon:SetTexture(ICON)
     toggle.icon:SetAllPoints()
-    toggle:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square", "ADD")
     toggle:SetScript("OnClick", OnClick)
     toggle:SetScript("OnEnter", ShowTooltip)
-    toggle:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    toggle:SetScript("OnLeave", HideTooltip)
     owner.gudaBiSWish = toggle
     toggles[toggle] = true
     return toggle
 end
 
-function WishToggle.Paint(owner, anchor, point, x, y, itemID, source)
+function WishToggle.Paint(owner, point, relativeTo, relativePoint, x, y, itemID, source)
     local toggle = owner.gudaBiSWish or Create(owner)
     toggle:ClearAllPoints()
-    toggle:SetPoint(point, anchor or owner, point, x, y)
+    toggle:SetPoint(point, relativeTo or owner, relativePoint, x, y)
     toggle.itemID = itemID
     toggle.source = source
     PaintState(toggle)

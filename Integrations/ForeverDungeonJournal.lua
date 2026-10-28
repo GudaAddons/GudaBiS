@@ -1,6 +1,8 @@
 -- ForeverDungeonJournal, "Dungeon Journal - TBC Anniversary" (GB-072): the wishlist
--- shield on every item it shows, on the item icon's top-left corner (its own favourite
--- star sits at the row's right edge).
+-- shield at the right end of every item row it shows, in a fixed column just left of
+-- the journal's own favourite star (15 px at the row's right edge, 8 px in), so the
+-- shields line up whether or not the star shows (author, 2026-10-28: beside the item,
+-- not on its icon).
 --
 -- Read from ForeverDungeonJournal 1.5.1 (Core/Journal.lua, Systems/Favourites.lua).
 -- Its rows are reused by index on every boss, filter and layout change, and each fill
@@ -15,6 +17,8 @@ local addonName, ns = ...
 
 local JournalBridge = ns:RegisterModule("JournalBridge")
 
+local RIGHT_OFFSET = -(8 + 15 + 6)
+
 local hooked = false
 
 local function OnIndicator(row, itemID)
@@ -28,7 +32,7 @@ local function OnIndicator(row, itemID)
     if type(row.fdjDungeonName) == "string" or type(row.fdjBossName) == "string" then
         wishSource = { dungeon = row.fdjDungeonName, boss = row.fdjBossName }
     end
-    ns.WishToggle.Paint(row, row.icon, "TOPLEFT", -3, 3, itemID, wishSource)
+    ns.WishToggle.Paint(row, "RIGHT", row, "RIGHT", RIGHT_OFFSET, 0, itemID, wishSource)
 end
 
 function JournalBridge:Hook()

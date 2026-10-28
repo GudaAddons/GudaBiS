@@ -133,11 +133,21 @@ return function(T, H)
         itemType.Refresh(button)
         local shield = button.gudaBiSWish
         T.ok(shield and shield:IsShown(), "shield shown")
-        T.eq(shield.point[1], "BOTTOMLEFT", "bottom-left corner")
-        T.eq(shield.ring.texture, "Interface\\Buttons\\UI-ActionButton-Border", "gold ring")
-        T.eq(shield.ring.vertexColor[2], 0.82, "gold")
-        T.eq(shield.point[2], button.icon, "on the icon")
+        T.eq(shield.point[1], "RIGHT", "at the row's right end")
+        T.eq(shield.point[2], button, "against the row")
+        T.eq(shield.width, 18, "bigger than before")
         T.eq(shield.icon.desaturated, true, "grey while not wished")
+        local second = CreateFrame("Button")
+        second.type = "secButton"
+        second:Show()
+        button.secButton = second
+        itemType.Refresh(button)
+        T.eq(shield.point[2], second, "left of the second item icon when the row has one")
+        T.eq(shield.point[3], "LEFT", "its left side")
+        second.ItemID = 30000
+        itemType.Refresh(second)
+        T.eq(second.gudaBiSWish, nil, "the second icon gets no shield of its own")
+        button.secButton = nil
         shield:Click()
         T.ok(ns.Wishlist:Has(WISHED), "wished")
         T.eq(shield.icon.desaturated, false, "in colour")
@@ -160,7 +170,8 @@ return function(T, H)
         row.fdjDungeonName, row.fdjBossName = "Karazhan", "Attumen the Huntsman"
         _G.ForeverDungeonJournal_NS.UpdateFavouriteIndicator(row, WISHED)
         local shield = row.gudaBiSWish
-        T.eq(shield.point[1], "TOPLEFT", "top-left corner")
+        T.eq(shield.point[1], "RIGHT", "at the row's right end")
+        T.eq(shield.point[4], -29, "left of the journal's star")
         shield:Click()
         T.eq(ns.Wishlist.SourceText(ns.Wishlist:Items()[1]), "Karazhan · Attumen the Huntsman", "source saved")
         _G.ForeverDungeonJournal_NS.UpdateFavouriteIndicator(row, 0)
