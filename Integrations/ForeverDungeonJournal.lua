@@ -1,8 +1,7 @@
 -- ForeverDungeonJournal, "Dungeon Journal - TBC Anniversary" (GB-072): the wishlist
--- shield at the right end of every item row it shows, in a fixed column just left of
--- the journal's own favourite star (15 px at the row's right edge, 8 px in), so the
--- shields line up whether or not the star shows (author, 2026-10-28: beside the item,
--- not on its icon).
+-- shield in the bottom-right corner of every item row it shows, under the journal's own
+-- favourite star (15 px, centred at the row's right edge, 8 px in) (author, 2026-10-28).
+-- Compact rows (28 px) have no room under the star, so there it sits just left of it.
 --
 -- Read from ForeverDungeonJournal 1.5.1 (Core/Journal.lua, Systems/Favourites.lua).
 -- Its rows are reused by index on every boss, filter and layout change, and each fill
@@ -17,7 +16,9 @@ local addonName, ns = ...
 
 local JournalBridge = ns:RegisterModule("JournalBridge")
 
-local RIGHT_OFFSET = -(8 + 15 + 6)
+local CORNER_X, CORNER_Y = -6, 4
+local COMPACT_HEIGHT = 40
+local BESIDE_STAR_X = -(8 + 15 + 2)
 
 local hooked = false
 
@@ -32,7 +33,12 @@ local function OnIndicator(row, itemID)
     if type(row.fdjDungeonName) == "string" or type(row.fdjBossName) == "string" then
         wishSource = { dungeon = row.fdjDungeonName, boss = row.fdjBossName }
     end
-    ns.WishToggle.Paint(row, "RIGHT", row, "RIGHT", RIGHT_OFFSET, 0, itemID, wishSource)
+    local height = type(row.GetHeight) == "function" and row:GetHeight() or 0
+    if height >= COMPACT_HEIGHT then
+        ns.WishToggle.Paint(row, "BOTTOMRIGHT", row, "BOTTOMRIGHT", CORNER_X, CORNER_Y, itemID, wishSource)
+    else
+        ns.WishToggle.Paint(row, "RIGHT", row, "RIGHT", BESIDE_STAR_X, 0, itemID, wishSource)
+    end
 end
 
 function JournalBridge:Hook()
