@@ -165,12 +165,15 @@ end
 local CHECK_TEXTURE = "Interface\\RaidFrame\\ReadyCheck-Ready"
 
 -- A slot's check means only "you have this exact item" (author, 2026-10-28): green on
--- this character, grey on another one. A missing item gets no mark at all, and owning
--- or wearing an alternative never marks the slot (yellow checks read as "owned" and
--- were dropped); the tooltip and the ranked list say it instead.
+-- this character, grey on another one, and on Retail yellow while your copy is below
+-- the top players' item level (GB-065). A missing item gets no mark at all, and owning
+-- or wearing an alternative never marks the slot; the tooltip and the ranked list say
+-- it instead. Entries are r, g, b, desaturate: the check texture is green itself, so
+-- any other colour needs it greyed first, then tinted (a yellow tint on the green
+-- texture stayed green in game).
 local CHECK_COLORS = {
     best = { 1, 1, 1, false },
-    lower = { 1, 0.82, 0, false },
+    lower = { 1, 0.82, 0, true },
     elsewhere = { 0.7, 0.7, 0.7, true },
 }
 local FULL_LEVEL_COLOR = { 0.25, 1, 0.25 }

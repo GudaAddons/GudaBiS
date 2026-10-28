@@ -165,6 +165,7 @@ return function(T, H)
         local button = SlotButton(1)
         T.ok(button.check:IsShown(), "checked")
         T.eq(button.check.vertexColor[2], 0.82, "yellow")
+        T.eq(button.check.desaturated, true, "greyed before the tint: the texture is green")
         button:Enter()
         local found
         for _, line in ipairs(_G.GameTooltip.lines) do
@@ -174,6 +175,7 @@ return function(T, H)
         H.links[1] = LevelLink(head, target)
         ns.Panel:Refresh()
         T.eq(button.check.vertexColor[2], 1, "white-green at the top level")
+        T.eq(button.check.desaturated, false, "the green texture as it is")
         T.eq(ns.Owned.LevelStatus(330, 334), "lower", "pure: lower")
         T.eq(ns.Owned.LevelStatus(334, 334), "full", "pure: full")
         T.eq(ns.Owned.LevelStatus(nil, 334), nil, "pure: unknown")
@@ -199,6 +201,7 @@ return function(T, H)
         H.Slash("")
         local button = SlotButton(1)
         T.eq(button.check.vertexColor[2], 0.82, "yellow in the panel")
+        T.eq(button.check.desaturated, true, "panel: greyed, then tinted")
         button:Click()
         local row
         for _, frame in ipairs(H.AllFrames()) do
@@ -206,6 +209,7 @@ return function(T, H)
         end
         T.ok(row ~= nil, "the item in the ranked list")
         T.eq(row.check.vertexColor[2], 0.82, "yellow there too")
+        T.eq(row.check.desaturated, true, "ranked list: greyed, then tinted")
         _G.ItemLocation = nil
         _G.C_Item.GetCurrentItemLevel = nil
         T.noErrors()

@@ -240,8 +240,10 @@ local function PaintCheck(row)
         row.check:SetVertexColor(0.7, 0.7, 0.7)
         row.check:Show()
     elseif ns.Owned:Has(row.id) then
-        row.check:SetDesaturated(false)
-        if ranked and ns.Owned:LevelState(ranked.list, row.id) == "lower" then
+        -- The check texture is green itself: yellow needs it greyed first, then tinted.
+        local lower = ranked and ns.Owned:LevelState(ranked.list, row.id) == "lower"
+        row.check:SetDesaturated(lower)
+        if lower then
             row.check:SetVertexColor(1, 0.82, 0)
         else
             row.check:SetVertexColor(1, 1, 1)
