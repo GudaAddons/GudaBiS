@@ -36,8 +36,8 @@ local ROW_HEIGHT = 44
 local PADDING = 14
 local DROPDOWN_TOP = 28
 local PHASE_DROPDOWN_WIDTH = 100
-local TOOLBAR_TOP = 64
-local HEADER_HEIGHT = 94
+local ROLE_DROPDOWN_WIDTH = 60
+local HEADER_HEIGHT = 66
 local WEAPON_ROW_HEIGHT = 52
 local WEAPON_SPACING = 124
 local COLUMN_WIDTH = ENCHANT_SIZE + 4 + SLOT_SIZE + 6 + NAME_WIDTH
@@ -105,7 +105,7 @@ function Panel.PhaseLabel(phase)
     return string.format(L.PHASE, phase)
 end
 
-local frame, tab, phaseDropdown, listDropdown
+local frame, tab, phaseDropdown, listDropdown, roleDropdown
 local PlaceTab
 local slotButtons = {}
 
@@ -578,52 +578,41 @@ local function LayoutSlots()
     end
 end
 
-local NEW_ICON = "Interface\\PaperDollInfoFrame\\Character-Plus"
-local RENAME_ICON = "Interface\\Buttons\\UI-GuildButton-PublicNote-Up"
-local DELETE_ICON = "Interface\\Buttons\\UI-GroupLoot-Pass-Up"
+-- New / Rename / Delete are action rows at the bottom of the list menu, each with its
+-- old toolbar icon (author, 2026-10-28: the toolbar row is gone).
+local NEW_ICON = "|TInterface\\PaperDollInfoFrame\\Character-Plus:14|t "
+local RENAME_ICON = "|TInterface\\Buttons\\UI-GuildButton-PublicNote-Up:14|t "
+local DELETE_ICON = "|TInterface\\Buttons\\UI-GroupLoot-Pass-Up:14|t "
 
-local listButtons = {}
+-- The role dropdown at the end of the dropdown row: the list being shown is this
+-- character's main spec, off spec, or neither (author, 2026-10-28: instead of the MS
+-- and OS buttons). "None" clears the list's role; when that makes it the default MS
+-- again (a guide list of the active tree that was OS), MS is cleared too, so the
+-- dropdown shows what was chosen.
+local ROLE_NONE = "none"
+local ROLE_COLORS = { ms = "|cff40ff40%s|r", os = "|cff40c0ff%s|r", none = "|cff808080%s|r" }
 
-local function ShowButtonTooltip(self)
-    GameTooltip:SetOwner(self, "ANCHOR_TOP")
-    GameTooltip:SetText(self.tooltip)
-    GameTooltip:Show()
+function Panel.RoleOptions()
+    return {
+        { value = "ms", text = string.format(ROLE_COLORS.ms, L.ROLE_MS) },
+        { value = "os", text = string.format(ROLE_COLORS.os, L.ROLE_OS) },
+        { value = ROLE_NONE, text = string.format(ROLE_COLORS.none, "—") },
+    }
 end
 
-local function IconButton(texture, tooltip, onClick)
-    local button = CreateFrame("Button", nil, frame)
-    button:SetSize(18, 18)
-    button:SetNormalTexture(texture)
-    button:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square")
-    button:GetHighlightTexture():SetBlendMode("ADD")
-    button.tooltip = tooltip
-    button:SetScript("OnClick", onClick)
-    button:SetScript("OnEnter", ShowButtonTooltip)
-    button:SetScript("OnLeave", HideTooltip)
-    return button
-end
-
--- MS / OS: marks the list being shown as this character's main or off spec. The
--- game's red panel button. The active role stays pressed down (the button's own pushed
--- art, locked) with white text, like a toggle; it stays clickable, since clicking it
--- clears the role (author, 2026-10-28: no highlight or glow on these buttons).
-local function RoleButton(role, label, tooltip)
-    local button = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-    button:SetSize(40, 20)
-    button:SetText(label)
-    button.text = button:GetFontString()
-    button.tooltip = tooltip
-    button.role = role
-    button:SetScript("OnClick", function()
-        if not frame.list then return end
-        local id = frame.list.id
-        ns.Lists:Select(id)
-        ns.Lists:ToggleRole(role, id)
-        Panel:Refresh()
-    end)
-    button:SetScript("OnEnter", ShowButtonTooltip)
-    button:SetScript("OnLeave", HideTooltip)
-    return button
+local function SetRole(role)
+    local list = frame.list
+    if not list then return end
+    local current = ns.Lists:RoleOf(list.id)
+    ns.Lists:Select(list.id)
+    if role == ROLE_NONE then
+        if current then ns.Lists:ToggleRole(current, list.id) end
+        local fallback = ns.Lists:RoleOf(list.id)
+        if fallback then ns.Lists:ToggleRole(fallback, list.id) end
+    elseif role ~= current then
+        ns.Lists:ToggleRole(role, list.id)
+    end
+    Panel:Refresh()
 end
 
 -- A new custom list from a Wowhead gear-planner link (GB-043). Returns an error text for
@@ -685,39 +674,16 @@ local function DeleteList()
     })
 end
 
--- The row under the dropdowns: MS and OS on the left; new, rename and delete on the
--- right. The title bar stays the template's own.
-local function CreateListButtons()
-    local y = -TOOLBAR_TOP
-    listButtons.ms = RoleButton("ms", L.ROLE_MS, L.TOOLTIP_MS)
-    listButtons.ms:SetPoint("TOPLEFT", PADDING, y)
-    listButtons.os = RoleButton("os", L.ROLE_OS, L.TOOLTIP_OS)
-    listButtons.os:SetPoint("LEFT", listButtons.ms, "RIGHT", 4, 0)
-    listButtons.delete = IconButton(DELETE_ICON, L.TOOLTIP_DELETE, DeleteList)
-    listButtons.delete:SetPoint("TOPRIGHT", -PADDING, y - 1)
-    listButtons.rename = IconButton(RENAME_ICON, L.TOOLTIP_RENAME, RenameList)
-    listButtons.rename:SetPoint("RIGHT", listButtons.delete, "LEFT", -6, 0)
-    listButtons.new = IconButton(NEW_ICON, L.TOOLTIP_NEW_LIST, NewList)
-    listButtons.new:SetPoint("RIGHT", listButtons.rename, "LEFT", -6, 0)
-end
-
-
-local function PaintListButtons(current)
-    local custom = ns.Lists.IsCustom(current)
-    listButtons.rename:SetShown(custom)
-    listButtons.delete:SetShown(custom)
-    local role = current and ns.Lists:RoleOf(current.id)
-    for _, key in ipairs({ "ms", "os" }) do
-        local button = listButtons[key]
-        button:SetShown(current ~= nil)
-        if role == key then
-            button:SetButtonState("PUSHED", true)
-            button.text:SetTextColor(1, 1, 1)
-        else
-            button:SetButtonState("NORMAL")
-            button.text:SetTextColor(1, 0.82, 0)
-        end
+-- The action rows under the lists: New always, Rename and Delete on a custom list.
+function Panel.ListActions(current)
+    local actions = {
+        { action = NewList, text = NEW_ICON .. L.TOOLTIP_NEW_LIST, separator = true },
+    }
+    if ns.Lists.IsCustom(current) then
+        actions[2] = { action = RenameList, text = RENAME_ICON .. L.TOOLTIP_RENAME }
+        actions[3] = { action = DeleteList, text = DELETE_ICON .. L.TOOLTIP_DELETE }
     end
+    return actions
 end
 
 -- Gear and History tabs under the panel, the same as the Character frame's own tabs on
@@ -787,14 +753,16 @@ local function Create()
     end)
     phaseDropdown.button:SetPoint("TOPLEFT", PADDING - margin, -DROPDOWN_TOP)
 
-    local listWidth = WIDTH - PADDING * 2 - PHASE_DROPDOWN_WIDTH - 6 + margin * 2
+    local listWidth = WIDTH - PADDING * 2 - PHASE_DROPDOWN_WIDTH - ROLE_DROPDOWN_WIDTH - 12 + margin * 2
     listDropdown = ns.Dropdown.Create(frame, listWidth, function(id)
         ns.Lists:Select(id)
         Panel:Refresh()
     end)
     listDropdown.button:SetPoint("LEFT", phaseDropdown.button, "RIGHT", 6 - margin * 2, 0)
 
-    CreateListButtons()
+    roleDropdown = ns.Dropdown.Create(frame, ROLE_DROPDOWN_WIDTH + margin * 2, SetRole, L.TOOLTIP_ROLE)
+    roleDropdown.button:SetPoint("LEFT", listDropdown.button, "RIGHT", 6 - margin * 2, 0)
+    Panel.listDropdown, Panel.roleDropdown = listDropdown, roleDropdown
 
     frame.emptyNote = frame:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     frame.emptyNote:SetPoint("TOP", 0, -HEADER_HEIGHT + 14)
@@ -859,9 +827,11 @@ function Panel:Refresh()
             text = Panel.ListLabel(list, ns.Spec:TreeName(list.tree), Lists:RoleOf(list.id)),
         }
     end
+    for _, action in ipairs(Panel.ListActions(current)) do listOptions[#listOptions + 1] = action end
     listDropdown:SetOptions(listOptions, current and current.id)
     frame.emptyNote:SetShown(current == nil)
-    PaintListButtons(current)
+    roleDropdown.button:SetShown(current ~= nil)
+    roleDropdown:SetOptions(Panel.RoleOptions(), current and Lists:RoleOf(current.id) or "none")
 
     frame.list = current
     ns.RankFlyout:Close()

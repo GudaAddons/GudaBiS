@@ -32,8 +32,10 @@ return function(T, H)
 
     local function NewListDialog()
         H.Slash("")
-        for _, frame in ipairs(H.AllFrames()) do
-            if rawget(frame, "tooltip") == "New list" then frame:Click() end
+        local dd = H.ns.Panel.listDropdown
+        dd.button:Click()
+        for _, row in ipairs(dd.menu.rows) do
+            if row:IsShown() and row.action and row.text.shownText:find("New list", 1, true) then row:Click() end
         end
         return _G.GudaBiSNameDialog
     end

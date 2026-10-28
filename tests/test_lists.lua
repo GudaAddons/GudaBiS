@@ -28,10 +28,31 @@ return function(T, H)
         return out
     end
 
-    local function ClickRole(role)
-        for _, frame in ipairs(H.AllFrames()) do
-            if rawget(frame, "role") == role then frame:Click() end
+    -- Opens a panel dropdown and returns its visible menu rows.
+    local function MenuRows(dd)
+        if not dd.menu:IsShown() then dd.button:Click() end
+        local rows = {}
+        for _, row in ipairs(dd.menu.rows) do
+            if row:IsShown() then rows[#rows + 1] = row end
         end
+        return rows
+    end
+
+    local function ChooseRole(value)
+        for _, row in ipairs(MenuRows(H.ns.Panel.roleDropdown)) do
+            if row.value == value then return row:Click() end
+        end
+        error("no role row " .. tostring(value))
+    end
+
+    -- The list menu's action row whose text contains `text`, or nil (menu closed again).
+    local function ListAction(text)
+        local dd = H.ns.Panel.listDropdown
+        for _, row in ipairs(MenuRows(dd)) do
+            if row.action and row.text.shownText:find(text, 1, true) then return row end
+        end
+        dd:Close()
+        return nil
     end
 
     T.case("ParseItemID: numbers, item links and Wowhead URLs", function()
@@ -56,9 +77,7 @@ return function(T, H)
         local ns = H.Boot()
         H.Slash("")
         ns.Panel:Refresh()
-        for _, frame in ipairs(H.AllFrames()) do
-            if rawget(frame, "tooltip") == "New list" then frame:Click() end
-        end
+        ListAction("New list"):Click()
         T.ok(ns.NameDialog:IsShown(), "dialog")
         T.eq(Dialog().edit:GetText(), "My list 1", "default name")
         DialogOK("Raid tank", false)
@@ -93,15 +112,14 @@ return function(T, H)
     T.case("panel rename and delete only for custom lists, delete asks first", function()
         local ns = H.Boot()
         H.Slash("")
-        local rename, delete
-        for _, frame in ipairs(H.AllFrames()) do
-            if rawget(frame, "tooltip") == "Rename this list" then rename = frame end
-            if rawget(frame, "tooltip") == "Delete this list" then delete = frame end
-        end
-        T.ok(not rename:IsShown() and not delete:IsShown(), "hidden on a guide list")
+        T.ok(ListAction("New list") ~= nil, "New list in the list menu")
+        T.ok(not ListAction("Rename this list") and not ListAction("Delete this list"), "not on a guide list")
         ns.Lists:CreateCustom("Mine")
         ns.Panel:Refresh()
-        T.ok(rename:IsShown() and delete:IsShown(), "shown on a custom list")
+        T.ok(ListAction("Rename this list") ~= nil, "rename on a custom list")
+        local delete = ListAction("Delete this list")
+        T.ok(delete ~= nil, "delete on a custom list")
+        T.eq(H.ns.Panel.listDropdown.button.text.shownText:find("Delete", 1, true), nil, "an action never shows as the choice")
         delete:Click()
         T.ok(not Dialog().edit:IsShown(), "confirm has no name box")
         Dialog().edit:Script("OnEnterPressed")
@@ -348,19 +366,21 @@ return function(T, H)
         T.eq(ns.Data:Get(GUIDE).gems[1][1], 25896, "guide gem unchanged")
     end)
 
-    T.case("MS defaults to the active tree's guide list; MS/OS buttons set and clear", function()
+    T.case("MS defaults to the active tree's guide list; the role dropdown sets and clears", function()
         local ns = H.Boot({ talentPoints = { 0, 40, 21 } })
         T.eq(ns.Lists:MainSpec().id, GUIDE, "default MS")
         T.eq(ns.Lists:OffSpec(), nil, "no OS")
         local custom = ns.Lists:CreateCustom("Heal gear")
         H.Slash("")
-        ClickRole("ms")
+        ChooseRole("ms")
         T.eq(ns.Lists:MainSpec().id, custom.id, "custom list is MS")
-        ClickRole("os")
+        ChooseRole("os")
         T.eq(ns.Lists:OffSpec().id, custom.id, "now OS")
         T.eq(ns.Lists:MainSpec().id, GUIDE, "MS back to the default, a list cannot be both")
-        ClickRole("os")
-        T.eq(ns.Lists:OffSpec(), nil, "second click clears")
+        ChooseRole("os")
+        T.eq(ns.Lists:OffSpec().id, custom.id, "choosing the same role keeps it")
+        ChooseRole("none")
+        T.eq(ns.Lists:OffSpec(), nil, "none clears")
         T.noErrors()
     end)
 
@@ -368,37 +388,33 @@ return function(T, H)
         local ns = H.Boot({ talentPoints = { 0, 40, 21 } })
         H.Slash("")
         T.eq(ns.Lists:RoleOf(GUIDE), "ms", "Balanced is MS by default")
-        ClickRole("os")
+        ChooseRole("os")
         T.eq(ns.Lists:RoleOf(GUIDE), "os", "now OS, not stuck on MS")
         T.eq(ns.Lists:OffSpec().id, GUIDE, "OS list")
         T.ok(ns.Lists:MainSpec() == nil or ns.Lists:MainSpec().id ~= GUIDE, "MS is something else")
-        ClickRole("ms")
+        ChooseRole("ms")
         T.eq(ns.Lists:RoleOf(GUIDE), "ms", "back to MS")
         T.eq(ns.Lists:OffSpec(), nil, "OS cleared")
-        ClickRole("ms")
-        T.eq(ns.Lists:MainSpec(), nil, "clicking the active MS clears it, even the default")
+        ChooseRole("none")
+        T.eq(ns.Lists:MainSpec(), nil, "none clears MS, even the default")
         T.eq(ns.Lists:RoleOf(GUIDE), nil, "no role")
-        ClickRole("ms")
+        ChooseRole("ms")
         T.eq(ns.Lists:MainSpec().id, GUIDE, "and sets it again")
         T.noErrors()
     end)
 
-    T.case("the active role button stays pressed with white text, no glow; the other is normal", function()
+    T.case("the role dropdown shows the list's role in colour, and only with a list", function()
         local ns = H.Boot({ talentPoints = { 0, 40, 21 } })
         H.Slash("")
-        local ms, os
-        for _, frame in ipairs(H.AllFrames()) do
-            if rawget(frame, "role") == "ms" then ms = frame end
-            if rawget(frame, "role") == "os" then os = frame end
-        end
-        T.eq(ms.buttonState, "PUSHED", "MS pressed")
-        T.eq(ms.stateLocked, true, "and locked")
-        T.eq(ms.text.textColor[3], 1, "white text")
-        T.eq(os.buttonState, "NORMAL", "OS normal")
-        T.ok(not ns.Glow.IsShown(ms) and not ns.Glow.IsShown(os), "no glow on these buttons")
-        os:Click()
-        T.eq(os.buttonState, "PUSHED", "OS pressed after the click")
-        T.eq(ms.buttonState, "NORMAL", "MS released")
+        local role = ns.Panel.roleDropdown
+        T.ok(role.button:IsShown(), "shown")
+        T.eq(role.button.text.shownText, "|cff40ff40MS|r", "MS in green")
+        ChooseRole("os")
+        T.eq(role.button.text.shownText, "|cff40c0ffOS|r", "OS in blue")
+        ChooseRole("none")
+        T.eq(role.button.text.shownText, "|cff808080—|r", "none in grey")
+        T.eq(role.button.tooltip, ns.L.TOOLTIP_ROLE, "explains MS and OS")
+        T.noErrors()
     end)
 
     T.case("roles are per talent group (dual spec) and labelled in the list dropdown", function()
