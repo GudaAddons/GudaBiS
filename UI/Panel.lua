@@ -67,6 +67,7 @@ local SLOT_NAMES = {
 local TOGGLE_ICON = "Interface\\AddOns\\GudaBiS\\Assets\\logo.png"
 local TAB_BACKGROUND = "Interface\\SpellBook\\SpellBook-SkillLineTab"
 local TAB_TOP = -60
+local TAB_LEVEL_ABOVE = 10
 local EMPTY_SLOT = "Interface\\PaperDoll\\UI-Backpack-EmptySlot"
 local QUALITY_BORDER = "Interface\\Common\\WhiteIconFrame"
 
@@ -852,8 +853,12 @@ local function Create()
 end
 
 -- The Character frame's art has a transparent margin on Classic clients (wider than
--- 360), so anything docked to it moves in to sit against the visible edge.
+-- 360), so anything docked to it moves in to sit against the visible edge. Retail's
+-- frame (ns.Features.HasRetailFrameArt) has no margin and grows when its stats pane
+-- expands, so nothing moves in there (author, 2026-10-28: the side tab was hidden under
+-- it); anchors to its right edge follow its width.
 local function CharacterEdge()
+    if ns.Features.HasRetailFrameArt then return 0, 0 end
     local classicArt = (CharacterFrame:GetWidth() or 0) > 360
     return classicArt and -32 or 0, classicArt and -12 or 0
 end
@@ -997,6 +1002,7 @@ end
 local function CreateTab()
     tab = CreateFrame("CheckButton", nil, CharacterFrame)
     tab:SetSize(32, 32)
+    tab:SetFrameLevel((CharacterFrame:GetFrameLevel() or 0) + TAB_LEVEL_ABOVE)
     local background = tab:CreateTexture(nil, "BACKGROUND")
     background:SetTexture(TAB_BACKGROUND)
     background:SetSize(64, 64)
