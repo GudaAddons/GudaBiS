@@ -139,18 +139,29 @@ def candidates(client, region, period, report):
     return found
 
 
-def rating_of(client, key):
+def character_path(key, what):
+    """Realm slugs and names can hold any letter (KR, TW, accented EU realms): encoded."""
     region, realm, name = key
-    name = urllib.parse.quote(name)
-    profile = client.get(region, f"/profile/wow/character/{realm}/{name}/mythic-keystone-profile", "profile",
-                         max_age=2 * DAY)
+    return region, f"/profile/wow/character/{urllib.parse.quote(realm)}/{urllib.parse.quote(name)}/{what}"
+
+
+# One character that cannot be read (network trouble after the client's retries) is
+# skipped like a missing one; it never stops the build.
+def rating_of(client, key):
+    region, path = character_path(key, "mythic-keystone-profile")
+    try:
+        profile = client.get(region, path, "profile", max_age=2 * DAY)
+    except api.ApiError:
+        return 0
     return ((profile or {}).get("current_mythic_rating") or {}).get("rating") or 0
 
 
 def gear_of(client, key):
-    region, realm, name = key
-    name = urllib.parse.quote(name)
-    equipment = client.get(region, f"/profile/wow/character/{realm}/{name}/equipment", "profile", max_age=2 * DAY)
+    region, path = character_path(key, "equipment")
+    try:
+        equipment = client.get(region, path, "profile", max_age=2 * DAY)
+    except api.ApiError:
+        return None
     return aggregate.equipped(equipment) if equipment else None
 
 

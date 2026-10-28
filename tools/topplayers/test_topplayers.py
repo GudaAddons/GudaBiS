@@ -88,6 +88,14 @@ class BuildListTest(unittest.TestCase):
         self.assertIn('enchantNames = {', text)
         self.assertIn('season = "Midnight Season 2",', text)
 
+    def test_character_paths_are_encoded(self):
+        region, path = build.character_path(("kr", "아즈샤라", "테스트"), "equipment")
+        self.assertEqual(region, "kr")
+        self.assertTrue(path.isascii())
+        self.assertTrue(path.endswith("/equipment"))
+        _, path = build.character_path(("eu", "zirkel-des-cenarius", "êlune"), "mythic-keystone-profile")
+        self.assertIn("/zirkel-des-cenarius/%C3%AAlune/", path)
+
     def test_season_label(self):
         self.assertEqual(build.season_label("Mythic+ Dungeons (Midnight Season 2)"), "Midnight Season 2")
 

@@ -94,7 +94,8 @@ class Client:
                 self._sleep(wait)
             self._last = self._now()
 
-    # A 401 renews the token once; 429 and 5xx wait and retry; 404 is None.
+    # A 401 renews the token once; 429, 5xx and network errors (timeouts, dropped
+    # connections, a broken answer) wait and retry, then raise ApiError; 404 is None.
     def _fetch(self, url, path, region):
         for attempt in range(RETRIES):
             self._pace()
@@ -113,6 +114,11 @@ class Client:
                     self._sleep(2 ** attempt)
                     continue
                 raise ApiError(f"{error.code} for {path} ({region})") from None
+            except (urllib.error.URLError, OSError, ValueError) as error:
+                if attempt < RETRIES - 1:
+                    self._sleep(2 ** attempt)
+                    continue
+                raise ApiError(f"{type(error).__name__} for {path} ({region})") from None
         raise ApiError(f"no answer for {path} ({region}) after {RETRIES} tries")
 
     def get(self, region, path, namespace, cache=True, max_age=None, **params):
