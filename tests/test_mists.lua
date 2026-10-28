@@ -72,6 +72,19 @@ return function(T, H)
         T.noErrors()
     end)
 
+    T.case("the wide Character frame: the side tab and panel sit on its real right edge", function()
+        local ns = Mists()
+        _G.CharacterFrame.width = 540
+        _G.CharacterFrame:Show()
+        local tab = ns.Panel.tab
+        T.eq(tab.point[3], "TOPRIGHT", "its right edge")
+        T.eq(tab.point[4], 0, "not moved in: no margin to skip")
+        tab:Click()
+        T.eq(_G.GudaBiSPanel.point[4], 0, "docked panel not moved in either")
+        _G.CharacterFrame:Hide()
+        T.noErrors()
+    end)
+
     T.case("Classic art with Blizzard's own dropdowns", function()
         local ns = Mists()
         H.Slash("")

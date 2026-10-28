@@ -875,12 +875,13 @@ local function Create()
 end
 
 -- The Character frame's art has a transparent margin on Classic clients (wider than
--- 360), so anything docked to it moves in to sit against the visible edge. Retail's
--- frame (ns.Features.HasRetailFrameArt) has no margin and grows when its stats pane
--- expands, so nothing moves in there (author, 2026-10-28: the side tab was hidden under
--- it); anchors to its right edge follow its width.
+-- 360), so anything docked to it moves in to sit against the visible edge. The modern
+-- frame (ns.Features.HasModernCharacterFrame: Retail, MoP Classic) has no margin and
+-- grows when its stats pane expands, so nothing moves in there (author, 2026-10-28 on
+-- Retail, 2026-10-29 on MoP: the side tab was hidden under it); anchors to its right
+-- edge follow its width.
 local function CharacterEdge()
-    if ns.Features.HasRetailFrameArt then return 0, 0 end
+    if ns.Features.HasModernCharacterFrame then return 0, 0 end
     local classicArt = (CharacterFrame:GetWidth() or 0) > 360
     return classicArt and -32 or 0, classicArt and -12 or 0
 end

@@ -65,6 +65,9 @@ local isClassic = Expansion.IsEra or Expansion.IsTBC or Expansion.IsMists
 -- HasNativeDropdowns: use Blizzard's own dropdown (WowStyle1DropdownTemplate) with the
 --   Classic frame art where the client has it: MoP Classic, besides Retail (GB-140).
 --   UI/Dropdown.lua still falls back to the drawn one when the widget is missing.
+-- HasModernCharacterFrame: the Character frame has no transparent margin and widens
+--   with its stats pane (Retail, MoP Classic; author, 2026-10-29), so the panel and its
+--   side tab dock right at its edge.
 local Features = {
     RealmlessNames = Expansion.IsForever,
     HasGems = Expansion.IsTBC or Expansion.IsMists or isModernRetail,
@@ -77,6 +80,7 @@ local Features = {
     HasRangedSlot = not (Expansion.IsMists or isModernRetail),
     HasRetailFrameArt = isModernRetail,
     HasNativeDropdowns = Expansion.IsMists or isModernRetail,
+    HasModernCharacterFrame = Expansion.IsMists or isModernRetail,
 }
 Expansion.Features = Features
 ns.Features = Features
@@ -85,5 +89,5 @@ ns.Features = Features
 Expansion.FeatureNames = {
     "HasGems", "HasMasterLoot", "HasPhases", "HasSpecChoice",
     "ChatLockdown", "ItemLevelMatters", "HasWarbandBank", "RealmlessNames", "HasRangedSlot",
-    "HasRetailFrameArt", "HasNativeDropdowns",
+    "HasRetailFrameArt", "HasNativeDropdowns", "HasModernCharacterFrame",
 }
