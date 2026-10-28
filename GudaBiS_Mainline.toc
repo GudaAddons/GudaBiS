@@ -12,6 +12,7 @@
 ## Notes-zhCN: 在角色旁按阶段显示最佳装备（BiS），并提供拾取提醒
 ## Notes-zhTW: 在角色旁依階段顯示最佳裝備（BiS），並提供拾取提醒
 ## Author: Vati
+## Category: Guda
 ## Version: @project-version@
 ## SavedVariables: GudaBiS_DB
 ## OptionalDeps: GudaBags, Gargul, RCLootCouncil, RCLootCouncil_Classic, AtlasLoot, AtlasLootClassic, ForeverDungeonJournal

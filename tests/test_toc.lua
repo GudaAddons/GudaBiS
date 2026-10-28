@@ -64,6 +64,7 @@ return function(T, H)
             T.eq(fields["IconTexture"], "Interface\\AddOns\\" .. packageName .."\\Assets\\logo.png", "IconTexture")
             T.eq(fields["X-Wago-ID"], "kGr98MKy", "X-Wago-ID")
             T.eq(fields["SavedVariables"], "GudaBiS_DB", "SavedVariables")
+            T.eq(fields["Category"], "Guda", "grouped with the other Guda addons")
         end)
     end
 
