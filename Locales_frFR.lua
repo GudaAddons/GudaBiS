@@ -120,6 +120,12 @@ local T = {
     SET_MINIMAP = "Afficher le bouton de la minicarte",
     SET_MINIMAP_TIP = "Clic gauche affiche le panneau, clic droit ouvre ces paramètres.",
     PICK_NO_MATCH = "Aucun résultat.",
+    IMPORT_PLACEHOLDER = "Lien du planificateur d'équipement Wowhead (facultatif)",
+    IMPORT_NOT_LINK = "Ce n'est pas un lien du planificateur d'équipement Wowhead.",
+    IMPORT_WRONG_FLAVOR = "Ce lien du planificateur concerne une autre version du jeu.",
+    IMPORT_DAMAGED = "Ce lien est endommagé ou dans un format que GudaBiS ne connaît pas.",
+    IMPORT_OTHER_CLASS = "Cet ensemble est pour la classe %s ; il a quand même été importé.",
+    IMPORT_DONE = "%d objets importés dans %s.",
 }
 
 for key, value in pairs(T) do

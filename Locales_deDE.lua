@@ -120,6 +120,12 @@ local T = {
     SET_MINIMAP = "Minikartenknopf zeigen",
     SET_MINIMAP_TIP = "Linksklick zeigt das Fenster, Rechtsklick öffnet diese Einstellungen.",
     PICK_NO_MATCH = "Keine Treffer.",
+    IMPORT_PLACEHOLDER = "Wowhead-Ausrüstungsplaner-Link (optional)",
+    IMPORT_NOT_LINK = "Das ist kein Link zum Wowhead-Ausrüstungsplaner.",
+    IMPORT_WRONG_FLAVOR = "Dieser Ausrüstungsplaner-Link gehört zu einer anderen Spielversion.",
+    IMPORT_DAMAGED = "Dieser Link ist beschädigt oder in einem Format, das GudaBiS nicht kennt.",
+    IMPORT_OTHER_CLASS = "Dieses Set ist für die Klasse %s; es wurde trotzdem importiert.",
+    IMPORT_DONE = "%d Gegenstände in %s importiert.",
 }
 
 for key, value in pairs(T) do

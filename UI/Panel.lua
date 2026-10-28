@@ -626,6 +626,22 @@ local function RoleButton(role, label, tooltip)
     return button
 end
 
+-- A new custom list from a Wowhead gear-planner link (GB-043). Returns an error text for
+-- the dialog when the link does not read; a set for another class imports with a note.
+local function ImportList(name, link)
+    local result, problem = ns.GearPlanner:Read(link)
+    if not result then return problem end
+    local _, count = ns.Lists:CreateImported(name, result.slots)
+    local playerClass = ns.Spec:PlayerClass()
+    if result.class and playerClass and result.class ~= playerClass then
+        local names = LOCALIZED_CLASS_NAMES_MALE or {}
+        ns:Print(string.format(L.IMPORT_OTHER_CLASS, names[result.class] or result.class))
+    end
+    ns:Print(string.format(L.IMPORT_DONE, count, name))
+    Panel:Refresh()
+    return nil
+end
+
 local function NewList()
     local count = 0
     for _ in pairs(ns.db.lists or {}) do count = count + 1 end
@@ -634,7 +650,9 @@ local function NewList()
         title = L.NEW_LIST,
         text = string.format(L.DEFAULT_LIST_NAME, count + 1),
         showCopy = copyFrom ~= nil,
-        onAccept = function(name, copy)
+        showLink = true,
+        onAccept = function(name, copy, link)
+            if link ~= "" then return ImportList(name, link) end
             ns.Lists:CreateCustom(name, copy and copyFrom or nil)
             Panel:Refresh()
         end,

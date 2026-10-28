@@ -120,6 +120,12 @@ local T = {
     SET_MINIMAP = "Mostra il pulsante della minimappa",
     SET_MINIMAP_TIP = "Clic sinistro mostra il pannello, clic destro apre queste impostazioni.",
     PICK_NO_MATCH = "Nessun risultato.",
+    IMPORT_PLACEHOLDER = "Link del pianificatore di equipaggiamento di Wowhead (facoltativo)",
+    IMPORT_NOT_LINK = "Questo non è un link del pianificatore di equipaggiamento di Wowhead.",
+    IMPORT_WRONG_FLAVOR = "Questo link del pianificatore è per un'altra versione del gioco.",
+    IMPORT_DAMAGED = "Questo link è danneggiato o in un formato che GudaBiS non conosce.",
+    IMPORT_OTHER_CLASS = "Questo set è per la classe %s; è stato importato comunque.",
+    IMPORT_DONE = "Importati %d oggetti in %s.",
 }
 
 for key, value in pairs(T) do

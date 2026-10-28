@@ -143,6 +143,30 @@ function Lists:CreateCustom(name, copyFrom)
     return list
 end
 
+-- Shirt and tabard: guides never list them and the panel has no place for them.
+local UNLISTED_SLOTS = { [4] = true, [19] = true }
+
+-- A custom list filled from decoded gear-planner slots (GB-043): item, enchant and gems
+-- per slot, as Wowhead's planner chose them. Returns the list and how many items it got.
+function Lists:CreateImported(name, slots)
+    local list = self:CreateCustom(name)
+    if not list then return nil, 0 end
+    local count = 0
+    for slot, entry in pairs(slots) do
+        if not UNLISTED_SLOTS[slot] and entry.item and entry.item > 0 then
+            list.items[slot] = entry.item
+            list.enchants[slot] = entry.enchant
+            if entry.gems and #entry.gems > 0 then
+                local gems = {}
+                for i, gemID in ipairs(entry.gems) do gems[i] = gemID end
+                list.gems[slot] = gems
+            end
+            count = count + 1
+        end
+    end
+    return list, count
+end
+
 function Lists:Rename(id, name)
     local list = Customs()[id]
     if list then list.name = name end

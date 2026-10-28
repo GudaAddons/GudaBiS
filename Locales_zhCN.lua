@@ -120,6 +120,12 @@ local T = {
     SET_MINIMAP = "显示小地图按钮",
     SET_MINIMAP_TIP = "左键显示面板，右键打开这些设置。",
     PICK_NO_MATCH = "没有匹配项。",
+    IMPORT_PLACEHOLDER = "Wowhead 装备规划器链接（可选）",
+    IMPORT_NOT_LINK = "这不是 Wowhead 装备规划器链接。",
+    IMPORT_WRONG_FLAVOR = "这个装备规划器链接属于其他游戏版本。",
+    IMPORT_DAMAGED = "这个链接已损坏，或格式 GudaBiS 无法识别。",
+    IMPORT_OTHER_CLASS = "这套装备属于%s职业，仍已导入。",
+    IMPORT_DONE = "已导入 %d 件物品到 %s。",
 }
 
 for key, value in pairs(T) do

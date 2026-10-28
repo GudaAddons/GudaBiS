@@ -1,14 +1,21 @@
 -- A small dialog asking for a list name, optionally with a "copy the current list"
--- box, or (confirm = true) just a question with OK/Cancel. Our own frame rather than a
--- StaticPopup, so nothing of Blizzard's is touched (developer-guide §8). Built on first
--- use and reused.
+-- box and a Wowhead gear-planner link box (GB-043), or (confirm = true) just a question
+-- with OK/Cancel. Our own frame rather than a StaticPopup, so nothing of Blizzard's is
+-- touched (developer-guide §8). Built on first use and reused.
 --
---   NameDialog:Open({ title, text, showCopy, confirm, onAccept = function(name, copy) end })
+-- onAccept may return an error text: the dialog then stays open and shows it in red
+-- under the boxes (a link that does not read).
+--
+--   NameDialog:Open({ title, text, showCopy, showLink, confirm,
+--                     onAccept = function(name, copy, link) return errorText? end })
 
 local addonName, ns = ...
 local L = ns.L
 
 local NameDialog = ns:RegisterModule("NameDialog")
+
+local HEIGHT = 140
+local LINK_HEIGHT = 56
 
 local dialog
 
@@ -17,13 +24,19 @@ local function Accept()
     if name == "" and not dialog.confirm then return end
     local onAccept = dialog.onAccept
     local copy = dialog.copy:IsShown() and dialog.copy:GetChecked()
+    local link = dialog.link:IsShown() and strtrim(dialog.link:GetText() or "") or ""
+    local problem = onAccept and onAccept(name, copy and true or false, link)
+    if problem then
+        dialog.problem:SetText(problem)
+        dialog.problem:Show()
+        return
+    end
     dialog:Hide()
-    if onAccept then onAccept(name, copy and true or false) end
 end
 
 local function Create()
     dialog = ns.Theme.Dialog("GudaBiSNameDialog", UIParent)
-    dialog:SetSize(300, 140)
+    dialog:SetSize(300, HEIGHT)
     dialog:SetPoint("CENTER", 0, 120)
     dialog:SetFrameStrata("DIALOG")
     dialog:EnableMouse(true)
@@ -50,6 +63,28 @@ local function Create()
     copy.label:SetText(L.COPY_CURRENT)
     dialog.copy = copy
 
+    local link = CreateFrame("EditBox", nil, dialog, "InputBoxTemplate")
+    link:SetSize(230, 22)
+    link:SetPoint("TOPLEFT", edit, "BOTTOMLEFT", 0, -30)
+    link:SetAutoFocus(false)
+    link:SetScript("OnEnterPressed", Accept)
+    link:SetScript("OnEscapePressed", function() dialog:Hide() end)
+    local placeholder = link:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+    placeholder:SetPoint("LEFT", 2, 0)
+    placeholder:SetText(L.IMPORT_PLACEHOLDER)
+    link:SetScript("OnTextChanged", function(self)
+        placeholder:SetShown(self:GetText() == "")
+        dialog.problem:Hide()
+    end)
+    dialog.link = link
+
+    local problem = dialog:CreateFontString(nil, "OVERLAY", "GameFontRedSmall")
+    problem:SetPoint("TOPLEFT", link, "BOTTOMLEFT", -4, -4)
+    problem:SetWidth(240)
+    problem:SetJustifyH("LEFT")
+    problem:Hide()
+    dialog.problem = problem
+
     local ok = CreateFrame("Button", nil, dialog, "UIPanelButtonTemplate")
     ok:SetSize(100, 22)
     ok:SetPoint("BOTTOMRIGHT", dialog, "BOTTOM", -4, 18)
@@ -71,6 +106,10 @@ function NameDialog:Open(options)
     dialog.edit:SetShown(not dialog.confirm)
     dialog.copy:SetShown(options.showCopy and true or false)
     dialog.copy:SetChecked(false)
+    dialog.link:SetShown(options.showLink and true or false)
+    dialog.link:SetText("")
+    dialog.problem:Hide()
+    dialog:SetHeight(HEIGHT + (options.showLink and LINK_HEIGHT or 0))
     dialog.onAccept = options.onAccept
     dialog:Show()
     if not dialog.confirm then

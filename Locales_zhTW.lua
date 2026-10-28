@@ -120,6 +120,12 @@ local T = {
     SET_MINIMAP = "顯示小地圖按鈕",
     SET_MINIMAP_TIP = "左鍵顯示面板，右鍵開啟這些設定。",
     PICK_NO_MATCH = "沒有符合的項目。",
+    IMPORT_PLACEHOLDER = "Wowhead 裝備規劃器連結（可選）",
+    IMPORT_NOT_LINK = "這不是 Wowhead 裝備規劃器連結。",
+    IMPORT_WRONG_FLAVOR = "這個裝備規劃器連結屬於其他遊戲版本。",
+    IMPORT_DAMAGED = "這個連結已損壞，或格式 GudaBiS 無法辨識。",
+    IMPORT_OTHER_CLASS = "這套裝備屬於%s職業，仍已匯入。",
+    IMPORT_DONE = "已匯入 %d 件物品到 %s。",
 }
 
 for key, value in pairs(T) do

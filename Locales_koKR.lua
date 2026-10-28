@@ -120,6 +120,12 @@ local T = {
     SET_MINIMAP = "미니맵 버튼 표시",
     SET_MINIMAP_TIP = "왼쪽 클릭은 창을 표시하고, 오른쪽 클릭은 이 설정을 엽니다.",
     PICK_NO_MATCH = "일치하는 항목이 없습니다.",
+    IMPORT_PLACEHOLDER = "Wowhead 장비 계획기 링크 (선택)",
+    IMPORT_NOT_LINK = "Wowhead 장비 계획기 링크가 아닙니다.",
+    IMPORT_WRONG_FLAVOR = "이 장비 계획기 링크는 다른 게임 버전용입니다.",
+    IMPORT_DAMAGED = "링크가 손상되었거나 GudaBiS가 모르는 형식입니다.",
+    IMPORT_OTHER_CLASS = "이 세트는 %s 직업용이지만 그대로 가져왔습니다.",
+    IMPORT_DONE = "아이템 %d개를 %s에 가져왔습니다.",
 }
 
 for key, value in pairs(T) do

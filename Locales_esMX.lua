@@ -120,6 +120,12 @@ local T = {
     SET_MINIMAP = "Mostrar el botón del minimapa",
     SET_MINIMAP_TIP = "Clic izquierdo muestra el panel, clic derecho abre esta configuración.",
     PICK_NO_MATCH = "Sin resultados.",
+    IMPORT_PLACEHOLDER = "Enlace del planificador de equipo de Wowhead (opcional)",
+    IMPORT_NOT_LINK = "Eso no es un enlace del planificador de equipo de Wowhead.",
+    IMPORT_WRONG_FLAVOR = "Ese enlace del planificador es de otra versión del juego.",
+    IMPORT_DAMAGED = "Ese enlace está dañado o tiene un formato que GudaBiS no conoce.",
+    IMPORT_OTHER_CLASS = "Ese conjunto es para la clase %s; se importó de todos modos.",
+    IMPORT_DONE = "Se importaron %d objetos en %s.",
 }
 
 for key, value in pairs(T) do

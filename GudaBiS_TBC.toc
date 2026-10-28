@@ -52,6 +52,7 @@ Gear\Items.lua
 Gear\Owned.lua
 Gear\Enchants.lua
 Gear\Match.lua
+Gear\GearPlanner.lua
 
 # Loot
 Loot\Detect.lua
