@@ -10,7 +10,8 @@ stats and the enchants' names.
   - A set whose name starts with a pre-raid word is the Pre-Raid phase. Any other set is
     placed by the phase in its name (p1-p5, t14-t16); a set whose newest item (the
     database's item phase) is older than that is a stale copy and left out. A set with
-    no phase in its name (msv, hof, default) is placed by its newest item.
+    no phase in its name (msv, hof, default) is placed by its newest item. A set with an
+    item outside the MoP item database (older expansion gear) is left out.
   - The rest of the name becomes the list's name ("p5_offensive" -> "BiS Offensive");
     item-swap and test sets are not full sets and are left out.
   - Reforges are kept as Blizzard's stat names ("CRIT_RATING"), so the addon shows them
@@ -137,7 +138,11 @@ def list_from_set(path, gear, db, trees, updated):
             reforges[slot] = list(stats)
     if len(items) < MIN_ITEMS:
         return None
-    by_items = PHASE_OF_ITEMS.get(max(db["phase"].get(item, 1) for item in items.values()), 5)
+    # An item outside the MoP item database is older gear: four pre-raid sets are still
+    # WotLK or Cataclysm gear sets nobody updated (2026-10-29), so the set is left out.
+    if any(item not in db["phase"] for item in items.values()):
+        return None
+    by_items = PHASE_OF_ITEMS.get(max(db["phase"][item] for item in items.values()), 5)
     named = named_phase(file_name)
     if pre:
         phase = PRE_RAID_PHASE

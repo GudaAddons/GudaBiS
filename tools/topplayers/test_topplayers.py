@@ -255,3 +255,9 @@ class WowSimsTest(unittest.TestCase):
         self.assertIsNone(self.wowsims.list_from_set("ui/specs/paladin/holy/gear_sets/p1.gear.json",
                                                      partial, self.db, self.trees, "2026-10-29"))
         self.assertIsNone(self.make("ui/specs/demon_hunter/havoc/gear_sets/p1.gear.json"), "no such spec in MoP")
+
+    def test_a_set_with_older_expansion_gear_is_left_out(self):
+        gear = self.gear(2)
+        gear["items"][1] = {"id": 59359}
+        self.assertIsNone(self.wowsims.list_from_set("ui/specs/death_knight/blood/gear_sets/preraid.gear.json",
+                                                     gear, self.db, self.trees, "2026-10-29"))
