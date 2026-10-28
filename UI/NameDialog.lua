@@ -17,6 +17,15 @@ local NameDialog = ns:RegisterModule("NameDialog")
 local HEIGHT = 140
 local LINK_HEIGHT = 56
 
+-- The dialog is as tall as what it shows (author, 2026-10-28: the delete question had a
+-- lot of empty space): a question is its wrapped title plus the buttons; the name box
+-- adds the copy box and the link box only when they are shown.
+local WIDTH = 300
+local TITLE_INSET = 24
+local CONFIRM_BASE = 72
+local NAME_BASE = 114
+local COPY_HEIGHT = 26
+
 local dialog
 
 local function Accept()
@@ -36,7 +45,7 @@ end
 
 local function Create()
     dialog = ns.Theme.Dialog("GudaBiSNameDialog", UIParent)
-    dialog:SetSize(300, HEIGHT)
+    dialog:SetSize(WIDTH, HEIGHT)
     dialog:SetPoint("CENTER", 0, 120)
     dialog:SetFrameStrata("DIALOG")
     dialog:EnableMouse(true)
@@ -45,6 +54,8 @@ local function Create()
 
     dialog.title = dialog:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     dialog.title:SetPoint("TOP", 0, -18)
+    dialog.title:SetWidth(WIDTH - TITLE_INSET * 2)
+    dialog.title:SetWordWrap(true)
 
     local edit = CreateFrame("EditBox", nil, dialog, "InputBoxTemplate")
     edit:SetSize(230, 22)
@@ -104,12 +115,19 @@ function NameDialog:Open(options)
     dialog.confirm = options.confirm and true or false
     dialog.edit:SetText(options.text or "")
     dialog.edit:SetShown(not dialog.confirm)
-    dialog.copy:SetShown(options.showCopy and true or false)
+    local showCopy = options.showCopy and true or false
+    dialog.copy:SetShown(showCopy)
     dialog.copy:SetChecked(false)
     dialog.link:SetShown(options.showLink and true or false)
     dialog.link:SetText("")
+    dialog.link:ClearAllPoints()
+    dialog.link:SetPoint("TOPLEFT", dialog.edit, "BOTTOMLEFT", 0, showCopy and -30 or -6)
     dialog.problem:Hide()
-    dialog:SetHeight(HEIGHT + (options.showLink and LINK_HEIGHT or 0))
+    if dialog.confirm then
+        dialog:SetHeight(CONFIRM_BASE + (dialog.title:GetStringHeight() or 14))
+    else
+        dialog:SetHeight(NAME_BASE + (showCopy and COPY_HEIGHT or 0) + (options.showLink and LINK_HEIGHT or 0))
+    end
     dialog.onAccept = options.onAccept
     dialog:Show()
     if not dialog.confirm then

@@ -64,6 +64,8 @@ local function NewFrame(name)
     function frame:GetWidth() return rawget(self, "width") or 0 end
     function frame:GetHeight() return rawget(self, "height") or 0 end
     function frame:SetSize(w, h) self.width, self.height = w, h end
+    function frame:SetHeight(h) self.height = h end
+    function frame:SetWidth(w) self.width = w end
     function frame:SetPoint(...) self.point = { ... } end
     function frame:ClearAllPoints() self.point = nil end
     function frame:SetTextColor(r, g, b) self.textColor = { r, g, b } end
