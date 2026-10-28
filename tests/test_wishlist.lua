@@ -164,6 +164,26 @@ return function(T, H)
         T.noErrors()
     end)
 
+    T.case("AtlasLoot: wishing saves the instance and boss AtlasLoot shows", function()
+        local ns, itemType = BootWithAddons()
+        local content = {}
+        function content:GetName() return "Karazhan" end
+        function content:GetNameForItemTable(boss) return boss == 3 and "Moroes" or nil end
+        _G.AtlasLoot.db = { GUI = { selected = { "AtlasLoot_BurningCrusade", "Karazhan", 3, 1, 0 } } }
+        _G.AtlasLoot.ItemDB = { Get = function(_, module)
+            return module == "AtlasLoot_BurningCrusade" and { Karazhan = content } or nil
+        end }
+        local button = ItemButton()
+        button.ItemID = WISHED
+        itemType.Refresh(button)
+        button.gudaBiSWish:Click()
+        T.eq(ns.Wishlist.SourceText(ns.Wishlist:Items()[1]), "Karazhan · Moroes", "source saved")
+        T.eq(ns.AtlasLootBridge.Source().boss, "Moroes", "read from AtlasLoot's selection")
+        _G.AtlasLoot.ItemDB = nil
+        T.eq(ns.AtlasLootBridge.Source(), nil, "no item database: no source, no error")
+        T.noErrors()
+    end)
+
     T.case("Dungeon Journal: shield on rows, wishing saves the dungeon and boss", function()
         local ns = BootWithAddons()
         local row = ItemButton()
