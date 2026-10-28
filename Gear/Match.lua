@@ -5,8 +5,10 @@
 -- character already has (Owned:Has, which includes "marked not needed") never match,
 -- and alternatives match only while settings.alerts.alts is on.
 --
--- Drops are rare events, so this walks the two lists on each call instead of keeping
--- an index that would need rebuilding on every list, phase or talent change.
+-- History asks this for every loot line in a group, so the lookups behind it are cheap:
+-- Data:ForClass keeps its answers and Lists:Phase is a set lookup. The two lists are
+-- walked on each call (16 slots and their alternatives) instead of keeping an index
+-- that would need rebuilding on every list, phase or talent change.
 --
 -- After the lists, the character's wishlist (GB-072): role "wish", no slot. A list
 -- match wins over the wishlist, so an item on both keeps its BiS / alt / OS label.
@@ -21,6 +23,8 @@ local addonName, ns = ...
 local L = ns.L
 
 local Match = ns:RegisterModule("Match")
+
+local LIST_ROLES = { "ms", "os" }
 
 local function RankIn(list, itemID)
     if not list then return nil end
@@ -57,7 +61,7 @@ function Match:Item(itemID, includeOwned, link)
     end
     local settings = ns.db and ns.db.settings.alerts
     local allowAlts = not settings or settings.alts ~= false
-    for _, role in ipairs({ "ms", "os" }) do
+    for _, role in ipairs(LIST_ROLES) do
         local list = role == "ms" and ns.Lists:MainSpec() or ns.Lists:OffSpec()
         local rank, slot = RankIn(list, itemID)
         if rank and (rank == 1 or allowAlts) then

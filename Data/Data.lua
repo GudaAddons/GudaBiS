@@ -83,27 +83,49 @@ end
 
 -- Every guide list of a class for a phase that `faction` may use, ordered by talent
 -- tree, then the phase's lists in tab order before the resistance lists.
+--
+-- Asked on every loot line in a group (Match, via Lists:MainSpec), so the answer for a
+-- class, phase and faction is worked out once and kept: the data never changes after
+-- it registers. The returned table is shared and read only; copy it to add to it.
+local NONE = {}
+local forClass = {}
+
+local function ListOrder(a, b)
+    if a.tree ~= b.tree then return a.tree < b.tree end
+    if (a.anyPhase or false) ~= (b.anyPhase or false) then return not a.anyPhase end
+    return a.id < b.id
+end
+
 function Data:ForClass(class, phase, faction)
-    local out = {}
-    if not PhaseOffered(phase) then return out end
+    if not PhaseOffered(phase) then return NONE end
+    local key = tostring(class) .. "|" .. tostring(phase) .. "|" .. tostring(faction)
+    local out = forClass[key]
+    if out then return out end
+    out = {}
     for _, list in ipairs(lists) do
         if list.class == class and (list.phase == phase or list.anyPhase) and Allowed(list, faction) then
             out[#out + 1] = list
         end
     end
-    table.sort(out, function(a, b)
-        if a.tree ~= b.tree then return a.tree < b.tree end
-        if (a.anyPhase or false) ~= (b.anyPhase or false) then return not a.anyPhase end
-        return a.id < b.id
-    end)
+    table.sort(out, ListOrder)
+    forClass[key] = out
     return out
 end
 
+-- The data's phases in order; shared and read only, like ForClass.
+local phaseList
+
 function Data:Phases()
-    local out = {}
-    for phase in pairs(phaseSet) do out[#out + 1] = phase end
-    table.sort(out)
-    return out
+    if not phaseList then
+        phaseList = {}
+        for phase in pairs(phaseSet) do phaseList[#phaseList + 1] = phase end
+        table.sort(phaseList)
+    end
+    return phaseList
+end
+
+function Data:HasPhase(phase)
+    return phaseSet[phase] == true
 end
 
 function Data:Specs()

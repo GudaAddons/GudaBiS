@@ -38,17 +38,10 @@ local function Customs()
     return db.lists
 end
 
-local function HasPhase(phase)
-    for _, p in ipairs(ns.Data:Phases()) do
-        if p == phase then return true end
-    end
-    return false
-end
-
 function Lists:Phase()
     local selection = Selection()
     local phase = selection and selection.phase
-    if phase and HasPhase(phase) then return phase end
+    if phase and ns.Data:HasPhase(phase) then return phase end
     return ns.Data.defaultPhase
 end
 
@@ -79,11 +72,17 @@ local function SortedCustoms()
     return out
 end
 
+-- The guide lists of a phase for the player's class and faction (shared, read only).
+local function ClassLists(phase)
+    local Spec = ns.Spec
+    return ns.Data:ForClass(Spec:PlayerClass(), phase, Spec:PlayerFaction())
+end
+
 -- The guide lists of the selected phase for the player's class and faction, then the
 -- account's custom lists by name.
 function Lists:Choices()
-    local Spec = ns.Spec
-    local out = ns.Data:ForClass(Spec:PlayerClass(), self:Phase(), Spec:PlayerFaction())
+    local out = {}
+    for _, list in ipairs(ClassLists(self:Phase())) do out[#out + 1] = list end
     for _, list in ipairs(SortedCustoms()) do out[#out + 1] = list end
     return out
 end
@@ -229,11 +228,10 @@ function Lists:SetGem(id, slot, index, gemID)
 end
 
 local function ClassListsNewestFirst()
-    local Spec = ns.Spec
     local phases = ns.Data:Phases()
     local out = {}
     for i = #phases, 1, -1 do
-        for _, list in ipairs(ns.Data:ForClass(Spec:PlayerClass(), phases[i], Spec:PlayerFaction())) do
+        for _, list in ipairs(ClassLists(phases[i])) do
             out[#out + 1] = list
         end
     end
@@ -299,8 +297,7 @@ function Lists:MainSpec()
     if roles and roles.ms == false then return nil end
     local list = roles and self:Get(roles.ms)
     if list then return list end
-    local Spec = ns.Spec
-    local candidates = ns.Data:ForClass(Spec:PlayerClass(), self:Phase(), Spec:PlayerFaction())
+    local candidates = ClassLists(self:Phase())
     local os = roles and roles.os
     if os then
         local kept = {}
@@ -348,8 +345,6 @@ end
 -- Every guide item of the player's class for a slot (and its ring/trinket pair), from
 -- the newest phase down, in guide order without repeats: what the picker offers.
 function Lists:GuideItemsForSlot(slot)
-    local Spec = ns.Spec
-    local phases = ns.Data:Phases()
     local out, seen = {}, {}
     local function Add(itemID)
         if itemID and not seen[itemID] then
@@ -357,12 +352,11 @@ function Lists:GuideItemsForSlot(slot)
             out[#out + 1] = itemID
         end
     end
-    for i = #phases, 1, -1 do
-        for _, list in ipairs(ns.Data:ForClass(Spec:PlayerClass(), phases[i], Spec:PlayerFaction())) do
-            for _, s in ipairs({ slot, PAIR[slot] }) do
-                Add(list.items[s])
-                for _, itemID in ipairs(list.alts and list.alts[s] or {}) do Add(itemID) end
-            end
+    local slots = { slot, PAIR[slot] }
+    for _, list in ipairs(ClassListsNewestFirst()) do
+        for _, s in ipairs(slots) do
+            Add(list.items[s])
+            for _, itemID in ipairs(list.alts and list.alts[s] or {}) do Add(itemID) end
         end
     end
     return out
