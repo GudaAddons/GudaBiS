@@ -66,6 +66,7 @@ local function NewFrame(name)
     function frame:SetSize(w, h) self.width, self.height = w, h end
     function frame:SetHeight(h) self.height = h end
     function frame:SetDesaturated(on) self.desaturated = on and true or false end
+    function frame:SetAtlas(name) self.atlas = name end
     function frame:SetWidth(w) self.width = w end
     function frame:SetPoint(...) self.point = { ... } end
     function frame:ClearAllPoints() self.point = nil end
@@ -272,6 +273,10 @@ function H.Install(opts)
     _G.LibStub = nil
     _G.Settings = nil
     _G.Minimap = nil
+    _G.NineSliceUtil = nil
+    _G.C_Texture = nil
+    _G.ButtonFrameTemplate_HidePortrait = nil
+    _G.ButtonFrameTemplate_HideButtonBar = nil
     _G.Gargul = nil
     _G.AtlasLoot = nil
     _G.ForeverDungeonJournal_NS = nil

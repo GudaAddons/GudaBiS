@@ -2,11 +2,11 @@
 
 return function(T, H)
     local EXPECTED = {
-        era = { key = "Era", HasGems = false, HasMasterLoot = true, HasPhases = true, HasSpecChoice = false, ChatLockdown = false, ItemLevelMatters = false, HasWarbandBank = false, RealmlessNames = false, HasRangedSlot = true },
-        tbc = { key = "TBC", HasGems = true, HasMasterLoot = true, HasPhases = true, HasSpecChoice = false, ChatLockdown = false, ItemLevelMatters = false, HasWarbandBank = false, RealmlessNames = false, HasRangedSlot = true },
-        mists = { key = "Mists", HasGems = true, HasMasterLoot = true, HasPhases = true, HasSpecChoice = true, ChatLockdown = false, ItemLevelMatters = false, HasWarbandBank = false, RealmlessNames = false, HasRangedSlot = false },
-        retail = { key = "Retail", HasGems = true, HasMasterLoot = false, HasPhases = false, HasSpecChoice = true, ChatLockdown = true, ItemLevelMatters = true, HasWarbandBank = true, RealmlessNames = false, HasRangedSlot = false },
-        forever = { key = "Forever", HasGems = false, HasMasterLoot = false, HasPhases = false, HasSpecChoice = false, ChatLockdown = true, ItemLevelMatters = false, HasWarbandBank = true, RealmlessNames = true, HasRangedSlot = true },
+        era = { key = "Era", HasGems = false, HasMasterLoot = true, HasPhases = true, HasSpecChoice = false, ChatLockdown = false, ItemLevelMatters = false, HasWarbandBank = false, RealmlessNames = false, HasRangedSlot = true, HasRetailFrameArt = false },
+        tbc = { key = "TBC", HasGems = true, HasMasterLoot = true, HasPhases = true, HasSpecChoice = false, ChatLockdown = false, ItemLevelMatters = false, HasWarbandBank = false, RealmlessNames = false, HasRangedSlot = true, HasRetailFrameArt = false },
+        mists = { key = "Mists", HasGems = true, HasMasterLoot = true, HasPhases = true, HasSpecChoice = true, ChatLockdown = false, ItemLevelMatters = false, HasWarbandBank = false, RealmlessNames = false, HasRangedSlot = false, HasRetailFrameArt = false },
+        retail = { key = "Retail", HasGems = true, HasMasterLoot = false, HasPhases = false, HasSpecChoice = true, ChatLockdown = true, ItemLevelMatters = true, HasWarbandBank = true, RealmlessNames = false, HasRangedSlot = false, HasRetailFrameArt = true },
+        forever = { key = "Forever", HasGems = false, HasMasterLoot = false, HasPhases = false, HasSpecChoice = false, ChatLockdown = true, ItemLevelMatters = false, HasWarbandBank = true, RealmlessNames = true, HasRangedSlot = true, HasRetailFrameArt = false },
     }
 
     for client, want in pairs(EXPECTED) do

@@ -209,6 +209,46 @@ return function(T, H)
         T.ok(SlotButton(18) ~= nil, "and its button")
     end)
 
+    -- Stand-ins for Retail's art APIs: what was applied is recorded on the frames.
+    local function RetailArtStubs()
+        _G.NineSliceUtil = { ApplyLayoutByName = function(frame, layout) frame.layout = layout end }
+        _G.C_Texture = { GetAtlasInfo = function(name) return name == "common-dropdown-a-button" and {} or nil end }
+        _G.ButtonFrameTemplate_HidePortrait = function(frame) frame.portraitHidden = true end
+        _G.ButtonFrameTemplate_HideButtonBar = function(frame) frame.buttonBarHidden = true end
+    end
+
+    T.case("Retail art: the panel, dropdowns, dialogs and popups use Retail's look", function()
+        local ns = Retail()
+        RetailArtStubs()
+        T.ok(ns.Features.HasRetailFrameArt, "flag")
+        H.Slash("")
+        local panel = _G.GudaBiSPanel
+        T.ok(panel.portraitHidden and panel.buttonBarHidden, "ButtonFrameTemplate, portrait and button bar hidden")
+        local found
+        for _, frame in ipairs(H.AllFrames()) do
+            if rawget(frame, "atlas") == "common-dropdown-a-button" then found = true end
+        end
+        T.ok(found, "Retail dropdown art")
+        local flyout = ns.Theme.Popup("Frame", nil, UIParent)
+        T.eq(flyout.retailBorder.layout, "TooltipDefaultLayout", "popups: tooltip border")
+        local dialog = ns.Theme.Dialog(nil, UIParent)
+        T.eq(dialog.retailBorder.layout, "Dialog", "dialogs: dialog border")
+        T.noErrors()
+    end)
+
+    T.case("Retail art stays off on TBC, and without the APIs on Retail", function()
+        local tbc = H.Boot()
+        RetailArtStubs()
+        H.Slash("")
+        T.ok(not tbc.Features.HasRetailFrameArt, "TBC has classic art")
+        T.ok(not _G.GudaBiSPanel.portraitHidden, "classic panel")
+        T.eq(tbc.Theme.Popup("Frame", nil, UIParent).retailBorder, nil, "classic popup")
+        local ns = Retail()
+        H.Slash("")
+        T.eq(ns.Theme.Dialog(nil, UIParent).retailBorder, nil, "no NineSliceUtil: classic dialog")
+        T.noErrors()
+    end)
+
     T.case("Retail refuses Wowhead gear-planner links until their format is checked", function()
         local ns = Retail()
         local result, problem = ns.GearPlanner:Read("https://www.wowhead.com/gear-planner/paladin/human/AAAA")

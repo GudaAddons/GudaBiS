@@ -57,6 +57,8 @@ local isClassic = Expansion.IsEra or Expansion.IsTBC or Expansion.IsMists
 -- ItemLevelMatters: the same item ID drops at different item levels.
 -- HasWarbandBank: an account bank (Forever has AccountBankTab_1..9).
 -- RealmlessNames: character names are "Given Family" with no realm (Forever).
+-- HasRetailFrameArt: the client draws Retail's frame art (metal frames, modern
+--   dropdowns). Retail, but not Forever: modern API, Vanilla art (as in GudaBags).
 -- HasRangedSlot: a ranged / wand / relic slot (18). MoP removed it, so Retail has none
 --   either; Forever plays Vanilla content and keeps it (author, 2026-10-28).
 local Features = {
@@ -69,6 +71,7 @@ local Features = {
     ItemLevelMatters = isModernRetail,
     HasWarbandBank = Expansion.IsRetail,
     HasRangedSlot = not (Expansion.IsMists or isModernRetail),
+    HasRetailFrameArt = isModernRetail,
 }
 Expansion.Features = Features
 ns.Features = Features
@@ -77,4 +80,5 @@ ns.Features = Features
 Expansion.FeatureNames = {
     "HasGems", "HasMasterLoot", "HasPhases", "HasSpecChoice",
     "ChatLockdown", "ItemLevelMatters", "HasWarbandBank", "RealmlessNames", "HasRangedSlot",
+    "HasRetailFrameArt",
 }
