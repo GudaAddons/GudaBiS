@@ -16,6 +16,7 @@ usage[slot] holds how many players wear the #1 and each alternative, in list ord
 the addon can say "used by 18 of 50".
 """
 
+import re
 from collections import Counter, defaultdict
 
 MIN_SHARE = 0.10
@@ -31,8 +32,10 @@ PAIRS = {11: (11, 12), 12: (11, 12), 13: (13, 14), 14: (13, 14)}
 
 
 def enchant_name(display):
-    """ "Enchanted: Enchant Helm - Rune |A:...|a" -> "Enchant Helm - Rune" """
-    text = display.split("|A:")[0].strip()
+    """ "Enchanted: Enchant Helm - Rune |A:...|a" -> "Enchant Helm - Rune"; colour codes
+    ("|cnIQ4:...|r", "|cffffffff...|r") are dropped too."""
+    text = display.split("|A:")[0]
+    text = re.sub(r"\|cn[^:|]*:|\|c[0-9a-fA-F]{8}|\|r", "", text).strip()
     if text.startswith("Enchanted:"):
         text = text[len("Enchanted:"):].strip()
     return text

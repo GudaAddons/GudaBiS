@@ -43,6 +43,7 @@ Core\Probe.lua
 
 # Data (this flavor only)
 Data\Data.lua
+Data\Mainline\Lists.lua
 
 # Gear
 Gear\Spec.lua

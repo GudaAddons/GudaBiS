@@ -72,8 +72,10 @@ SlashCommands:Register("status", function()
     end
     ns:Print(string.format(L.STATUS_API, table.concat(parts, ", ")))
     local Data = ns.Data
-    if Data and Data.flavor then
+    if Data and Data.flavor and Data.defaultPhase then
         ns:Print(string.format(L.STATUS_DATA, Data.flavor, Data:Count(), #Data:Specs(), Data.defaultPhase))
+    elseif Data and Data.flavor then
+        ns:Print(string.format(L.STATUS_DATA_NO_PHASES, Data.flavor, Data:Count(), #Data:Specs()))
     end
     local db = ns.db
     if db then

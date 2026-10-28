@@ -38,6 +38,10 @@ class EquippedTest(unittest.TestCase):
         self.assertEqual(aggregate.enchant_name(
             "Enchanted: Enchant Helm - Empowered Rune of Avoidance |A:Professions-ChatIcon:20:20|a"),
             "Enchant Helm - Empowered Rune of Avoidance")
+        self.assertEqual(aggregate.enchant_name("|cnIQ4:Ancient Hash'ey Battle Art: Heat Wave|r"),
+                         "Ancient Hash'ey Battle Art: Heat Wave")
+        self.assertEqual(aggregate.enchant_name("+41 Agility/Strength & +115 Stamina"),
+                         "+41 Agility/Strength & +115 Stamina")
 
 
 class BuildListTest(unittest.TestCase):

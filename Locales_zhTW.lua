@@ -135,6 +135,7 @@ local T = {
     HELP_WISHLIST = "|cffffff00/gbis wishlist|r: 顯示你的願望清單",
     ENCHANT_WRONG = "你在此部位裝備的物品附魔不同",
     USED_BY = "%d 名使用（前 %d 名玩家中）",
+    STATUS_DATA_NO_PHASES = "BiS 資料：%s · %d 個清單 · %d 個專精 · 無階段",
 }
 
 for key, value in pairs(T) do

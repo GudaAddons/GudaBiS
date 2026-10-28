@@ -135,6 +135,7 @@ local T = {
     HELP_WISHLIST = "|cffffff00/gbis wishlist|r: Показать список желаемого",
     ENCHANT_WRONG = "На надетом здесь предмете другие чары",
     USED_BY = "Носят %d из %d лучших игроков",
+    STATUS_DATA_NO_PHASES = "Данные BiS: %s · списков: %d · специализаций: %d · без фаз",
 }
 
 for key, value in pairs(T) do

@@ -1,4 +1,4 @@
-"""Build Data/Retail/Lists.lua from the gear of the top Mythic+ players (GB-131).
+"""Build Data/Mainline/Lists.lua (the Retail TOC's data) from the gear of the top Mythic+ players (GB-131).
 
 Usage (WSL; the key file is described in api.py):
   python3 tools/topplayers/build.py --check     # the key works: season, week, dungeons
@@ -241,7 +241,7 @@ def main():
         print(line, file=sys.stderr)
     if not lists:
         sys.exit("no lists built")
-    out_dir = os.path.join(ROOT, "Data", "Retail")
+    out_dir = os.path.join(ROOT, "Data", "Mainline")
     os.makedirs(out_dir, exist_ok=True)
     out_path = os.path.join(out_dir, "Lists.lua")
     with open(out_path, "w", encoding="utf-8", newline="\n") as handle:

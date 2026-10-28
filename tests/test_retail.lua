@@ -1,26 +1,39 @@
--- M13: the Retail client loads GudaBiS_Mainline.toc and works with no built-in lists yet:
--- the panel, its tabs, custom lists, the wishlist, settings and the minimap button.
+-- M13: the Retail client loads GudaBiS_Mainline.toc with its generated top-player lists
+-- (Data/Mainline, GB-131): the panel, its tabs, custom lists, the wishlist, settings and
+-- the minimap button.
 
 return function(T, H)
+    local TOP_ID = "PALADIN_PROTECTION:mplus"
+
+    -- The harness player is a paladin; Protection is the picked spec.
     local function Retail()
-        return H.Boot({ client = "retail" })
+        local ns = H.Boot({ client = "retail" })
+        _G.C_SpecializationInfo.GetSpecialization = function() return 2 end
+        return ns
     end
 
-    T.case("Retail loads its own TOC, with no guide data", function()
+    T.case("Retail loads its own TOC and one top-player list per spec", function()
         local ns = Retail()
         T.eq(H.toc, "GudaBiS_Mainline.toc", "Mainline TOC")
         T.eq(ns.Expansion.ClientKey, "Retail", "client")
-        T.eq(ns.Data:Count(), 0, "no guide lists yet")
-        T.ok(not ns.Features.HasPhases, "no phases")
+        T.eq(ns.Data.flavor, "Retail", "Retail data")
+        T.eq(ns.Data:Count(), 40, "40 specs")
+        T.eq(#ns.Data:Phases(), 0, "no phases")
+        T.ok(not ns.Features.HasPhases, "no phase feature")
+        for _, list in ipairs(ns.Data:All()) do
+            T.eq(list.players, 50, list.id .. " from 50 players")
+            T.ok(list.usage and list.usage[1], list.id .. " has usage")
+        end
         T.noErrors()
     end)
 
-    T.case("Retail panel: no phase dropdown, the empty note, every tab opens", function()
+    T.case("Retail panel: no phase dropdown, the spec's list, every tab opens", function()
         local ns = Retail()
         H.Slash("")
         T.ok(ns.Panel:IsShown(), "panel")
         T.ok(not ns.Panel.phaseDropdown.button:IsShown(), "no phase dropdown")
-        T.ok(_G.GudaBiSPanel.emptyNote:IsShown(), "explains there is no list")
+        T.eq(ns.Lists:Current().id, TOP_ID, "Protection's list")
+        T.ok(not _G.GudaBiSPanel.emptyNote:IsShown(), "no empty note")
         H.Slash("wishlist")
         T.ok(_G.GudaBiSWishlistView:IsShown(), "wishlist tab")
         H.Slash("history")
@@ -29,7 +42,7 @@ return function(T, H)
         T.noErrors()
     end)
 
-    T.case("Retail custom lists, wishlist alerts and settings work without data", function()
+    T.case("Retail custom lists, wishlist alerts and settings", function()
         local ns = Retail()
         H.Slash("")
         local list = ns.Lists:CreateCustom("Mine")
@@ -83,21 +96,30 @@ return function(T, H)
         enchantIDs = { [5] = 8017 }, enchantNames = { [5] = "Enchant Chest - Crystalline Radiance" },
     }
 
-    T.case("top-player lists: no phases, the picked spec's list, season label, usage", function()
+    T.case("top-player lists: the picked spec's list, season label, usage", function()
         local ns = Retail()
-        _G.C_SpecializationInfo.GetSpecialization = function() return 2 end
-        ns.Data:Register({ flavor = "Retail", lists = { TOP_LIST } })
         T.eq(ns.Spec:ActiveTree(), 2, "the picked spec, not the most points")
         local list = ns.Lists:Current()
-        T.eq(list and list.id, TOP_LIST.id, "shown with no phase")
-        T.eq(ns.Panel.ListLabel(list, "Protection"), "Protection · Top 50 M+  |cff808080Midnight Season 2|r", "label")
-        T.eq(ns.Panel.UsageText(list, 1, 1), "Worn by 38 of the top 50 players", "#1")
-        T.eq(ns.Panel.UsageText(list, 1, 3), "Worn by 5 of the top 50 players", "second alternative")
-        T.eq(ns.Panel.UsageText(list, 2, 1), nil, "nothing for an empty slot")
-        T.eq(ns.Match:Item(271501).rank, 3, "alternatives match")
-        H.Slash("")
-        T.ok(not ns.Panel.phaseDropdown.button:IsShown(), "still no phase dropdown")
+        T.eq(list and list.id, TOP_ID, "shown with no phase")
+        T.eq(ns.Panel.ListLabel(list, "Protection"),
+            "Protection · Top 50 M+  |cff808080" .. list.season .. "|r", "label with the season")
+        local count = list.usage[1][1]
+        T.eq(ns.Panel.UsageText(list, 1, 1), "Worn by " .. count .. " of the top 50 players", "#1")
+        T.eq(ns.Panel.UsageText(list, 4, 1), nil, "nothing for the shirt slot")
+        local slot, alts = next(list.alts)
+        T.eq(ns.Match:Item(alts[1]).rank, 2, "alternatives match")
+        T.ok(ns.Panel.UsageText(list, slot, 2) ~= nil, "alternatives have a count")
         T.noErrors()
+    end)
+
+    T.case("generated enchant names carry no colour codes", function()
+        local ns = Retail()
+        for _, list in ipairs(ns.Data:All()) do
+            for slot, name in pairs(list.enchantNames or {}) do
+                T.ok(not name:find("|c", 1, true), list.id .. " slot " .. slot)
+                T.ok(list.enchantIDs[slot] ~= nil, list.id .. " named enchant has an ID")
+            end
+        end
     end)
 
     T.case("top-player lists: enchants by ID, missing and wrong told apart", function()

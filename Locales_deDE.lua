@@ -135,6 +135,7 @@ local T = {
     HELP_WISHLIST = "|cffffff00/gbis wishlist|r: Deine Wunschliste zeigen",
     ENCHANT_WRONG = "Dein angelegter Gegenstand hat hier eine andere Verzauberung",
     USED_BY = "Getragen von %d der besten %d Spieler",
+    STATUS_DATA_NO_PHASES = "BiS-Daten: %s · %d Listen · %d Spezialisierungen · keine Phasen",
 }
 
 for key, value in pairs(T) do
