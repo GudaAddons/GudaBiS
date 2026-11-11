@@ -70,6 +70,8 @@ local function NewFrame(name)
     function frame:SetWidth(w) self.width = w end
     function frame:SetPoint(...) self.point = { ... } end
     function frame:ClearAllPoints() self.point = nil end
+    function frame:GetNumPoints() return rawget(self, "point") and 1 or 0 end
+    function frame:GetPoint() local point = rawget(self, "point"); if point then return unpack(point) end end
     function frame:SetTextColor(r, g, b) self.textColor = { r, g, b } end
     function frame:SetVertexColor(r, g, b) self.vertexColor = { r, g, b } end
     function frame:GetHighlightTexture()
@@ -344,6 +346,7 @@ function H.Install(opts)
     _G.UnitClass = function() return "Paladin", H.class end
     _G.UnitFactionGroup = function() return H.faction end
     H.talentPoints = opts.talentPoints == nil and { 0, 40, 21 } or opts.talentPoints or nil
+    _G.GetTalentTabInfo = nil
     _G.C_SpecializationInfo = {
         GetSpecializationInfo = function(tree)
             local points = H.talentPoints
@@ -408,7 +411,8 @@ function H.Install(opts)
     if opts.normalizedRealm == false then _G.GetNormalizedRealmName = nil end
     _G.GetRealmName = function() return "Thunder Fury" end
     _G.IsInGroup = function() return H.inGroup end
-    _G.UnitLevel = function() return 70 end
+    H.level = opts.level or 70
+    _G.UnitLevel = function() return H.level end
 
     for i = 1, 4 do _G["GroupLootFrame" .. i] = nil end
 

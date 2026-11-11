@@ -68,6 +68,16 @@ return function(T, H)
         end)
     end
 
+    T.case("the two Forever TOCs (_Forever and _Camelot) are the same file", function()
+        local function Read(name)
+            local handle = assert(io.open(H.ROOT .. "/" .. name, "rb"))
+            local text = handle:read("*a")
+            handle:close()
+            return text
+        end
+        T.ok(Read("GudaBiS_Forever.toc") == Read("GudaBiS_Camelot.toc"), "GudaBiS_Forever.toc and GudaBiS_Camelot.toc differ")
+    end)
+
     T.case("the TOC icon file exists", function()
         local handle = io.open(H.ROOT .. "/Assets/logo.png", "rb")
         T.ok(handle ~= nil, "Assets/logo.png")
@@ -89,8 +99,11 @@ return function(T, H)
             end
         end)
 
+        -- Forever ships under both suffixes its client may read (M12, GB-150), so
+        -- GudaBiS_Camelot.toc loads Data/Forever.
         T.case(toc .. " loads only its own flavor's data", function()
             local flavor = toc:match("^GudaBiS_(.+)%.toc$")
+            if flavor == "Camelot" then flavor = "Forever" end
             for _, file in ipairs(H.TocFiles(toc)) do
                 local dataFlavor = file:match("^Data/([^/]+)/")
                 if dataFlavor then

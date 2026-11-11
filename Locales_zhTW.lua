@@ -36,6 +36,7 @@ local T = {
     PANEL_TITLE = "最佳裝備（BiS）",
     PHASE = "第%d階段",
     PHASE_PRERAID = "團隊副本前",
+    PHASE_LEVEL = "%d級",
     NO_LIST = "本階段還沒有你職業的最佳裝備清單。",
     HINT_RANKED = "點擊：顯示此欄位的裝備排名",
     NEW_LIST = "新增清單",

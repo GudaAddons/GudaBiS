@@ -38,16 +38,60 @@ local function Customs()
     return db.lists
 end
 
+-- Level-cap phases (Forever, GB-152): the lowest cap at or above the character's level,
+-- the highest past the last one.
+local function BracketFor(level)
+    local phases = ns.Data:Phases()
+    for _, phase in ipairs(phases) do
+        if phase >= level then return phase end
+    end
+    return phases[#phases] or ns.Data.defaultPhase
+end
+
+-- Asked on every loot line (Match, through Phase), so the bracket is worked out once
+-- and kept until PLAYER_LEVEL_UP brings a new level.
+local levelPhase
+
+function Lists:LevelPhase()
+    if not levelPhase then levelPhase = BracketFor(UnitLevel("player") or 0) end
+    return levelPhase
+end
+
+local function ByLevel()
+    return ns.Data.phaseKind == "level"
+end
+
+-- Only level-cap data listens for levels (RULES.md Rule 1; Data loads before Gear, so
+-- its kind is known here): the event carries the new level, which UnitLevel may not
+-- show yet. GBIS_PHASE_CHANGED tells the views.
+local function OnLevelUp(_, level)
+    local before = levelPhase
+    levelPhase = BracketFor(tonumber(level) or UnitLevel("player") or 0)
+    if levelPhase ~= before then ns.Events:Fire("GBIS_PHASE_CHANGED") end
+end
+
+if ByLevel() then ns.Events:Register("PLAYER_LEVEL_UP", OnLevelUp, "Lists") end
+
+-- On level-cap data a pick by hand holds until the character levels into another
+-- bracket (selection.levelPhase remembers the bracket it was made in); then the phase
+-- follows the level again (author, 2026-11-11).
 function Lists:Phase()
     local selection = Selection()
     local phase = selection and selection.phase
+    if ByLevel() then
+        local levelPhase = self:LevelPhase()
+        if phase and ns.Data:HasPhase(phase) and selection.levelPhase == levelPhase then return phase end
+        return levelPhase
+    end
     if phase and ns.Data:HasPhase(phase) then return phase end
     return ns.Data.defaultPhase
 end
 
 function Lists:SetPhase(phase)
     local selection = Selection()
-    if selection then selection.phase = phase end
+    if not selection then return end
+    selection.phase = phase
+    selection.levelPhase = ByLevel() and self:LevelPhase() or nil
 end
 
 function Lists:Get(id)
@@ -98,15 +142,30 @@ local function DefaultGuideList(choices)
     return choices[1]
 end
 
+-- On level-cap data a saved guide list ID names one bracket, but what the character
+-- chose is the spec and list ("Feral Tank"): that choice carries to the same list in
+-- the bracket in use (code review, 2026-11-11: MS stayed on Level 20 at level 55).
+-- Custom lists, and lists on phase data the player picks by hand, are kept as they are.
+-- Nil when the bracket has no such list.
+function Lists:InCurrentBracket(list)
+    if not list or list.custom or not ByLevel() then return list end
+    local phase = self:Phase()
+    if list.phase == phase then return list end
+    for _, other in ipairs(ClassLists(phase)) do
+        if other.spec == list.spec and other.set == list.set then return other end
+    end
+    return nil
+end
+
 -- The list the panel shows: the saved one when still offered, else the MS list, else
 -- the guide list of the active talent tree. Nil when there is nothing to show.
 function Lists:Current()
     local choices = self:Choices()
     if #choices == 0 then return nil end
     local selection = Selection()
-    local saved = selection and selection.list
+    local saved = selection and self:InCurrentBracket(self:Get(selection.list))
     for _, list in ipairs(choices) do
-        if list.id == saved then return list end
+        if list == saved then return list end
     end
     local ms = self:MainSpec()
     if ms then
@@ -295,10 +354,11 @@ end
 function Lists:MainSpec()
     local roles = Roles()
     if roles and roles.ms == false then return nil end
-    local list = roles and self:Get(roles.ms)
+    local list = roles and self:InCurrentBracket(self:Get(roles.ms))
     if list then return list end
     local candidates = ClassLists(self:Phase())
-    local os = roles and roles.os
+    local offSpec = self:OffSpec()
+    local os = offSpec and offSpec.id
     if os then
         local kept = {}
         for _, guide in ipairs(candidates) do
@@ -311,7 +371,7 @@ end
 
 function Lists:OffSpec()
     local roles = Roles()
-    return roles and self:Get(roles.os) or nil
+    return roles and self:InCurrentBracket(self:Get(roles.os)) or nil
 end
 
 -- "ms", "os" or nil for a list, as the panel labels it.

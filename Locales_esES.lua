@@ -36,6 +36,7 @@ local T = {
     PANEL_TITLE = "Mejor equipo (BiS)",
     PHASE = "Fase %d",
     PHASE_PRERAID = "Antes de las bandas",
+    PHASE_LEVEL = "Nivel %d",
     NO_LIST = "Todavía no hay lista de mejor equipo para tu clase en esta fase.",
     HINT_RANKED = "Clic: muestra los objetos clasificados para esta ranura",
     NEW_LIST = "Nueva lista",

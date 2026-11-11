@@ -36,6 +36,7 @@ local T = {
     PANEL_TITLE = "Beste Ausrüstung (BiS)",
     PHASE = "Phase %d",
     PHASE_PRERAID = "Vor den Schlachtzügen",
+    PHASE_LEVEL = "Stufe %d",
     NO_LIST = "Für deine Klasse gibt es in dieser Phase noch keine Best-in-Slot-Liste.",
     HINT_RANKED = "Klick: Rangliste der Gegenstände für diesen Platz zeigen",
     NEW_LIST = "Neue Liste",

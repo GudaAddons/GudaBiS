@@ -36,6 +36,7 @@ local T = {
     PANEL_TITLE = "Meilleur équipement (BiS)",
     PHASE = "Phase %d",
     PHASE_PRERAID = "Avant les raids",
+    PHASE_LEVEL = "Niveau %d",
     NO_LIST = "Pas encore de liste de meilleur équipement pour votre classe dans cette phase.",
     HINT_RANKED = "Clic : afficher le classement des objets de cet emplacement",
     NEW_LIST = "Nouvelle liste",

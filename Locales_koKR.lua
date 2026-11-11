@@ -36,6 +36,7 @@ local T = {
     PANEL_TITLE = "최고 장비 (BiS)",
     PHASE = "%d단계",
     PHASE_PRERAID = "공격대 이전",
+    PHASE_LEVEL = "%d레벨",
     NO_LIST = "이 단계에는 아직 직업의 최고 장비 목록이 없습니다.",
     HINT_RANKED = "클릭: 이 칸의 순위별 아이템 보기",
     NEW_LIST = "새 목록",

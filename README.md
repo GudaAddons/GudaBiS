@@ -13,6 +13,7 @@ Where the lists come from:
 - TBC Anniversary: Wowhead's BiS guides
 - MoP Classic: the Pre-Raid and BiS gear sets of [WoWSims](https://github.com/wowsims/mop) (MIT licence, © the WoWSims contributors), and what the top raiders wear, from Warcraft Logs
 - Classic Era: what the top raiders of each phase wore, from Warcraft Logs
+- WoW: Forever: the BiS lists of [wowtbc.gg](https://wowtbc.gg/warcraftforever/bis-list/) per level cap (20, 30, 40, 50, 60); the panel shows the one for your level
 - Retail: what the top Mythic+ players wear, from the Blizzard API
 
 Slash command: `/gbis`

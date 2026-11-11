@@ -1,7 +1,8 @@
 -- Which client this is, and what it can do. Feature code asks ns.Features.<Flag>,
 -- never WOW_PROJECT_ID or the interface number (RULES.md Rule 3).
 --
--- WoW: Forever (interface 16000-19999, TOC suffix _Camelot) is the client where the
+-- WoW: Forever (interface 16000-19999, TOC suffix _Forever or _Camelot: Questie ships
+-- both there, so GudaBiS does too, M12) is the client where the
 -- version number lies: it looks like Vanilla but runs the modern Retail API, with
 -- Vanilla content and frame art. It has no WOW_PROJECT_ID constant of its own and may
 -- report the Classic or Mainline ID, so it is decided by interface range, first.
@@ -50,7 +51,8 @@ local isClassic = Expansion.IsEra or Expansion.IsTBC or Expansion.IsMists
 -- HasMasterLoot: Retail removed it in 8.0.1. Unconfirmed on Forever, off until
 --   /gbis probe proves it (GB-005).
 -- HasPhases: content releases in phases (the Phase dropdown). Retail has seasons, not
---   phases: no Phase dropdown there (author, 2026-10-28).
+--   phases: no Phase dropdown there (author, 2026-10-28). Forever: its level caps are the
+--   phases (Level 20 ... Level 60, GB-152).
 -- HasSpecChoice: the player picks a specialization (MoP onwards). Elsewhere the spec
 --   is inferred from where the talent points are. Forever unconfirmed (GB-005).
 -- ChatLockdown: group chat text can be a secret value inside instances (12.0 engine).
@@ -72,7 +74,7 @@ local Features = {
     RealmlessNames = Expansion.IsForever,
     HasGems = Expansion.IsTBC or Expansion.IsMists or isModernRetail,
     HasMasterLoot = isClassic,
-    HasPhases = isClassic,
+    HasPhases = isClassic or Expansion.IsForever,
     HasSpecChoice = Expansion.IsMists or isModernRetail,
     ChatLockdown = Expansion.IsRetail,
     ItemLevelMatters = Expansion.IsMists or isModernRetail,

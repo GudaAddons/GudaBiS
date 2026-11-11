@@ -7,6 +7,12 @@
 -- items/enchants/gems/alts keyed by INVSLOT. A resistance list has anyPhase = true,
 -- no phase and the id "SPEC:res:set"; it is offered in every phase, after that
 -- phase's own lists.
+--
+-- phaseKind "level" (Forever, GB-152): the phases are level caps (20, 30 ... 60), and the
+-- default is the one that fits the character's level (Lists:Phase).
+-- pairsShareAlts (Forever): a ring or trinket pair's alternatives are written once, on
+-- the pair's first slot (11, 13); the second slot gets the same table here, so every
+-- reader still finds alts[slot].
 
 local addonName, ns = ...
 
@@ -19,13 +25,25 @@ local byId = {}
 local bySpec = {}
 local phaseSet = {}
 
+local PAIR_FIRST = { [11] = 12, [13] = 14 }
+
+local function SharePairAlts(list)
+    local alts = list.alts
+    if not alts then return end
+    for first, second in pairs(PAIR_FIRST) do
+        if alts[first] and not alts[second] and list.items[second] then alts[second] = alts[first] end
+    end
+end
+
 function Data:Register(def)
     assert(self.flavor == nil, "a second flavor registered data: " .. tostring(def.flavor))
     self.flavor = def.flavor
     self.defaultPhase = def.defaultPhase
     self.phaseLabels = def.phaseLabels
+    self.phaseKind = def.phaseKind
     self.source = def.source
     for _, list in ipairs(def.lists) do
+        if def.pairsShareAlts then SharePairAlts(list) end
         lists[#lists + 1] = list
         byId[list.id] = list
         local phases = bySpec[list.spec]

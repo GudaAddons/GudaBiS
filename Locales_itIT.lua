@@ -36,6 +36,7 @@ local T = {
     PANEL_TITLE = "Equipaggiamento migliore (BiS)",
     PHASE = "Fase %d",
     PHASE_PRERAID = "Prima delle incursioni",
+    PHASE_LEVEL = "Livello %d",
     NO_LIST = "Non c'è ancora una lista dell'equipaggiamento migliore per la tua classe in questa fase.",
     HINT_RANKED = "Clic: mostra la classifica degli oggetti per questo spazio",
     NEW_LIST = "Nuova lista",

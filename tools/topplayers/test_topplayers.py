@@ -261,3 +261,126 @@ class WowSimsTest(unittest.TestCase):
         gear["items"][1] = {"id": 59359}
         self.assertIsNone(self.wowsims.list_from_set("ui/specs/death_knight/blood/gear_sets/preraid.gear.json",
                                                      gear, self.db, self.trees, "2026-10-29"))
+
+
+class ForeverTest(unittest.TestCase):
+    """forever.py: wowtbc.gg's Warcraft Forever page data -> lists per level cap."""
+
+    @classmethod
+    def setUpClass(cls):
+        import forever
+        cls.forever = forever
+
+    def context(self, caps, gear=(), cls="warrior"):
+        return {"bisList": {"class": cls, "spec": "fury", "caps": caps}, "gearData": list(gear)}
+
+    def test_rank_order_pairs_and_alternatives(self):
+        caps = {"60": {"head": [1, 2, 3], "finger": [10, 11, 12, 13], "trinket": [20],
+                       "main-hand": [30, 31], "off-hand": []}}
+        made = self.forever.lists_for("fury-warrior", self.context(caps), "2026-11-11")
+        self.assertEqual(len(made), 1)
+        entry = made[0]
+        self.assertEqual(entry["id"], "WARRIOR_FURY:60")
+        self.assertEqual((entry["class"], entry["tree"], entry["phase"], entry["set"]), ("WARRIOR", 2, 60, "BiS"))
+        self.assertIsNone(entry["faction"])
+        self.assertEqual(entry["items"][1], 1)
+        self.assertEqual(entry["alts"][1], [2, 3])
+        self.assertEqual((entry["items"][11], entry["items"][12]), (10, 11), "#1 and #2 fill the pair")
+        self.assertEqual(entry["alts"][11], [12, 13])
+        self.assertNotIn(12, entry["alts"], "written once, on the first ring slot")
+        self.assertEqual(entry["items"][13], 20)
+        self.assertNotIn(14, entry["items"], "one trinket listed")
+        self.assertNotIn(17, entry["items"], "no off hand listed")
+        self.assertEqual(entry["items"][16], 30)
+
+    def test_two_handers_rank_after_the_main_hand(self):
+        caps = {"60": {"main-hand": [30, 31], "two-hand": [40, 30]}, "50": {"two-hand": [41]}}
+        made = {m["phase"]: m for m in self.forever.lists_for("fury-warrior", self.context(caps), "d")}
+        self.assertEqual(made[60]["items"][16], 30)
+        self.assertEqual(made[60]["alts"][16], [31, 40])
+        self.assertEqual(made[50]["items"][16], 41, "no one-handers listed")
+
+    def test_one_faction_items_split_the_list(self):
+        caps = {"20": {"head": [5, 6, 7]}, "30": {"head": [8]}}
+        gear = [{"id": 5, "source_type": "Quest (Alliance)"}, {"id": 6, "source_type": "Quest (Horde)"},
+                {"id": 7, "source_type": "Quest"}]
+        made = {m["id"]: m for m in self.forever.lists_for("fury-warrior", self.context(caps, gear), "d")}
+        self.assertEqual(sorted(made), ["WARRIOR_FURY:20:Alliance", "WARRIOR_FURY:20:Horde", "WARRIOR_FURY:30"])
+        self.assertEqual(made["WARRIOR_FURY:20:Alliance"]["items"][1], 5)
+        self.assertEqual(made["WARRIOR_FURY:20:Alliance"]["alts"][1], [7])
+        self.assertEqual(made["WARRIOR_FURY:20:Horde"]["items"][1], 6)
+        self.assertEqual(made["WARRIOR_FURY:20:Horde"]["faction"], "Horde")
+
+    def test_shared_tab_specs_are_named(self):
+        made = self.forever.lists_for("shockadin-paladin", self.context({"60": {"head": [1]}}, cls="paladin"), "d")
+        self.assertEqual((made[0]["spec"], made[0]["tree"], made[0]["set"]), ("PALADIN_SHOCKADIN", 1, "Shockadin"))
+        made = self.forever.lists_for("feral-tank-druid", self.context({"60": {"head": [1]}}, cls="druid"), "d")
+        self.assertEqual((made[0]["spec"], made[0]["tree"]), ("DRUID_FERAL_TANK", 2))
+
+    def test_wrong_class_or_unknown_slot_stops_the_build(self):
+        with self.assertRaises(self.forever.SourceError):
+            self.forever.lists_for("fury-warrior", self.context({"60": {"head": [1]}}, cls="mage"), "d")
+        with self.assertRaises(self.forever.SourceError):
+            self.forever.lists_for("fury-warrior", self.context({"60": {"shirt": [1]}}), "d")
+
+    def test_every_site_spec_maps_to_a_class_tab(self):
+        self.assertEqual(len(self.forever.SPECS), 29)
+        for slug, (key, tree, _) in self.forever.SPECS.items():
+            self.assertIn(tree, (1, 2, 3), slug)
+            self.assertTrue(slug.endswith("-" + key.split("_")[0].lower()), slug)
+
+    def test_render_registers_level_phases(self):
+        made = self.forever.lists_for("fury-warrior", self.context({"60": {"head": [1, 2]}}), "2026-11-11")
+        text = self.forever.render(made, "2026-11-11")
+        self.assertIn('flavor = "Forever"', text)
+        self.assertIn('phaseKind = "level"', text)
+        self.assertIn("pairsShareAlts = true", text)
+        self.assertIn('id = "WARRIOR_FURY:60"', text)
+        self.assertIn("alts = {", text)
+
+
+class ForeverFactionTest(unittest.TestCase):
+    """forever.py: PvP and battleground gear belongs to one faction though the site says not."""
+
+    @classmethod
+    def setUpClass(cls):
+        import forever
+        cls.forever = forever
+
+    def faction(self, name, item_id=272000, source=None, set_name=None):
+        return self.forever.pvp_faction({"id": item_id, "name": name, "source": source, "set": set_name})
+
+    def test_rank_titles(self):
+        self.assertEqual(self.faction("Premier Field Marshal's Chevalier Faceguard"), "Alliance")
+        self.assertEqual(self.faction("Premier Marshal's Chevalier Pauldrons"), "Alliance")
+        self.assertEqual(self.faction("Premier Grand Marshal's Barricade"), "Alliance")
+        self.assertEqual(self.faction("Premier High Warlord's Battle Mace"), "Horde")
+        self.assertEqual(self.faction("Premier Lieutenant General's Plate"), "Horde")
+        self.assertEqual(self.faction("Premier Sergeant's Cape"), "Alliance")
+        self.assertEqual(self.faction("Premier Sergeant's Cloak"), "Horde")
+        self.assertEqual(self.faction("First Sergeant's Plate Bracers"), "Horde", "new ID, no source")
+
+    def test_old_items_with_rank_like_names_stay_both(self):
+        self.assertIsNone(self.faction("General's Ceremonial Plate", 12970))
+        self.assertIsNone(self.faction("Champion's Legplates", 250598, "Blacksmithing"))
+        self.assertIsNone(self.faction("Grunt's Pauldrons", 15513, "World drop"))
+        self.assertIsNone(self.faction("Medallion of Grand Marshal Morris", 13091, "World drop"))
+
+    def test_battleground_sources_and_sets(self):
+        self.assertEqual(self.faction("Defiler's Talisman", 20072, "The Defilers - Friendly"), "Horde")
+        self.assertEqual(self.faction("Highlander's Plate Girdle", 20041, "The League of Arathor - Honored"), "Alliance")
+        self.assertEqual(self.faction("Frostwolf Advisor's Cloak", 19085, "Grunnda Wolfheart"), "Horde")
+        self.assertEqual(self.faction("Legionnaire's Band", 19510, "Kelm Hargunth"), "Horde")
+        self.assertEqual(self.faction("Premier Chevalier Gauntlets", set_name="Lieutenant Commander's Vindication"), "Alliance")
+
+    def test_pvp_items_split_the_list(self):
+        caps = {"60": {"head": [1, 2], "main-hand": [3, 4]}}
+        gear = [{"id": 1, "name": "Premier Field Marshal's Chevalier Faceguard"},
+                {"id": 2, "name": "Enriched Thorium Helm", "source": "Blacksmithing", "source_type": "Crafted"},
+                {"id": 3, "name": "Premier High Warlord's Battle Mace"},
+                {"id": 4, "name": "Sageblade", "source": "Blacksmithing", "source_type": "Crafted"}]
+        context = {"bisList": {"class": "paladin", "caps": caps}, "gearData": gear}
+        made = {m["faction"]: m for m in self.forever.lists_for("protection-paladin", context, "d")}
+        self.assertEqual((made["Horde"]["items"][1], made["Horde"]["items"][16]), (2, 3))
+        self.assertEqual((made["Alliance"]["items"][1], made["Alliance"]["items"][16]), (1, 4))
+        self.assertEqual(made["Horde"]["treeName"], "Protection")

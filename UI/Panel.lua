@@ -117,6 +117,7 @@ end
 function Panel.PhaseLabel(phase)
     local labels = ns.Data.phaseLabels
     if labels and labels[phase] then return labels[phase] end
+    if ns.Data.phaseKind == "level" then return string.format(L.PHASE_LEVEL, phase) end
     if phase == 0 then return L.PHASE_PRERAID end
     return string.format(L.PHASE, phase)
 end
@@ -886,10 +887,31 @@ local function CharacterEdge()
     return classicArt and -32 or 0, classicArt and -12 or 0
 end
 
+-- The Character frame's own column of mode tabs (Character, Reputation, Skills ...):
+-- WoW: Forever has it (CharacterFrame.ModeTabs.Tabs, LargeSideTabButtonTemplate, as
+-- Overlord uses it there). Detected, not tied to a flavor; nil elsewhere.
+local function ModeTabs()
+    local host = CharacterFrame and CharacterFrame.ModeTabs
+    if type(host) == "table" and type(host.Tabs) == "table" then return host end
+    return nil
+end
+
+-- Where the docked panel's left edge goes, as an offset from the Character frame's
+-- right edge: `x`, or past the mode tabs when they reach further, so it never covers
+-- them.
+local function ClearOfModeTabs(x)
+    local host = Panel.tabIsMode and ModeTabs()
+    if not host then return x end
+    local right, edge = host:GetRight(), CharacterFrame:GetRight()
+    if not (right and edge) then return x end
+    return math.max(x, right - edge)
+end
+
 local function Anchor()
     frame:ClearAllPoints()
     if CharacterFrame and CharacterFrame:IsShown() then
         local x, y = CharacterEdge()
+        x = ClearOfModeTabs(x)
         frame:SetPoint("TOPLEFT", CharacterFrame, "TOPRIGHT", x, y)
         frame.docked = true
     else
@@ -898,10 +920,62 @@ local function Anchor()
     end
 end
 
+local MAX_ADDON_TABS = 8
+
+local function AnchoredTo(region, target)
+    for i = 1, region:GetNumPoints() or 0 do
+        local _, relativeTo = region:GetPoint(i)
+        if relativeTo == target then return true end
+    end
+    return false
+end
+
+-- Another addon's shown mode tab hung under `base`, from the column's children (passed
+-- as varargs: no table per call, RULES.md Rule 1).
+local function TabUnder(base, ...)
+    for i = 1, select("#", ...) do
+        local child = select(i, ...)
+        if child ~= tab and child ~= base and child.SetCustomOnMouseUpHandler and child:IsShown()
+            and AnchoredTo(child, base) then
+            return child
+        end
+    end
+    return nil
+end
+
+-- The tab ours goes under: Blizzard's last shown tab, then down the chain of other
+-- addons' tabs anchored under it (Overlord's), so none sit on each other. Followed by
+-- anchors, not screen positions: those are unknown before the first layout, and a tab
+-- another addon hung under ours is never followed, so no anchor loop can form.
+local function LastModeTab(host)
+    local last
+    for _, blizzard in ipairs(host.Tabs) do
+        if blizzard:IsShown() then last = blizzard end
+    end
+    if not last then return nil end
+    for _ = 1, MAX_ADDON_TABS do
+        local under = TabUnder(last, host:GetChildren())
+        if not under then break end
+        last = under
+    end
+    return last
+end
+
 PlaceTab = function()
     if not tab then return end
     tab:ClearAllPoints()
     local open = frame ~= nil and frame:IsShown() and frame.docked
+    if Panel.tabIsMode then
+        local host = ModeTabs()
+        local last = host and LastModeTab(host)
+        if last then
+            tab:SetPoint("TOPLEFT", last, "BOTTOMLEFT", 0, -2)
+        elseif host then
+            tab:SetPoint("TOPLEFT", host, "TOPLEFT")
+        end
+        tab:SetChecked(open)
+        return
+    end
     if open then
         tab:SetPoint("TOPLEFT", frame, "TOPRIGHT", -2, TAB_TOP)
     else
@@ -942,7 +1016,7 @@ function Panel:Refresh()
     for i, list in ipairs(Lists:Choices()) do
         listOptions[i] = {
             value = list.id,
-            text = Panel.ListLabel(list, ns.Spec:TreeName(list.tree), Lists:RoleOf(list.id)),
+            text = Panel.ListLabel(list, ns.Spec:TreeName(list.tree) or list.treeName, Lists:RoleOf(list.id)),
         }
     end
     for _, action in ipairs(Panel.ListActions(current)) do listOptions[#listOptions + 1] = action end
@@ -974,6 +1048,12 @@ ns.Events:Register("GBIS_OWNED_CHANGED", function() Panel:RefreshChecks() end, "
 -- event that says so. It also fires for durability, so it only repaints an open panel.
 ns.Events:Register("UNIT_INVENTORY_CHANGED", function(_, unit)
     if unit == "player" then Panel:RefreshChecks() end
+end, "Panel")
+
+-- Level-cap phases follow the level (Forever, GB-152): Lists says when a new level
+-- moved the bracket.
+ns.Events:Register("GBIS_PHASE_CHANGED", function()
+    if Panel:IsShown() then Panel:Refresh() end
 end, "Panel")
 
 function Panel:IsShown()
@@ -1020,9 +1100,36 @@ function Panel:Toggle()
     ns.Database:SetSetting("panelOpen", self:IsShown())
 end
 
+-- On a Character frame with mode tabs (Forever), GudaBiS is one more tab at the end of
+-- that column (author, 2026-11-11). It opens and closes the docked panel and never
+-- switches the Character frame's own pane, so Blizzard's tab stays chosen. Nil when the
+-- template or its methods are missing: the side tab is used then.
+local function CreateModeTab()
+    local host = ModeTabs()
+    if not host then return nil end
+    local ok, modeTab = pcall(CreateFrame, "Frame", nil, host, "LargeSideTabButtonTemplate")
+    if not (ok and modeTab and modeTab.SetCustomOnMouseUpHandler and modeTab.SetChecked) then
+        return nil
+    end
+    if modeTab.Icon then modeTab.Icon:SetTexture(TOGGLE_ICON) end
+    modeTab.tooltipText = L.TOOLTIP_TOGGLE
+    if modeTab.SetFillToInterior then modeTab:SetFillToInterior(true) end
+    modeTab:SetChecked(false)
+    modeTab:SetCustomOnMouseUpHandler(function(_, button, upInside)
+        if button == "LeftButton" and upInside then Panel:Toggle() end
+    end)
+    Panel.tabIsMode = true
+    return modeTab
+end
+
 -- Built like the spellbook's SpellBookSkillLineTabTemplate, without inheriting it:
 -- that template's scripts belong to the spellbook.
 local function CreateTab()
+    tab = CreateModeTab()
+    if tab then
+        Panel.tab = tab
+        return
+    end
     tab = CreateFrame("CheckButton", nil, CharacterFrame)
     tab:SetSize(32, 32)
     tab:SetFrameLevel((CharacterFrame:GetFrameLevel() or 0) + TAB_LEVEL_ABOVE)
@@ -1045,6 +1152,14 @@ local function CreateTab()
     Panel.tab = tab
 end
 
+-- Another addon may add its mode tab in its own OnShow hook, after ours, and the
+-- column's size is only known after layout: the tab and a docked panel are placed
+-- again once every hook has run.
+local function PlaceAgain()
+    if frame and frame:IsShown() and frame.docked then Anchor() end
+    PlaceTab()
+end
+
 local function OnCharacterShow()
     if not tab then CreateTab() end
     if ns.Database:GetSetting("panelOpen") then
@@ -1052,6 +1167,7 @@ local function OnCharacterShow()
     else
         PlaceTab()
     end
+    if Panel.tabIsMode and C_Timer and C_Timer.After then C_Timer.After(0, PlaceAgain) end
 end
 
 local function OnCharacterHide()

@@ -6,7 +6,8 @@
 -- and alternatives match only while settings.alerts.alts is on.
 --
 -- History asks this for every loot line in a group, so the lookups behind it are cheap:
--- Data:ForClass keeps its answers and Lists:Phase is a set lookup. The two lists are
+-- Data:ForClass keeps its answers and Lists:Phase is a set lookup (on level-cap data, a
+-- kept bracket, worked out again only on PLAYER_LEVEL_UP). The two lists are
 -- walked on each call (16 slots and their alternatives) instead of keeping an index
 -- that would need rebuilding on every list, phase or talent change.
 --
