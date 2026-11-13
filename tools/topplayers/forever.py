@@ -15,6 +15,7 @@ addon picks the one that fits the character's level (author, 2026-11-11).
 Rules (author, 2026-11-11):
 - the site's order is the rank: #1 is the slot's item, every other item an alternative
 - rings and trinkets: #1 and #2 fill the pair, both slots share the rest
+- no off hand when the main hand's #1 is two-handed (GB-155)
 - no enchants, gems or source text
 - a spec and level cap with any one-faction item becomes one list per faction, each
   without the other faction's items (the addon offers a list only to its faction)
@@ -191,11 +192,19 @@ def unique(ids):
     return out
 
 
-def slots_for(cap, keep):
+def two_handers(gear):
+    """IDs of the items gearData marks as two-handed."""
+    return {item["id"] for item in gear if item.get("slot") == "two-hand"}
+
+
+def slots_for(cap, keep, two_handed=frozenset()):
     """items and alts by INVSLOT from one level cap's ranked lists; keep(id) filters.
 
     Some pages (Beast Mastery) rank two-handers apart from the one-handers: they go into
     the main hand after the one-handers (or are the main hand when none is listed).
+    The site ranks main and off hand apart and mixes staves into the main hand, so its
+    two #1s can be a staff and an orb, which no one can hold together: when the main
+    hand's #1 is two-handed, the list has no off hand (GB-155).
     A pair's shared alternatives are written once, on its first slot; the data's
     pairsShareAlts tells the addon to give the second slot the same table.
     """
@@ -216,6 +225,9 @@ def slots_for(cap, keep):
             items[slot] = item
         if rest:
             alts[slots[0]] = list(rest)
+    if items.get(16) in two_handed:
+        items.pop(17, None)
+        alts.pop(17, None)
     return items, alts
 
 
@@ -228,6 +240,7 @@ def lists_for(slug, context, updated):
     if (bis.get("class") or "").lower() != expected_class:
         raise SourceError(f"{slug}: page is for class {bis.get('class')!r}")
     factions = item_factions(context.get("gearData") or [])
+    two_handed = two_handers(context.get("gearData") or [])
     out = []
     for phase in PHASES:
         cap = caps.get(str(phase))
@@ -239,7 +252,7 @@ def lists_for(slug, context, updated):
             def keep(item, faction=faction):
                 owner = factions.get(item)
                 return owner is None or faction is None or owner == faction
-            items, alts = slots_for(cap, keep)
+            items, alts = slots_for(cap, keep, two_handed)
             if not items:
                 continue
             list_id = f"{key}:{phase}" + (f":{faction}" if faction else "")
@@ -261,7 +274,8 @@ def render(lists, updated):
         f"-- Phases are level caps ({labels}); the addon picks the one that fits the character's",
         "-- level. Slots are INVSLOT numbers; alts are the site's other items for the slot, in",
         "-- its order, once per ring and trinket pair (pairsShareAlts: the second slot shares the",
-        "-- first slot's). A list with a faction leaves out the other faction's quest rewards.",
+        "-- first slot's). A list with a faction leaves out the other faction's quest rewards and",
+        "-- PvP gear. A list whose main-hand #1 is two-handed has no off hand.",
         "",
         "local addonName, ns = ...",
         "",

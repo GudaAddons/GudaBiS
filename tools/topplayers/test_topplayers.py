@@ -300,6 +300,22 @@ class ForeverTest(unittest.TestCase):
         self.assertEqual(made[60]["alts"][16], [31, 40])
         self.assertEqual(made[50]["items"][16], 41, "no one-handers listed")
 
+    def test_no_off_hand_with_a_two_handed_main_hand(self):
+        caps = {"60": {"main-hand": [30, 31], "off-hand": [50, 51]},
+                "50": {"main-hand": [31, 30], "off-hand": [50, 51]},
+                "40": {"main-hand": [32], "two-hand": [30], "off-hand": [50]}}
+        gear = [{"id": 30, "slot": "two-hand", "type": "staff"},
+                {"id": 31, "slot": "one-hand", "type": "mace"},
+                {"id": 32, "slot": "main hand", "type": "mace"}]
+        made = {m["phase"]: m for m in self.forever.lists_for("fury-warrior", self.context(caps, gear), "d")}
+        self.assertEqual(made[60]["items"][16], 30)
+        self.assertNotIn(17, made[60]["items"], "a staff takes both hands")
+        self.assertNotIn(17, made[60]["alts"])
+        self.assertEqual(made[60]["alts"][16], [31], "one-handers stay alternatives")
+        self.assertEqual((made[50]["items"][16], made[50]["items"][17]), (31, 50), "one-hander keeps the off hand")
+        self.assertEqual(made[50]["alts"][17], [51])
+        self.assertEqual(made[40]["items"][17], 50, "two-hander ranked after the one-hander")
+
     def test_one_faction_items_split_the_list(self):
         caps = {"20": {"head": [5, 6, 7]}, "30": {"head": [8]}}
         gear = [{"id": 5, "source_type": "Quest (Alliance)"}, {"id": 6, "source_type": "Quest (Horde)"},
