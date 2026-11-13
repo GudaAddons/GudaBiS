@@ -114,10 +114,22 @@ local function ListOrder(a, b)
     return a.id < b.id
 end
 
+local function Kept(class, phase, faction)
+    local byPhase = forClass[class]
+    local byFaction = byPhase and byPhase[phase or false]
+    return byFaction and byFaction[faction or false]
+end
+
+local function Keep(class, phase, faction, out)
+    forClass[class] = forClass[class] or {}
+    local byPhase = forClass[class]
+    byPhase[phase or false] = byPhase[phase or false] or {}
+    byPhase[phase or false][faction or false] = out
+end
+
 function Data:ForClass(class, phase, faction)
-    if not PhaseOffered(phase) then return NONE end
-    local key = tostring(class) .. "|" .. tostring(phase) .. "|" .. tostring(faction)
-    local out = forClass[key]
+    if not PhaseOffered(phase) or class == nil then return NONE end
+    local out = Kept(class, phase, faction)
     if out then return out end
     out = {}
     for _, list in ipairs(lists) do
@@ -126,7 +138,7 @@ function Data:ForClass(class, phase, faction)
         end
     end
     table.sort(out, ListOrder)
-    forClass[key] = out
+    Keep(class, phase, faction, out)
     return out
 end
 

@@ -64,11 +64,11 @@ local SLOT_NAMES = {
     [16] = "MainHandSlot", [17] = "SecondaryHandSlot", [18] = "RangedSlot",
 }
 
-local TOGGLE_ICON = "Interface\\AddOns\\GudaBiS\\Assets\\logo.png"
+local TOGGLE_ICON = ns.Theme.LOGO
 local TAB_BACKGROUND = "Interface\\SpellBook\\SpellBook-SkillLineTab"
 local TAB_TOP = -60
 local TAB_LEVEL_ABOVE = 10
-local EMPTY_SLOT = "Interface\\PaperDoll\\UI-Backpack-EmptySlot"
+local EMPTY_SLOT = ns.Theme.EMPTY_SLOT
 local QUALITY_BORDER = "Interface\\Common\\WhiteIconFrame"
 
 local NO_ALTS = {}
@@ -89,7 +89,7 @@ end
 -- name, and in grey the guide's writer when the data names one (author, 2026-10-28). Top-player
 -- lists (Retail) show their season there instead: "Protection · Top 50 M+  Midnight Season 2". A
 -- custom list shows its own name. role ("ms"/"os") adds a coloured MS/OS tag.
-local ROLE_TAGS = { ms = "|cff40ff40%s|r ", os = "|cff40c0ff%s|r " }
+local ROLE_TEXT = ns.Theme.ROLE_TEXT
 local AUTHOR_TAG = "  |cff808080%s|r"
 
 function Panel.ListLabel(list, treeName, role)
@@ -107,7 +107,7 @@ function Panel.ListLabel(list, treeName, role)
         label = label .. string.format(AUTHOR_TAG, list.season)
     end
     if role then
-        label = string.format(ROLE_TAGS[role], role == "ms" and L.ROLE_MS or L.ROLE_OS) .. label
+        label = string.format(ROLE_TEXT[role], role == "ms" and L.ROLE_MS or L.ROLE_OS) .. " " .. label
     end
     return label
 end
@@ -206,7 +206,6 @@ local function PaintCheck(button, list)
     button.check:Show()
 end
 
-local EMPTY_ENCHANT = "Interface\\PaperDoll\\UI-Backpack-EmptySlot"
 local NAMED_ENCHANT_ICON = "Interface\\Icons\\Trade_Engraving"
 local EMPTY_SOCKET = "Interface\\ItemSocketingFrame\\UI-EmptySocket-"
 local SOCKET_TEXTURE_NAMES = { META = "Meta", RED = "Red", YELLOW = "Yellow", BLUE = "Blue" }
@@ -229,7 +228,7 @@ local function PaintEnchant(button, spellID, editable, name)
         enchant.icon:SetDesaturated(false)
         enchant:Show()
     elseif editable then
-        enchant.icon:SetTexture(EMPTY_ENCHANT)
+        enchant.icon:SetTexture(EMPTY_SLOT)
         enchant.icon:SetDesaturated(true)
         enchant:Show()
     else
@@ -682,13 +681,11 @@ local DELETE_ICON = "|TInterface\\Buttons\\UI-GroupLoot-Pass-Up:14|t "
 -- again (a guide list of the active tree that was OS), MS is cleared too, so the
 -- dropdown shows what was chosen.
 local ROLE_NONE = "none"
-local ROLE_COLORS = { ms = "|cff40ff40%s|r", os = "|cff40c0ff%s|r", none = "|cff808080%s|r" }
-
 function Panel.RoleOptions()
     return {
-        { value = "ms", text = string.format(ROLE_COLORS.ms, L.ROLE_MS) },
-        { value = "os", text = string.format(ROLE_COLORS.os, L.ROLE_OS) },
-        { value = ROLE_NONE, text = string.format(ROLE_COLORS.none, "—") },
+        { value = "ms", text = string.format(ROLE_TEXT.ms, L.ROLE_MS) },
+        { value = "os", text = string.format(ROLE_TEXT.os, L.ROLE_OS) },
+        { value = ROLE_NONE, text = string.format(ROLE_TEXT.none, "—") },
     }
 end
 
@@ -825,6 +822,15 @@ local function CreateTabs()
     if PanelTemplates_SetTab then PanelTemplates_SetTab(frame, 1) end
 end
 
+-- Enchanting or socketing a worn item changes no equipment, only the item; this is the
+-- event that says so. It also fires for durability and, on Classic, for group members,
+-- so it is registered only while the panel is open (GB-160).
+local function OnInventoryChanged(_, unit)
+    if unit == "player" then Panel:RefreshChecks() end
+end
+
+-- Dropdown frames are wider than their art by DROPDOWN_MARGIN per side, so they start
+-- that far left of the padding and overlap by twice that between them.
 local function Create()
     local title, close
     frame, title, close = ns.Theme.Panel("GudaBiSPanel", UIParent)
@@ -839,8 +845,6 @@ local function Create()
     title:SetText(L.PANEL_TITLE)
     close:SetScript("OnClick", function() Panel:Close() end)
 
-    -- Dropdown frames are wider than their art by DROPDOWN_MARGIN per side, so they
-    -- start that far left of the padding and overlap by twice that between them.
     local margin = ns.Theme.DROPDOWN_MARGIN
     local phaseWidth = PHASE_DROPDOWN_WIDTH + margin * 2
     phaseDropdown = ns.Dropdown.Create(frame, phaseWidth, function(phase)
@@ -868,7 +872,11 @@ local function Create()
     LayoutSlots()
     CreateTabs()
 
+    frame:SetScript("OnShow", function()
+        ns.Events:Register("UNIT_INVENTORY_CHANGED", OnInventoryChanged, "Panel")
+    end)
     frame:SetScript("OnHide", function()
+        ns.Events:Unregister("UNIT_INVENTORY_CHANGED", "Panel")
         GameTooltip:Hide()
         ns.RankFlyout:Close()
         PlaceTab()
@@ -1043,12 +1051,6 @@ function Panel:RefreshChecks()
 end
 
 ns.Events:Register("GBIS_OWNED_CHANGED", function() Panel:RefreshChecks() end, "Panel")
-
--- Enchanting or socketing a worn item changes no equipment, only the item; this is the
--- event that says so. It also fires for durability, so it only repaints an open panel.
-ns.Events:Register("UNIT_INVENTORY_CHANGED", function(_, unit)
-    if unit == "player" then Panel:RefreshChecks() end
-end, "Panel")
 
 -- Level-cap phases follow the level (Forever, GB-152): Lists says when a new level
 -- moved the bracket.

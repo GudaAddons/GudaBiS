@@ -57,10 +57,9 @@ end
 
 ns.Events:Register("GBIS_INITIALIZED", function()
     Log:Restore(ns.db and ns.db.log)
-end, "Log")
-
-ns.Events:Register("PLAYER_LOGOUT", function()
-    if ns.db then ns.db.log = Log:Lines() end
+    ns.Events:Register("PLAYER_LOGOUT", function()
+        if ns.db then ns.db.log = Log:Lines() end
+    end, "Log")
 end, "Log")
 
 local function CreateLogFrame()

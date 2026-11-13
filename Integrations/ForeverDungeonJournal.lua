@@ -53,7 +53,4 @@ function JournalBridge:Hook()
     return true
 end
 
-ns.Events:Register("GBIS_INITIALIZED", function() JournalBridge:Hook() end, "JournalBridge")
-ns.Events:Register("ADDON_LOADED", function(_, name)
-    if name == "ForeverDungeonJournal" then JournalBridge:Hook() end
-end, "JournalBridge")
+ns.Events:HookAddon({ ForeverDungeonJournal = true }, function() return JournalBridge:Hook() end, "JournalBridge")

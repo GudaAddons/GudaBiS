@@ -71,6 +71,18 @@ return function(T, H)
         T.ok(ns.Lists.FitsSlot("INVTYPE_SHIELD", 17), "shield in off hand")
         T.ok(not ns.Lists.FitsSlot("INVTYPE_HEAD", 3), "head not in shoulder")
         T.ok(not ns.Lists.FitsSlot(nil, 1), "unknown")
+        T.ok(not ns.Lists.FitsSlot("INVTYPE_RANGED", 16), "TBC: bow only in the ranged slot")
+        T.ok(not ns.Lists.FitsSlot("INVTYPE_2HWEAPON", 17), "TBC: no Titan's Grip")
+    end)
+
+    T.case("FitsSlot: MoP and Retail hold bows and wands in the main hand, Titan's Grip", function()
+        for _, client in ipairs({ "mists", "retail" }) do
+            local ns = H.Boot({ client = client })
+            T.ok(ns.Lists.FitsSlot("INVTYPE_RANGED", 16), client .. ": bow")
+            T.ok(ns.Lists.FitsSlot("INVTYPE_RANGEDRIGHT", 16), client .. ": wand")
+            T.ok(ns.Lists.FitsSlot("INVTYPE_2HWEAPON", 17), client .. ": two-hander in the off hand")
+            T.ok(not ns.Lists.FitsSlot("INVTYPE_RANGED", 17), client .. ": no bow in the off hand")
+        end
     end)
 
     T.case("+ makes an empty named list, selected and shown", function()

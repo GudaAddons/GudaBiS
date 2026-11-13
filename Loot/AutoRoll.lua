@@ -82,11 +82,11 @@ end
 -- answered, so no popup asks for a second roll.
 function AutoRoll:RollCall(link, match, sender, message)
     if not self:Active() or not ns.Detect.IsLootLeader(sender) or match.upgrade then return false end
-    if not AutoRoll.RollRange(match) then return false end
+    local high = AutoRoll.RollRange(match)
+    if not high then return false end
     local now = GetTime()
     if lastCall.message == message and lastCall.at == now then return true end
     lastCall.message, lastCall.at = message, now
-    local high = AutoRoll.RollRange(match)
     RandomRoll(1, high)
     Report("/roll 1-" .. high, link, match)
     return true

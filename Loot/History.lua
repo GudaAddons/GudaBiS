@@ -19,6 +19,7 @@
 --   History.Quality(link) -> 0..7 from the link's color, or nil
 --   History.Keep(kind, quality, matched) -> boolean
 --   History.ParseLoot(message) -> link, winner ("" = the player) or nil
+--   History:Seen(link[, match]), History:Recording() -> inside a raid or dungeon
 --   History:Sessions(kind[, char]) -> newest first
 --   History:Characters() -> character keys with a session, sorted
 
@@ -150,7 +151,7 @@ local function CurrentSession()
         for i = #list, MAX_SESSIONS + 1, -1 do list[i] = nil end
     end
     session.last = time()
-    if current.kind == "raids" then session.reset = LockoutReset(session.name) or session.reset end
+    if current.kind == "raids" and not session.reset then session.reset = LockoutReset(session.name) end
     return session
 end
 
@@ -165,11 +166,11 @@ local function Unawarded(session, itemID)
     return nil
 end
 
-local function Add(link, winner)
+local function Add(link, winner, match)
     if not current then return end
     local itemID = ns.Match.ItemIDFromLink(link)
     if not itemID then return end
-    local match = ns.Match:Item(itemID, true)
+    match = match or ns.Match:Item(itemID, true)
     if not History.Keep(current.kind, History.Quality(link), match ~= nil) then return end
     local session = CurrentSession()
     if not session then return end
@@ -188,9 +189,14 @@ end
 
 -- A drop someone may still receive: shows as "seen" until CHAT_MSG_LOOT names a winner.
 -- The same item seen again within SEEN_WINDOW (a group-loot roll and the leader linking
--- it) is one drop.
-function History:Seen(link)
-    Add(link, nil)
+-- it) is one drop. match: what the caller already matched (Detect), so it is not
+-- worked out twice.
+function History:Seen(link, match)
+    Add(link, nil, match)
+end
+
+function History:Recording()
+    return current ~= nil
 end
 
 local function OnLoot(_, message)
@@ -198,7 +204,7 @@ local function OnLoot(_, message)
     local link, winner = History.ParseLoot(message)
     if not link then return end
     if winner == "" then winner = UnitName("player") end
-    Add(link, ns.Detect.ShortName(winner))
+    Add(link, ns.Compat.ShortName(winner))
 end
 
 local function OnLootRoll(_, rollID)

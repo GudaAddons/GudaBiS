@@ -19,9 +19,9 @@ local L = ns.L
 local WishToggle = ns:RegisterModule("WishToggle")
 
 WishToggle.SIZE = 18
-local ICON = "Interface\\AddOns\\GudaBiS\\Assets\\logo.png"
+local ICON = ns.Theme.LOGO
 local OFF_ALPHA = 0.6
-local TOOLTIP_COLOR = { 1, 0.6, 1 }
+local TOOLTIP_COLOR = ns.Theme.BADGE_COLORS.wish
 
 local toggles = setmetatable({}, { __mode = "k" })
 

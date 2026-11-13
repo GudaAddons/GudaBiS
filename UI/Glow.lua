@@ -16,7 +16,7 @@ local addonName, ns = ...
 
 local Glow = ns:RegisterModule("Glow")
 
-local ALERT = "Interface\\SpellActivationOverlay\\IconAlert"
+local ALERT = ns.Theme.ICON_ALERT
 local ANTS = "Interface\\SpellActivationOverlay\\IconAlertAnts"
 local SCALE = 1.4
 local ANT_FRAME = 48

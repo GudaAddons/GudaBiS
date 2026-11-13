@@ -64,6 +64,8 @@ local isClassic = Expansion.IsEra or Expansion.IsTBC or Expansion.IsMists
 --   dropdowns). Retail, but not Forever: modern API, Vanilla art (as in GudaBags).
 -- HasRangedSlot: a ranged / wand / relic slot (18). MoP removed it, so Retail has none
 --   either; Forever plays Vanilla content and keeps it (author, 2026-10-28).
+-- HasTitansGrip: Fury can hold a two-hander in the off hand (Wrath onwards: MoP, Retail;
+--   not Forever, which plays Vanilla content).
 -- HasNativeDropdowns: use Blizzard's own dropdown (WowStyle1DropdownTemplate) with the
 --   Classic frame art where the client has it: MoP Classic, besides Retail (GB-140).
 --   UI/Dropdown.lua still falls back to the drawn one when the widget is missing.
@@ -80,16 +82,16 @@ local Features = {
     ItemLevelMatters = Expansion.IsMists or isModernRetail,
     HasWarbandBank = Expansion.IsRetail,
     HasRangedSlot = not (Expansion.IsMists or isModernRetail),
+    HasTitansGrip = Expansion.IsMists or isModernRetail,
     HasRetailFrameArt = isModernRetail,
     HasNativeDropdowns = Expansion.IsMists or isModernRetail,
     HasModernCharacterFrame = Expansion.IsMists or isModernRetail,
 }
-Expansion.Features = Features
 ns.Features = Features
 
 -- Stable order for /gbis status, so output is comparable between runs and clients.
 Expansion.FeatureNames = {
     "HasGems", "HasMasterLoot", "HasPhases", "HasSpecChoice",
-    "ChatLockdown", "ItemLevelMatters", "HasWarbandBank", "RealmlessNames", "HasRangedSlot",
+    "ChatLockdown", "ItemLevelMatters", "HasWarbandBank", "RealmlessNames", "HasRangedSlot", "HasTitansGrip",
     "HasRetailFrameArt", "HasNativeDropdowns", "HasModernCharacterFrame",
 }

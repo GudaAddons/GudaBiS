@@ -105,11 +105,8 @@ function AtlasLootBridge:Hook()
     return true
 end
 
-ns.Events:Register("GBIS_INITIALIZED", function() AtlasLootBridge:Hook() end, "AtlasLootBridge")
 -- The core addon is "AtlasLoot" (AtlasLootClassic Continued, TBC and Retail) or
 -- "AtlasLootClassic" (Classic Era); both create the global AtlasLoot.
 local ADDON_NAMES = { AtlasLoot = true, AtlasLootClassic = true }
 
-ns.Events:Register("ADDON_LOADED", function(_, name)
-    if ADDON_NAMES[name] then AtlasLootBridge:Hook() end
-end, "AtlasLootBridge")
+ns.Events:HookAddon(ADDON_NAMES, function() return AtlasLootBridge:Hook() end, "AtlasLootBridge")

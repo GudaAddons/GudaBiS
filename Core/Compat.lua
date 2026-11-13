@@ -50,6 +50,39 @@ function Compat.IsSecret(value)
     return check ~= nil and check(value) == true
 end
 
+-- The classic talent-tab API: (id, name, description, icon, pointsSpent, ...) on current
+-- Classic clients, (name, icon, pointsSpent, ...) on older ones. The tab index stands
+-- in for the spec ID.
+local function TalentTabInfo(tree)
+    local get = _G.GetTalentTabInfo
+    if not get then return nil end
+    local ok, first, second, third, _, fifth = pcall(get, tree)
+    if not ok or first == nil then return nil end
+    if type(first) == "number" then return tree, second, tonumber(fifth) or 0 end
+    return tree, first, tonumber(third) or 0
+end
+
+-- WoW: Forever answers C_SpecializationInfo.GetSpecializationInfo without a spec (author,
+-- 2026-11-11: list names showed as "BiS, BiS" with no tree name), so the talent-tab API
+-- is asked when it gives nothing. Returns the spec ID (the tab index on the
+-- classic API), its name and the points spent, or nil.
+function Compat.TalentTree(tree)
+    local api = C_SpecializationInfo
+    if api and api.GetSpecializationInfo then
+        local ok, specID, name, _, _, _, _, pointsSpent = pcall(api.GetSpecializationInfo, tree)
+        if ok and specID and specID ~= 0 and name then return specID, name, pointsSpent or 0 end
+    end
+    return TalentTabInfo(tree)
+end
+
+-- A character name without the realm when it is the player's realm (Ambiguate);
+-- the part before "-" where Ambiguate is missing.
+function Compat.ShortName(name)
+    if not name then return nil end
+    if Ambiguate then return Ambiguate(name, "none") end
+    return (name:match("^([^%-]+)")) or name
+end
+
 -- The player's chosen specialization index, or nil. C_SpecializationInfo's version is
 -- preferred, the global (MoP Classic) is the fallback; looked up on each call, since
 -- only clients with ns.Features.HasSpecChoice ask.

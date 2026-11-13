@@ -19,10 +19,6 @@ function ns:RegisterModule(name, module)
     return module
 end
 
-function ns:GetModule(name)
-    return self.Modules[name]
-end
-
 -- tostring every argument, nils included, and join with spaces.
 local function Join(...)
     local parts = {}
@@ -31,7 +27,6 @@ local function Join(...)
     end
     return table.concat(parts, " ")
 end
-ns.Join = Join
 
 local PREFIX = "|cff33ccff[GudaBiS]|r "
 

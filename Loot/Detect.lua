@@ -3,7 +3,9 @@
 --
 -- Blizzard group loot: START_LOOT_ROLL. The Need/Greed popup gets our glowing badge
 -- and the proc glow on its item icon (author, 2026-10-28: the item, not the button);
--- no popup of ours.
+-- no popup of ours. The roll counts as the item's toast and its roll call, so the
+-- leader linking it afterwards opens no card of ours, and the sound plays once per
+-- ITEM_WINDOW like the toast (GB-157).
 --
 -- Chat, from the raid leader, an assistant or the master looter only (anyone else
 -- linking an item is ignored), matched by item ID inside the links, never by the words
@@ -22,7 +24,9 @@
 -- within that time gets no second alert.
 --
 -- Every matched drop also goes to AutoRoll (GB-070), whether or not alerts are on; a
--- raid-warning item it rolled for gets no "Rolling now" popup.
+-- raid-warning item it rolled for gets no "Rolling now" popup. Matched chat links go to
+-- History (with the match already made) whenever it is recording, whatever the alert
+-- settings (GB-159).
 --
 -- On clients where group chat can be a secret value (ns.Features.ChatLockdown), chat is
 -- skipped while C_ChatInfo.InChatMessagingLockdown() is true, and any message or sender
@@ -50,12 +54,7 @@ local function Recent(seen, itemID, now)
     return seen[itemID] ~= nil and now - seen[itemID] <= ITEM_WINDOW
 end
 
-local function ShortName(name)
-    if not name then return nil end
-    if Ambiguate then return Ambiguate(name, "none") end
-    return (name:match("^([^%-]+)")) or name
-end
-Detect.ShortName = ShortName
+local ShortName = ns.Compat.ShortName
 
 local function MasterLooterName()
     local api = C_PartyInfo
@@ -116,12 +115,13 @@ end
 
 local function OnChat(event, message, sender)
     local alerts = ns.Alerts:Enabled()
-    if not (alerts or ns.AutoRoll:Active()) or type(message) ~= "string" then return end
+    local rolling = ns.AutoRoll:Active()
+    if not (alerts or rolling or ns.History:Recording()) or type(message) ~= "string" then return end
     if ns.Compat.IsSecret(message) or ns.Compat.IsSecret(sender) or ChatLocked() then return end
     if not message:find("|Hitem:", 1, true) then return end
     if not Detect.IsLootAuthority(sender) then return end
     local now = GetTime()
-    local warning = event == "CHAT_MSG_RAID_WARNING"
+    local warning = event == "CHAT_MSG_RAID_WARNING" and (alerts or rolling)
     for link in message:gmatch("|c%x+|Hitem:.-|h.-|h|r") do
         local itemID = Match.ItemIDFromLink(link)
         local match = itemID and Match:Item(itemID, nil, link)
@@ -130,7 +130,7 @@ local function OnChat(event, message, sender)
                 ns.Alerts:Dropped(link, match)
                 lastDropped[itemID] = now
             end
-            ns.History:Seen(link)
+            ns.History:Seen(link, match)
             if warning and not Recent(rolledFor, itemID, now) then
                 local seconds = Detect.RollSeconds(message)
                 local function Rolled() rolledFor[itemID] = GetTime() end
@@ -163,13 +163,17 @@ local function OnStartLootRoll(_, rollID)
     local itemID = Match.ItemIDFromLink(link)
     local match = itemID and Match:Item(itemID, nil, link)
     if not match then return end
+    local now = GetTime()
+    local announced = Recent(lastDropped, itemID, now)
+    lastDropped[itemID] = now
+    rolledFor[itemID] = now
     ns.AutoRoll:GroupLoot(rollID, link, match)
     if not alerts then return end
     C_Timer.After(0, function()
         local frame, index = FindRollFrame(rollID)
         if not frame then return end
         ns.Alerts:Badge(frame, match, ns.Compat.GetGroupLootIcon(index))
-        ns.Alerts:Sound()
+        if not announced then ns.Alerts:Sound() end
     end)
 end
 

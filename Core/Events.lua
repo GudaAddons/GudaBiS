@@ -112,6 +112,18 @@ function Events:IsInGroup()
     return inGroup
 end
 
+-- Another addon's hook (the integrations): tried at GBIS_INITIALIZED and whenever one of
+-- `names` (a set) loads, until hook() returns true; then ADDON_LOADED stops listening.
+function Events:HookAddon(names, hook, owner)
+    local function Try()
+        if hook() then self:Unregister("ADDON_LOADED", owner) end
+    end
+    self:Register("GBIS_INITIALIZED", Try, owner)
+    self:Register("ADDON_LOADED", function(_, name)
+        if names[name] then Try() end
+    end, owner)
+end
+
 -- Runs fn once, when this addon's own ADDON_LOADED arrives (SavedVariables are ready).
 function Events:OnAddonLoaded(fn, owner)
     self:Register("ADDON_LOADED", function(_, name)

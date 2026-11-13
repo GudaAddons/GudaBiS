@@ -70,7 +70,9 @@ local function OnLevelUp(_, level)
     if levelPhase ~= before then ns.Events:Fire("GBIS_PHASE_CHANGED") end
 end
 
-if ByLevel() then ns.Events:Register("PLAYER_LEVEL_UP", OnLevelUp, "Lists") end
+ns.Events:Register("GBIS_INITIALIZED", function()
+    if ByLevel() then ns.Events:Register("PLAYER_LEVEL_UP", OnLevelUp, "Lists") end
+end, "Lists")
 
 -- On level-cap data a pick by hand holds until the character levels into another
 -- bracket (selection.levelPhase remembers the bracket it was made in); then the phase
@@ -131,15 +133,19 @@ function Lists:Choices()
     return out
 end
 
-local function DefaultGuideList(choices)
+-- skipID: a list never chosen (the OS list, when this picks the default MS).
+local function DefaultGuideList(choices, skipID)
     local tree = ns.Spec:ActiveTree()
     for _, list in ipairs(choices) do
-        if not list.custom and list.tree == tree then return list end
+        if not list.custom and list.tree == tree and list.id ~= skipID then return list end
     end
     for _, list in ipairs(choices) do
-        if not list.custom then return list end
+        if not list.custom and list.id ~= skipID then return list end
     end
-    return choices[1]
+    for _, list in ipairs(choices) do
+        if list.id ~= skipID then return list end
+    end
+    return nil
 end
 
 -- On level-cap data a saved guide list ID names one bracket, but what the character
@@ -356,17 +362,8 @@ function Lists:MainSpec()
     if roles and roles.ms == false then return nil end
     local list = roles and self:InCurrentBracket(self:Get(roles.ms))
     if list then return list end
-    local candidates = ClassLists(self:Phase())
-    local offSpec = self:OffSpec()
-    local os = offSpec and offSpec.id
-    if os then
-        local kept = {}
-        for _, guide in ipairs(candidates) do
-            if guide.id ~= os then kept[#kept + 1] = guide end
-        end
-        candidates = kept
-    end
-    return DefaultGuideList(candidates)
+    local offSpec = roles and self:InCurrentBracket(self:Get(roles.os))
+    return DefaultGuideList(ClassLists(self:Phase()), offSpec and offSpec.id)
 end
 
 function Lists:OffSpec()
@@ -422,7 +419,9 @@ function Lists:GuideItemsForSlot(slot)
     return out
 end
 
--- Which equip locations fit each INVSLOT.
+-- Which equip locations fit each INVSLOT. Without a ranged slot (MoP, Retail) bows,
+-- guns, crossbows and wands are held in the main hand; with Titan's Grip a two-hander
+-- also fits the off hand (GB-156).
 local FITS = {
     [1] = { INVTYPE_HEAD = true }, [2] = { INVTYPE_NECK = true }, [3] = { INVTYPE_SHOULDER = true },
     [15] = { INVTYPE_CLOAK = true }, [5] = { INVTYPE_CHEST = true, INVTYPE_ROBE = true },
@@ -434,6 +433,13 @@ local FITS = {
     [17] = { INVTYPE_WEAPON = true, INVTYPE_WEAPONOFFHAND = true, INVTYPE_SHIELD = true, INVTYPE_HOLDABLE = true },
     [18] = { INVTYPE_RANGED = true, INVTYPE_RANGEDRIGHT = true, INVTYPE_THROWN = true, INVTYPE_RELIC = true },
 }
+if not ns.Features.HasRangedSlot then
+    FITS[16].INVTYPE_RANGED = true
+    FITS[16].INVTYPE_RANGEDRIGHT = true
+end
+if ns.Features.HasTitansGrip then
+    FITS[17].INVTYPE_2HWEAPON = true
+end
 
 function Lists.FitsSlot(equipLoc, slot)
     local fits = FITS[slot]

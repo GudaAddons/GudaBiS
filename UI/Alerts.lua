@@ -34,12 +34,12 @@ local GetItemInfoInstant = ns.GetItemInfoInstant
 
 local TOAST_SECONDS = 15
 local DEFAULT_ROLL_SECONDS = 30
-local BADGE_COLORS = { ms = { 1, 1, 1 }, os = { 0.55, 0.85, 1 }, wish = { 1, 0.6, 1 } }
-local TITLE_COLORS = { ms = { 1, 0.82, 0 }, os = { 0.55, 0.85, 1 }, wish = { 1, 0.6, 1 } }
+local BADGE_COLORS = ns.Theme.BADGE_COLORS
+local TITLE_COLORS = ns.Theme.TITLE_COLORS
 local BADGE_PADDING = 18
 local RAID_WARNING_SOUND = 8959
 
-local ALERT_ART = "Interface\\SpellActivationOverlay\\IconAlert"
+local ALERT_ART = ns.Theme.ICON_ALERT
 local SPARK_COORDS = { 0.00781250, 0.61718750, 0.00390625, 0.26953125 }
 
 local SLOT_LABELS = {

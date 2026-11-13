@@ -229,6 +229,7 @@ local function CreateRow(index)
     return row
 end
 
+-- The check texture is green itself: yellow needs it greyed first, then tinted.
 local function PaintCheck(row)
     if Kind() ~= "item" then
         row.check:Hide()
@@ -240,7 +241,6 @@ local function PaintCheck(row)
         row.check:SetVertexColor(0.7, 0.7, 0.7)
         row.check:Show()
     elseif ns.Owned:Has(row.id) then
-        -- The check texture is green itself: yellow needs it greyed first, then tinted.
         local lower = ranked and ns.Owned:LevelState(ranked.list, row.id) == "lower"
         row.check:SetDesaturated(lower)
         if lower then

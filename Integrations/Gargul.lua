@@ -41,7 +41,10 @@ local function GargulFlagged(link)
     return ok and interesting == true
 end
 
+-- Gargul reuses its roll window, so the last roll-off's badge is cleared first (Rule 5,
+-- GB-158); a matching item gets a new one a frame later.
 local function OnRollOffStarted()
+    ns.Alerts:ClearBadge(_G[WINDOW])
     if not ns.Alerts:Enabled() then return end
     local rollOff = CurrentRollOff()
     local current = rollOff and rollOff.CurrentRollOff
@@ -60,22 +63,17 @@ end
 local hooked = false
 
 local function Hook()
-    if hooked then return end
+    if hooked then return true end
     local gl = Gargul()
     local events = gl and gl.Events
-    if type(events) ~= "table" or type(events.register) ~= "function" then return end
+    if type(events) ~= "table" or type(events.register) ~= "function" then return false end
     local ok, err = pcall(events.register, events, LISTENER, "GL.ROLLOFF_STARTED", function()
         local fine, failure = pcall(OnRollOffStarted)
         if not fine then ns:Debug("Gargul roll-off:", failure) end
     end)
-    if ok then
-        hooked = true
-    else
-        ns:Debug("Gargul hook failed:", err)
-    end
+    if not ok then ns:Debug("Gargul hook failed:", err) end
+    hooked = ok
+    return ok
 end
 
-ns.Events:Register("GBIS_INITIALIZED", Hook, "GargulBridge")
-ns.Events:Register("ADDON_LOADED", function(_, name)
-    if name == "Gargul" then Hook() end
-end, "GargulBridge")
+ns.Events:HookAddon({ Gargul = true }, Hook, "GargulBridge")

@@ -66,17 +66,15 @@ local function OnUpdate()
 end
 
 local function Hook()
-    if lootFrame then return end
+    if lootFrame then return true end
     local module = LootFrameModule()
-    if type(module) ~= "table" or type(module.Update) ~= "function" then return end
+    if type(module) ~= "table" or type(module.Update) ~= "function" then return false end
     lootFrame = module
     hooksecurefunc(module, "Update", function()
         local ok, err = pcall(OnUpdate)
         if not ok then ns:Debug("RCLootCouncil update:", err) end
     end)
+    return true
 end
 
-ns.Events:Register("GBIS_INITIALIZED", Hook, "RCLootCouncilBridge")
-ns.Events:Register("ADDON_LOADED", function(_, name)
-    if ADDON_NAMES[name] then Hook() end
-end, "RCLootCouncilBridge")
+ns.Events:HookAddon(ADDON_NAMES, Hook, "RCLootCouncilBridge")

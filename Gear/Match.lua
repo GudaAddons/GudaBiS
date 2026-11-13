@@ -26,13 +26,14 @@ local L = ns.L
 local Match = ns:RegisterModule("Match")
 
 local LIST_ROLES = { "ms", "os" }
+local NO_ALTS = {}
 
 local function RankIn(list, itemID)
     if not list then return nil end
     for slot, id in pairs(list.items) do
         if id == itemID then return 1, slot end
     end
-    for slot, alts in pairs(list.alts or {}) do
+    for slot, alts in pairs(list.alts or NO_ALTS) do
         for i, id in ipairs(alts) do
             if id == itemID then return i + 1, slot end
         end

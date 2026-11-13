@@ -104,4 +104,24 @@ return function(T, H)
         ns.Events:RegisterGroup("START_LOOT_ROLL", function() end, "Loot")
         T.ok(H.Registered("START_LOOT_ROLL"), "registered from the first call")
     end)
+
+    T.case("HookAddon: tried at init and on the named addon, then stops listening", function()
+        H.Install()
+        local ns = H.Load()
+        local tries, ready = 0, false
+        ns.Events:HookAddon({ Other = true }, function()
+            tries = tries + 1
+            return ready
+        end, "Bridge")
+        H.Fire("ADDON_LOADED", "GudaBiS")
+        T.eq(tries, 1, "at GBIS_INITIALIZED")
+        H.Fire("ADDON_LOADED", "Unrelated")
+        T.eq(tries, 1, "other addons ignored")
+        ready = true
+        H.Fire("ADDON_LOADED", "Other")
+        T.eq(tries, 2, "when it loads")
+        H.Fire("ADDON_LOADED", "Other")
+        T.eq(tries, 2, "hooked: no more tries")
+        T.noErrors()
+    end)
 end

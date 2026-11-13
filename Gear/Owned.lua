@@ -97,17 +97,25 @@ local function ShortName(key)
     return (key:match("^([^%-]+)")) or key
 end
 
--- How the account has this item: "equipped", "bags", "bank", "manual" (marked owned),
--- "skip" (marked not needed), "alt" (another character, its name second), or nil.
-function Owned:State(itemID)
-    local char = ns.Database:Char()
-    if not char or not itemID then return nil end
+-- How this character has the item, without looking at the others: what Has needs, so
+-- the loot path (Match, every loot line) never walks every character (GB-160).
+local function OwnState(char, itemID)
     local mark = char.manual and char.manual[itemID]
     if mark == false then return "skip" end
     if char.equipped and char.equipped[itemID] then return "equipped" end
     if char.bags and char.bags[itemID] then return "bags" end
     if char.bank and char.bank[itemID] then return "bank" end
     if mark == true then return "manual" end
+    return nil
+end
+
+-- How the account has this item: "equipped", "bags", "bank", "manual" (marked owned),
+-- "skip" (marked not needed), "alt" (another character, its name second), or nil.
+function Owned:State(itemID)
+    local char = ns.Database:Char()
+    if not char or not itemID then return nil end
+    local own = OwnState(char, itemID)
+    if own then return own end
     local me = ns.Database:PlayerKey()
     for key, other in pairs(ns.db.chars) do
         if key ~= me and ((other.equipped and other.equipped[itemID])
@@ -137,7 +145,9 @@ end
 -- Owned counts as done for the slot: on this character or marked by hand. An item on
 -- another character still needs moving, so it is shown but does not complete the slot.
 function Owned:Has(itemID)
-    return OWNED_STATES[self:State(itemID)] == true
+    local char = ns.Database:Char()
+    if not char or not itemID then return false end
+    return OWNED_STATES[OwnState(char, itemID)] == true
 end
 
 -- Right-click on a slot: an item that counts as owned is marked "not needed" so it
@@ -155,12 +165,6 @@ function Owned:ToggleManual(itemID)
     ns.Events:Fire("GBIS_OWNED_CHANGED")
 end
 
--- The check a slot shows, about the item shown only (author, 2026-10-28): "best" when
--- this character has it, "elsewhere" when only another character does, else nil.
--- Alternatives never mark the slot. `has(itemID)` and `state(itemID)` are passed in so
--- this stays pure.
--- The highest item level among the player's equipped and bagged copies of itemID, or
--- nil when there is none there (or the client cannot tell).
 -- One copy's item level. Retail reads the item where it sits (C_Item.GetCurrentItemLevel
 -- on an ItemLocation), which needs no cached item data; the item link's level is the
 -- fallback (author, 2026-10-28: a 259 bag item read as unknown and stayed green).
@@ -183,6 +187,8 @@ local function BagLocation(bag, slot)
     return ItemLocation and ItemLocation.CreateFromBagAndSlot and ItemLocation:CreateFromBagAndSlot(bag, slot) or nil
 end
 
+-- The highest item level among the player's equipped and bagged copies of itemID, or
+-- nil when there is none there (or the client cannot tell).
 function Owned:BestLevel(itemID)
     if not itemID then return nil end
     local best
@@ -223,6 +229,10 @@ function Owned.LevelStatus(have, target)
     return have < target and "lower" or "full"
 end
 
+-- The check a slot shows, about the item shown only (author, 2026-10-28): "best" when
+-- this character has it, "elsewhere" when only another character does, else nil.
+-- Alternatives never mark the slot. `has(itemID)` and `state(itemID)` are passed in so
+-- this stays pure.
 function Owned.SlotStatus(list, slot, has, state)
     if not list then return nil end
     local best = list.items[slot]
@@ -232,20 +242,21 @@ function Owned.SlotStatus(list, slot, has, state)
     return nil
 end
 
-local events = ns.Events
-
-events:Register("PLAYER_LOGIN", function()
-    Owned:ScanEquipped()
-    Owned:ScanBags()
+ns.Events:Register("GBIS_INITIALIZED", function()
+    local events = ns.Events
+    events:Register("PLAYER_LOGIN", function()
+        Owned:ScanEquipped()
+        Owned:ScanBags()
+    end, "Owned")
+    events:Register("PLAYER_EQUIPMENT_CHANGED", function() Owned:ScanEquipped() end, "Owned")
+    events:Register("BAG_UPDATE_DELAYED", function()
+        Owned:ScanBags()
+        Owned:ScanBank()
+    end, "Owned")
+    events:Register("BANKFRAME_OPENED", function()
+        bankOpen = true
+        Owned:ScanBank()
+    end, "Owned")
+    events:Register("PLAYERBANKSLOTS_CHANGED", function() Owned:ScanBank() end, "Owned")
+    events:Register("BANKFRAME_CLOSED", function() bankOpen = false end, "Owned")
 end, "Owned")
-events:Register("PLAYER_EQUIPMENT_CHANGED", function() Owned:ScanEquipped() end, "Owned")
-events:Register("BAG_UPDATE_DELAYED", function()
-    Owned:ScanBags()
-    Owned:ScanBank()
-end, "Owned")
-events:Register("BANKFRAME_OPENED", function()
-    bankOpen = true
-    Owned:ScanBank()
-end, "Owned")
-events:Register("PLAYERBANKSLOTS_CHANGED", function() Owned:ScanBank() end, "Owned")
-events:Register("BANKFRAME_CLOSED", function() bankOpen = false end, "Owned")

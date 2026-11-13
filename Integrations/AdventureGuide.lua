@@ -100,10 +100,4 @@ function AdventureGuideBridge:Hook()
     return true
 end
 
-ns.Events:Register("GBIS_INITIALIZED", function()
-    local loaded = ns.IsAddOnLoaded
-    if loaded and loaded(GUIDE_ADDON) then AdventureGuideBridge:Hook() end
-end, "AdventureGuideBridge")
-ns.Events:Register("ADDON_LOADED", function(_, name)
-    if name == GUIDE_ADDON then AdventureGuideBridge:Hook() end
-end, "AdventureGuideBridge")
+ns.Events:HookAddon({ [GUIDE_ADDON] = true }, function() return AdventureGuideBridge:Hook() end, "AdventureGuideBridge")

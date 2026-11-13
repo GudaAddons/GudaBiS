@@ -24,6 +24,16 @@ Theme.COLORS = {
     highlight = { 1, 1, 1, 0.15 },
 }
 
+-- Role colours, by match role (ms, os, wish) and "none": text tags in lists, menus and
+-- the History tab; the badge on loot frames; the title of the alert cards.
+Theme.ROLE_TEXT = { ms = "|cff40ff40%s|r", os = "|cff40c0ff%s|r", wish = "|cffff80ff%s|r", none = "|cff808080%s|r" }
+Theme.BADGE_COLORS = { ms = { 1, 1, 1 }, os = { 0.55, 0.85, 1 }, wish = { 1, 0.6, 1 } }
+Theme.TITLE_COLORS = { ms = { 1, 0.82, 0 }, os = { 0.55, 0.85, 1 }, wish = { 1, 0.6, 1 } }
+
+Theme.LOGO = "Interface\\AddOns\\GudaBiS\\Assets\\logo.png"
+Theme.ICON_ALERT = "Interface\\SpellActivationOverlay\\IconAlert"
+Theme.EMPTY_SLOT = "Interface\\PaperDoll\\UI-Backpack-EmptySlot"
+
 local TOOLTIP_BACKDROP = {
     bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
     edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",

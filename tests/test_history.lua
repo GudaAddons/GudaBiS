@@ -151,6 +151,16 @@ return function(T, H)
         end
     end)
 
+    T.case("leader's links are seen with alerts off and auto-roll off", function()
+        local ns = InRaid()
+        ns.db.settings.alerts.enabled = false
+        H.Fire("CHAT_MSG_RAID", Link(32521), "Boss")
+        local drops = ns.History:Sessions("raids")[1].drops
+        T.eq(#drops, 1, "seen")
+        T.eq(drops[1].winner, nil, "no winner yet")
+        T.noErrors()
+    end)
+
     T.case("nothing is recorded outside instances or while solo", function()
         local ns = H.Boot()
         H.SetGroup(true)
