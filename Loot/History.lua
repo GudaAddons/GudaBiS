@@ -11,6 +11,8 @@
 --     templates in the client's language, never with words of ours (Rule 6)
 --   - drops seen before anyone has them: Blizzard group-loot rolls, and the items Detect
 --     matched in the loot master's links; they show as "seen" until someone receives them
+-- Chat text that is a secret value (Compat.IsSecret; 12.0 engine, inside instances) is
+-- skipped: such loot is not recorded and such a reset does not close the dungeon run.
 -- Epic and better in raids, rare and better in dungeons; an item on the character's
 -- lists is always kept. Each entry remembers how it matched at the time (BiS, alt, OS).
 --
@@ -96,7 +98,8 @@ end
 local captured = {}
 
 function History.ParseLoot(message)
-    if type(message) ~= "string" or not message:find("|Hitem:", 1, true) then return nil end
+    if type(message) ~= "string" or ns.Compat.IsSecret(message) then return nil end
+    if not message:find("|Hitem:", 1, true) then return nil end
     for _, entry in ipairs(LootPatterns()) do
         local a, b = message:match(entry.pattern)
         if a then
@@ -212,8 +215,9 @@ local resetPattern
 
 local function OnSystem(_, message)
     if not current or current.kind ~= "dungeons" then return end
+    if type(message) ~= "string" or ns.Compat.IsSecret(message) then return end
     resetPattern = resetPattern or History.Pattern(INSTANCE_RESET_SUCCESS)
-    if resetPattern and type(message) == "string" and message:match(resetPattern) then CloseDungeon() end
+    if resetPattern and message:match(resetPattern) then CloseDungeon() end
 end
 
 local function OnEnteringWorld()

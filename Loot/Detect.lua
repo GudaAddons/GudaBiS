@@ -25,7 +25,8 @@
 -- raid-warning item it rolled for gets no "Rolling now" popup.
 --
 -- On clients where group chat can be a secret value (ns.Features.ChatLockdown), chat is
--- skipped while C_ChatInfo.InChatMessagingLockdown() is true.
+-- skipped while C_ChatInfo.InChatMessagingLockdown() is true, and any message or sender
+-- that is a secret value (Compat.IsSecret) is skipped before its text is read.
 
 local addonName, ns = ...
 
@@ -116,7 +117,8 @@ end
 local function OnChat(event, message, sender)
     local alerts = ns.Alerts:Enabled()
     if not (alerts or ns.AutoRoll:Active()) or type(message) ~= "string" then return end
-    if not message:find("|Hitem:", 1, true) or ChatLocked() then return end
+    if ns.Compat.IsSecret(message) or ns.Compat.IsSecret(sender) or ChatLocked() then return end
+    if not message:find("|Hitem:", 1, true) then return end
     if not Detect.IsLootAuthority(sender) then return end
     local now = GetTime()
     local warning = event == "CHAT_MSG_RAID_WARNING"

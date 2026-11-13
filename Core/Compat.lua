@@ -41,6 +41,15 @@ for _, entry in ipairs(RELOCATED) do
     Compat.resolvedSource[name] = global and "global" or scoped and "namespace" or "MISSING"
 end
 
+-- True when value is a secret value (12.0 engine: Retail, Forever). Chat text inside an
+-- instance can be one; type() still says "string", but indexing or matching it from
+-- addon code is an error, so chat handlers ask this before reading the text. Clients
+-- without issecretvalue have no secret values.
+function Compat.IsSecret(value)
+    local check = issecretvalue
+    return check ~= nil and check(value) == true
+end
+
 -- The player's chosen specialization index, or nil. C_SpecializationInfo's version is
 -- preferred, the global (MoP Classic) is the fallback; looked up on each call, since
 -- only clients with ns.Features.HasSpecChoice ask.

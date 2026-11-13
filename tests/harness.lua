@@ -24,6 +24,20 @@ local function FileExists(path)
     return file ~= nil
 end
 
+local rawtype = type
+local secrets = {}
+
+-- A stand-in for chat text the client hides (see Install): reading it errors the way
+-- the game does, so a handler that forgets Compat.IsSecret fails its test.
+function H.Secret()
+    local value = newproxy(true)
+    local meta = getmetatable(value)
+    meta.__index = function() error("attempt to index a secret string value", 2) end
+    meta.__tostring = function() error("attempt to read a secret string value", 2) end
+    secrets[value] = true
+    return value
+end
+
 function H.TocFor(client)
     if client.toc and FileExists(ROOT .. "/" .. client.toc) then return client.toc end
     return "GudaBiS_TBC.toc"
@@ -190,6 +204,16 @@ function H.Install(opts)
     _G.GetLocale = function() return opts.locale or "enUS" end
 
     local modern = client.iface >= 100000 or (client.iface >= 16000 and client.iface < 20000)
+
+    -- Secret values (12.0 engine): H.Secret(text) stands in for chat text the client
+    -- hides. Like the real one, type() says "string" and indexing it is an error.
+    -- issecretvalue exists only on modern clients.
+    secrets = setmetatable({}, { __mode = "k" })
+    _G.type = function(value)
+        if secrets[value] then return "string" end
+        return rawtype(value)
+    end
+    _G.issecretvalue = modern and function(value) return secrets[value] == true end or nil
 
     -- Item data: H.cached[itemID] = true makes GetItemInfo answer; Item mixin loads
     -- queue in H.itemLoads until H.LoadItems() runs them.

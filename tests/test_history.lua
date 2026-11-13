@@ -137,6 +137,20 @@ return function(T, H)
         T.eq(#ns.History:Sessions("dungeons"), 3, "another instance in between")
     end)
 
+    T.case("secret chat text (12.0 engine) is skipped, not read", function()
+        for _, client in ipairs({ "retail", "forever" }) do
+            local ns = InRaid({ client = client })
+            Enter("Shadow Labyrinth", "party", 555)
+            Received("Boss", Link(28210, RARE))
+            H.Fire("CHAT_MSG_SYSTEM", H.Secret())
+            H.Fire("CHAT_MSG_LOOT", H.Secret())
+            T.eq(#H.errors, 0, client .. ": no error")
+            T.eq(#ns.History:Sessions("dungeons"), 1, client .. ": run kept")
+            T.eq(#ns.History:Sessions("dungeons")[1].drops, 1, client .. ": nothing added")
+            T.eq(ns.History.ParseLoot(H.Secret()), nil, client .. ": ParseLoot")
+        end
+    end)
+
     T.case("nothing is recorded outside instances or while solo", function()
         local ns = H.Boot()
         H.SetGroup(true)

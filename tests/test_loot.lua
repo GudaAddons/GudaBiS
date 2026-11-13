@@ -227,6 +227,15 @@ return function(T, H)
         _G.C_ChatInfo = nil
     end)
 
+    T.case("secret chat text or sender (12.0 engine) is skipped, not read", function()
+        InRaid({ client = "retail" })
+        H.Fire("CHAT_MSG_RAID_WARNING", H.Secret(), "Boss")
+        H.Fire("CHAT_MSG_RAID_WARNING", Link(32521), H.Secret())
+        H.Advance(1)
+        T.eq(#H.errors, 0, "no error")
+        T.ok(not Toast() and not Popup(), "silent")
+    end)
+
     T.case("Gargul: badge on its roll window, no popup of ours, quiet when Gargul flagged it", function()
         local registered
         H.Install()
